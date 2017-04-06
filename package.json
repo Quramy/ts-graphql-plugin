@@ -9,8 +9,7 @@
     "test": "npm run lint",
     "compile": "tsc -p .",
     "clean": "rimraf built",
-    "watch": "tsc -w -p .",
-    "prepublish": "rimraf built && npm run compile"
+    "watch": "tsc -w -p ."
   },
   "author": "Quramy",
   "license": "MIT",
