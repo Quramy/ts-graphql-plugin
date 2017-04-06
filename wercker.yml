@@ -23,7 +23,4 @@ build:
 
 deploy:
   steps:
-    - script:
-      name: publish
-      code: |
-        npm publish
+    - turistforeningen/npm-publish
