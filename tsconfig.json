@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "declaration": true,
     "target": "es5",
     "sourceMap": false,
     "outDir": "built",
+    "declarationDir": "types",
     "rootDir": "src",
-    "lib": ["es2015"]
+    "lib": ["es2015"],
+    "typeRoots": ["./node_modules/@types", "./typedef"]
   },
-  "exclude": ["built", "node_modules"]
+  "exclude": ["built", "types", "typedef", "node_modules"]
 }

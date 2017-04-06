@@ -1,5 +1,6 @@
 node_modules/
 built/
+types/
 *.log
 *.swp
 *.swo

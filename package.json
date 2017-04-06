@@ -1,12 +1,14 @@
 {
   "name": "ts-graphql-plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript Language Service Plugin for GraphQL",
   "main": "built/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "compile": "tsc -p .",
+    "clean": "rimraf built",
     "watch": "tsc -w -p .",
-    "prepublish": "npm run compile"
+    "prepublish": "rimraf built && npm run compile"
   },
   "author": "Quramy",
   "license": "MIT",
@@ -15,8 +17,9 @@
     "graphql-language-service-interface": "0.0.4"
   },
   "devDependencies": {
-    "typescript": "^2.2.2",
-    "@types/node": "^7.0.8"
+    "@types/node": "^7.0.8",
+    "rimraf": "^2.6.1",
+    "typescript": "^2.2.2"
   },
   "peerDependencies": {
     "typescript": "^2.2.2"
