@@ -3,7 +3,7 @@
     "module": "commonjs",
     "declaration": true,
     "target": "es5",
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "built",
     "declarationDir": "types",
     "rootDir": "src",
