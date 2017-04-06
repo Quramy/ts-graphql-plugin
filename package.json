@@ -2,6 +2,7 @@
   "name": "ts-graphql-plugin",
   "version": "0.1.2",
   "description": "TypeScript Language Service Plugin for GraphQL",
+  "keywords": ["typescript", "graphql", "language service"],
   "main": "built/index.js",
   "types": "types/index.d.ts",
   "scripts": {
@@ -15,6 +16,10 @@
   "license": "MIT",
   "dependencies": {
     "graphql-language-service-interface": "0.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "devDependencies": {
     "@types/node": "^7.0.8",
