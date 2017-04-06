@@ -26,4 +26,4 @@ deploy:
     - script:
       name: publish
       code: |
-        npm run publish
+        npm publish
