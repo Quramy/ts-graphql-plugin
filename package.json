@@ -6,6 +6,7 @@
   "types": "types/index.d.ts",
   "scripts": {
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
+    "test": "npm run lint",
     "compile": "tsc -p .",
     "clean": "rimraf built",
     "watch": "tsc -w -p .",
