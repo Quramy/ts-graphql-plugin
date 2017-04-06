@@ -25,7 +25,7 @@ export class SchamaJsonManager {
   registerOnChange(cb: (schema: any) => void) {
     this._onChanges.push(cb);
     return () => {
-      this._onChanges.filter(x => x !== cb);
+      this._onChanges = this._onChanges.filter(x => x !== cb);
     };
   }
 
