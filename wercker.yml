@@ -1,11 +1,6 @@
 box: node:6
 build:
   steps:
-    # - script:
-    #   name: install yarn
-    #   code: |
-    #     npm install -g yarn
-
     - script:
       name: set yarn cache
       code: |
