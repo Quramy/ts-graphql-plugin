@@ -20,3 +20,10 @@ build:
       name: build
       code: |
         yarn run compile
+
+deploy:
+  steps:
+    - script:
+      name: publish
+      code: |
+        npm run publish
