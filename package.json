@@ -5,7 +5,7 @@
   "main": "built/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "lint": "tslint src/**/*.ts",
+    "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
     "compile": "tsc -p .",
     "clean": "rimraf built",
     "watch": "tsc -w -p .",

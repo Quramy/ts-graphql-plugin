@@ -17,8 +17,6 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     return findNode(info.languageService.getProgram().getSourceFile(fileName), position);
   };
   const logger = (msg: string) => info.project.projectService.logger.info(msg);
-  const program = info.languageService.getProgram();
-
   const schemaManager = new SchamaJsonManager(info);
   const schema = schemaManager.getSchema();
   const adapter = new GraphQLLanguageServiceAdapter(getNode, { schema, logger });
