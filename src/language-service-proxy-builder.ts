@@ -1,8 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-export interface LanguageServiceMethodWrapper<K extends keyof ts.LanguageService> {
-  (delegate: ts.LanguageService[K], info?: ts.server.PluginCreateInfo): ts.LanguageService[K];
-}
+export type LanguageServiceMethodWrapper<K extends keyof ts.LanguageService>
+  = (delegate: ts.LanguageService[K], info?: ts.server.PluginCreateInfo) => ts.LanguageService[K];
 
 export class LanguageServiceProxyBuilder {
 

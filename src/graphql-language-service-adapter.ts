@@ -8,10 +8,11 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   logger?: (msg: string) => void;
 }
 
+export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
+
 export class GraphQLLanguageServiceAdapter {
 
   private _schema: any;
-  private _logger: (msg: string) => void = () => { };
 
   constructor(
     private _getNode: (fileName: string, position) => ts.Node = () => null,
@@ -25,7 +26,7 @@ export class GraphQLLanguageServiceAdapter {
     this._schema = buildClientSchema(schema.data);
   }
 
-  getCompletionInfo(delegate: (fileName: string, position: number) => ts.CompletionInfo, fileName: string, position: number, ) {
+  getCompletionInfo(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
     if (!this._schema) return delegate(fileName, position);
     const node = this._getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
@@ -37,6 +38,8 @@ export class GraphQLLanguageServiceAdapter {
     this._logger(JSON.stringify(gqlCompletionItems));
     return translateCompletionItems(gqlCompletionItems);
   }
+
+  private _logger: (msg: string) => void = () => { };
 
 }
 
