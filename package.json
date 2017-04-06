@@ -1,6 +1,6 @@
 {
   "name": "ts-graphql-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TypeScript Language Service Plugin for GraphQL",
   "main": "built/index.js",
   "types": "types/index.d.ts",
