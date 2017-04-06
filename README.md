@@ -15,11 +15,15 @@ This plugin extends TypeScript Language Service and provides the following featu
 
 ## Usage
 
+First, confirm that your project has typescript(v2.3.x or later) and graphql.
+
+To install this plugin, execute the following:
+
 ```sh
 npm install ts-graphql-plugin -D
 ```
 
-Configure `plugins` section of your tsconfig.json, for example:
+And configure `plugins` section of your tsconfig.json, for example:
 
 ```json
 {
