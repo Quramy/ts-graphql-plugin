@@ -39,7 +39,7 @@ export class GraphQLLanguageServiceAdapter {
       return delegate(fileName, position);
     }
     const cursor = position - node.getStart();
-    const text = node.getText().slice(1);  // remove the backquote char
+    const text = node.getText().slice(1, cursor + 1);  // remove the backquote char
     this._logger('Search text: "' + text + '"');
     const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, cursor);
     this._logger(JSON.stringify(gqlCompletionItems));
