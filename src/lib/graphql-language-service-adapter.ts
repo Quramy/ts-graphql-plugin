@@ -1,7 +1,12 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
-
 import { buildClientSchema } from 'graphql';
-import { CompletionItem, getAutocompleteSuggestions } from 'graphql-language-service-interface';
+import {
+  CompletionItem,
+  Diagnostic,
+  getAutocompleteSuggestions,
+  getDiagnostics,
+  Position,
+} from 'graphql-language-service-interface';
+import * as ts from 'typescript/lib/tsserverlibrary';
 import { isTagged, TagCondition } from './ts-util/index';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
@@ -11,6 +16,14 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
 }
 
 export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
+export type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'];
+
+export interface ScriptSourceHelper {
+  // getSource: (fileName: string) => ts.SourceFile;
+  getAllNodes: (fileName: string, condition) => ts.Node[];
+  getNode: (fileName: string, position) => ts.Node;
+  getLineAndChar: (fileName: string, position) => ts.LineAndCharacter;
+}
 
 export class GraphQLLanguageServiceAdapter {
 
@@ -18,7 +31,7 @@ export class GraphQLLanguageServiceAdapter {
   private _tagCondition: TagCondition = null;
 
   constructor(
-    private _getNode: (fileName: string, position) => ts.Node = () => null,
+    private _helper: ScriptSourceHelper,
     opt: GraphQLLanguageServiceAdapterCreateOptions = { },
   ) {
       if (opt.logger) this._logger = opt.logger;
@@ -38,7 +51,7 @@ export class GraphQLLanguageServiceAdapter {
 
   getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
     if (!this._schema) return delegate(fileName, position);
-    const node = this._getNode(fileName, position);
+    const node = this._helper.getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
       return delegate(fileName, position);
     }
@@ -46,11 +59,44 @@ export class GraphQLLanguageServiceAdapter {
       return delegate(fileName, position);
     }
     const cursor = position - node.getStart();
+    const baseLC = this._helper.getLineAndChar(fileName, node.getStart());
+    const cursorLC = this._helper.getLineAndChar(fileName, position);
+    const relativeLC = { line: cursorLC.line - baseLC.line, character: cursorLC.character - baseLC.character + 1 };
+    const p = new SimplePosition(relativeLC);
     const text = node.getText().slice(1, cursor + 1);  // remove the backquote char
-    this._logger('Search text: "' + text + '"');
-    const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, cursor);
+    this._logger('Search text: "' + text + '" at ' + cursor + ' position');
+    const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, p);
     this._logger(JSON.stringify(gqlCompletionItems));
     return translateCompletionItems(gqlCompletionItems);
+  }
+
+  getSemanticDiagnostics(delegate: GetSemanticDiagnostics, fileName: string) {
+    const errors = delegate(fileName) || [];
+    if (!this._schema) return errors;
+    const allTemplateStringNodes = this._helper.getAllNodes(
+      fileName,
+      (n: ts.Node) => n.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral,
+    );
+    const nodes = allTemplateStringNodes.filter(n => {
+      if (!this._tagCondition) return true;
+      return isTagged(n, this._tagCondition);
+    });
+    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 2)), this._schema);
+    const result = errors;
+    diagonosticsList.forEach((diagnostics, i) => {
+      const node = nodes[i];
+      const nodeLC = this._helper.getLineAndChar(fileName, node.getStart());
+      diagnostics.forEach(d => {
+        const sl = nodeLC.line + d.range.start.line;
+        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character - 1;
+        const el = nodeLC.line + d.range.end.line;
+        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character - 1;
+        const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc);
+        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, ec);
+        result.push(translateDiagnostic(d, node.getSourceFile(), start, end - start));
+      });
+    });
+    return result;
   }
 
   private _logger: (msg: string) => void = () => { };
@@ -72,4 +118,35 @@ function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
     }),
   };
   return result;
+}
+
+function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
+  const code = typeof d.code === 'string' ? 10000 : d.code;
+  return {
+    code,
+    messageText: d.message,
+    category: d.severity as ts.DiagnosticCategory,
+    file,
+    start,
+    length,
+  };
+}
+
+class SimplePosition implements Position {
+
+  line: number;
+  character: number;
+
+  constructor(lc: ts.LineAndCharacter) {
+    this.line = lc.line;
+    this.character = lc.character;
+  }
+
+  lessThanOrEqualTo(p: Position) {
+    if (this.line < p.line) return true;
+    if (this.line > p.line) return false;
+    if (this.line === p.line) {
+      return this.character <= p.character;
+    }
+  }
 }

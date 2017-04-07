@@ -1,7 +1,10 @@
 import test from 'ava';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { GraphQLLanguageServiceAdapter } from '../../lib/graphql-language-service-adapter';
-import { findNode, isTagged } from '../../lib/ts-util/index';
+import {
+  GraphQLLanguageServiceAdapter,
+  ScriptSourceHelper,
+} from '../../lib/graphql-language-service-adapter';
+import { findAllNodes, findNode, isTagged } from '../../lib/ts-util/index';
 import { createSimpleSchema } from '../graphql-util/schema/simple-schema';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {
@@ -21,7 +24,18 @@ class AdapterFixture {
   constructor(name: string, schemaJson?: { data: any }) {
     this._source = ts.createSourceFile(name, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
     const getNode = (fileName: string, position: number) => findNode(this._source, position);
-    this.adapter = new GraphQLLanguageServiceAdapter(getNode, {
+    const getAllNodes = (findNode: string, cond: (n: ts.Node) => boolean) => {
+      return findAllNodes(this._source, cond);
+    };
+    const getLineAndChar = (fileName: string, position: number) => {
+      return ts.getLineAndCharacterOfPosition(this._source, position);
+    };
+    const helper: ScriptSourceHelper = {
+      getNode,
+      getAllNodes,
+      getLineAndChar,
+    };
+    this.adapter = new GraphQLLanguageServiceAdapter(helper, {
       schema: schemaJson,
       /* tslint:disable:no-console */
       // logger: msg => console.log(msg),
@@ -83,4 +97,10 @@ test('should return completion entries', async t => {
   fixture.source = 'const a = `query { }`';
   t.truthy(completionFn(17).entries);
   t.truthy(completionFn(17).entries.filter(e => e.name === 'hello').length, 'contains schema keyword');
+});
+
+test('s re', async t => {
+  const fixture = craeteFixture('input.ts', await createSimpleSchema());
+
+  t.pass();
 });

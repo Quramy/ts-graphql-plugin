@@ -1,4 +1,17 @@
 declare module 'graphql-language-service-interface' {
+
+  export interface Position {
+    line: number;
+    character: number;
+    lessThanOrEqualTo: (position: Position) => boolean;
+  }
+
+  export interface Range {
+    start: Position;
+    end: Position;
+    containsPosition: (position: Position) => boolean;
+  }
+
   export interface State {
     level: number;
     levels?: number[];
@@ -31,7 +44,27 @@ declare module 'graphql-language-service-interface' {
     deprecationReason?: string;
   }
 
-  export function getTokenAtPosition(queryText: string, cursor: number): ContextToken;
+  export type CustomValidationRule = any; // TODO
 
-  export function getAutocompleteSuggestions(schema: any, queryText: string, cursor: number, contextToken?: ContextToken): CompletionItem[]; 
+  export interface Diagnostic {
+    range: Range;
+    severity?: number;
+    code?: number | string;
+    source?: string;
+    message: string;
+  }
+
+  export function getAutocompleteSuggestions(
+    schema: any,
+    queryText: string,
+    cursor: Position,
+    contextToken?: ContextToken,
+  ): CompletionItem[];
+
+  export function getDiagnostics(
+    queryText: string,
+    schema?: any,
+    customRules?: CustomValidationRule[],
+  ): Diagnostic[];
+
 }

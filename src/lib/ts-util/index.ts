@@ -11,6 +11,20 @@ export function findNode(sourceFile: ts.SourceFile, position: number): ts.Node |
   return find(sourceFile);
 }
 
+export function findAllNodes(sourceFile: ts.SourceFile, cond: (n: ts.Node) => boolean): ts.Node[] {
+  const result: ts.Node[] = [];
+  function find(node: ts.Node) {
+    if (cond(node)) {
+      result.push(node);
+      return;
+    } else {
+      ts.forEachChild(node, find);
+    }
+  }
+  find(sourceFile);
+  return result;
+}
+
 export function isTagged(node: ts.Node, condition: TagCondition) {
   if (!node || !node.parent) return false;
   if (node.parent.kind !== ts.SyntaxKind.TaggedTemplateExpression) return false;

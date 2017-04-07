@@ -8,6 +8,7 @@
     "variable-name": [true, "check-format", "allow-leading-underscore"],
     "curly": [true, "ignore-same-line"],
     "member-access": [true, "no-public"],
+    "max-classes-per-file": [false],
     "no-empty": false,
     "object-literal-sort-keys": false,
     "no-unused-expression": true,
