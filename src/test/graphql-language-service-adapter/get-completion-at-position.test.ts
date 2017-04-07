@@ -24,7 +24,7 @@ class AdapterFixture {
     this.adapter = new GraphQLLanguageServiceAdapter(getNode, {
       schema: schemaJson,
       /* tslint:disable:no-console */
-      logger: msg => console.log(msg),
+      // logger: msg => console.log(msg),
     });
   }
 
