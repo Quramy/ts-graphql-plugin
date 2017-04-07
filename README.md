@@ -3,7 +3,7 @@
 **It's highly experimental!**
 
 TypeScript Language Service Plugin to help GraphQL client(e.g. Apollo, Relay, etc...) development.
-This plugin parses template strings in .ts files and analyzes syntax using graphql-language-service-interface.
+This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql).
 
 ![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.png)
 
@@ -45,6 +45,7 @@ You can generate it using `introspectionQuery`. If you want detail, see https://
 
 #### `tag`
 It's optional. When it's set, this plugin works only if the target Template String is tagged by a function whose name is equal to this parameter.
+If not set, this plugin treats all template strings in your .ts as GraphQL query.
 For example:
 
 ```ts
