@@ -23,7 +23,13 @@ export class GraphQLLanguageServiceAdapter {
   }
 
   updateSchema(schema: { data: any }) {
-    this._schema = buildClientSchema(schema.data);
+    try {
+      this._schema = buildClientSchema(schema.data);
+    } catch (err) {
+      this._logger('Fail to build schema...');
+      this._logger(err);
+      this._schema = null;
+    }
   }
 
   getCompletionInfo(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
