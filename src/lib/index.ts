@@ -27,4 +27,3 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
 export const moduleFactory: ts.server.PluginModuleFactory = (mod: { typescript: typeof ts }) => {
   return { create };
 };
-
