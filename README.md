@@ -5,7 +5,7 @@
 TypeScript Language Service Plugin to help GraphQL client(e.g. Apollo, Relay, etc...) development.
 This plugin parses template strings in .ts files and analyzes syntax using graphql-language-service-interface.
 
-![capture](capture.png)
+![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.png)
 
 ## Features
 
