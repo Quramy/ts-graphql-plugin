@@ -40,12 +40,33 @@ And configure `plugins` section of your tsconfig.json, for example:
 ### Plugin options
 
 #### `schema`
-It's a required parameter and should point your GraphQL schema data.
-You can generate it using `introspectionQuery`. If you want detail, see https://facebook.github.io/relay/docs/guides-babel-plugin.html#schema-json .
+It's a required parameter and should point a file which contains your GraphQL schema data such as :
+
+```js
+{
+  "data": {
+    "__schema": {
+      "queryType": {
+        "name": "Query"
+      },
+      "types": [
+        {
+          "kind": "OBJECT",
+          "name": "Query",
+          "description": null,
+          "fields": [
+            {
+              "name": "viewer",
+              :
+```
+
+You can generate a schema data .json file using `introspectionQuery`. If you want detail, see https://facebook.github.io/relay/docs/guides-babel-plugin.html#schema-json .
 
 #### `tag`
-It's optional. When it's set, this plugin works only if the target Template String is tagged by a function whose name is equal to this parameter.
+It's optional. When it's set, this plugin works only if the target template string is tagged by a function whose name is equal to this parameter.
+
 If not set, this plugin treats all template strings in your .ts as GraphQL query.
+
 For example:
 
 ```ts
@@ -55,7 +76,7 @@ const str2 = `<div></div>`;       // don't work
 const str3 = otherTagFn `foooo`;  // don't work
 ```
 
-It's useful you write multiple kinds template strings(e.g. one is Angular Component Template, another is Apollo GraphQL query).
+It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
 
 ## License
 This software is released under the MIT License, see LICENSE.txt.
