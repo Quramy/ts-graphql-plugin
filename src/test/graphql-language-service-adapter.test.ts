@@ -1,8 +1,7 @@
 import test from 'ava';
-import * as path from 'path';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { GraphQLLanguageServiceAdapter } from './graphql-language-service-adapter';
-import { findNode } from './ts-util';
+import { GraphQLLanguageServiceAdapter } from '../lib/graphql-language-service-adapter';
+import { findNode } from '../lib/ts-util/index';
 
 function createFixuture(name: string, sourceText: string) {
   const source = ts.createSourceFile(name, sourceText, ts.ScriptTarget.ES2015, false, ts.ScriptKind.TS);
