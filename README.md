@@ -11,7 +11,8 @@ This plugin parses and analyzes template strings in .ts and provides functions l
 
 This plugin extends TypeScript Language Service and provides the following features:
 
-- Completion Suggestion
+- Completion suggestion
+- Get GraphQL diagnostics
 
 ## Usage
 
