@@ -14,7 +14,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const adapter = new GraphQLLanguageServiceAdapter(getNode, { schema, logger });
 
   const proxy = new LanguageServiceProxyBuilder(info)
-    .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionInfo.bind(adapter, delegate))
+    .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionPosition.bind(adapter, delegate))
     .build()
   ;
 

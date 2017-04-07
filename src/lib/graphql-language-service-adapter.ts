@@ -32,14 +32,15 @@ export class GraphQLLanguageServiceAdapter {
     }
   }
 
-  getCompletionInfo(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
+  getCompletionPosition(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
     if (!this._schema) return delegate(fileName, position);
     const node = this._getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
       return delegate(fileName, position);
     }
     const cursor = position - node.getStart();
-    const text = node.getText();
+    const text = node.getText().slice(1);  // remove the backquote char
+    this._logger('Search text: "' + text + '"');
     const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, cursor);
     this._logger(JSON.stringify(gqlCompletionItems));
     return translateCompletionItems(gqlCompletionItems);
