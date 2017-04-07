@@ -2,7 +2,11 @@
   "name": "ts-graphql-plugin",
   "version": "0.1.2",
   "description": "TypeScript Language Service Plugin for GraphQL",
-  "keywords": ["typescript", "graphql", "language service"],
+  "keywords": [
+    "typescript",
+    "graphql",
+    "language service"
+  ],
   "main": "built/index.js",
   "types": "types/index.d.ts",
   "scripts": {
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^7.0.8",
+    "ava": "^0.19.0",
     "graphql": "^0.9.1",
     "rimraf": "^2.6.1",
     "tslint": "^5.0.0",

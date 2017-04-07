@@ -2,15 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { SchamaJsonManager } from './schema-json-manager';
-
-function findNode(sourceFile: ts.SourceFile, position: number): ts.Node | undefined {
-  function find(node: ts.Node): ts.Node|undefined {
-    if (position >= node.getStart() && position < node.getEnd()) {
-      return ts.forEachChild(node, find) || node;
-    }
-  }
-  return find(sourceFile);
-}
+import { findNode } from './ts-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const getNode = (fileName: string, position: number) => {
