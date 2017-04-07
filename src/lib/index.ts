@@ -11,7 +11,8 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(msg);
   const schemaManager = new SchamaJsonManager(info);
   const schema = schemaManager.getSchema();
-  const adapter = new GraphQLLanguageServiceAdapter(getNode, { schema, logger });
+  const tag = info.config.tag;
+  const adapter = new GraphQLLanguageServiceAdapter(getNode, { schema, logger, tag });
 
   const proxy = new LanguageServiceProxyBuilder(info)
     .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionAtPosition.bind(adapter, delegate))

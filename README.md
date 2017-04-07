@@ -31,14 +31,30 @@ And configure `plugins` section of your tsconfig.json, for example:
     "module": "commonjs",
     "target": "es5",
     "plugins": [
-      { "name": "ts-graphql-plugin", "schema": "path-to-your-schema.json" }
+      { "name": "ts-graphql-plugin", "schema": "path-to-your-schema.json", "tag": "gql" }
     ]
   }
 }
 ```
 
-This plugin requires a parameter, which is `schema`. It should point your GraphQL schema data.
+### Plugin options
+
+#### `schema`
+It's a required parameter and should point your GraphQL schema data.
 You can generate it using `introspectionQuery`. If you want detail, see https://facebook.github.io/relay/docs/guides-babel-plugin.html#schema-json .
+
+#### `tag`
+It's optional. When it's set, this plugin works only if the target Template String is tagged by a function whose name is equal to this parameter.
+For example:
+
+```ts
+// when tag paramter is 'gql'
+const str1 = gql `query { }`;     // work
+const str2 = `<div></div>`;       // don't work
+const str3 = otherTagFn `foooo`;  // don't work
+```
+
+It's useful you write multiple kinds template strings(e.g. one is Angular Component Template, another is Apollo GraphQL query).
 
 ## License
 This software is released under the MIT License, see LICENSE.txt.

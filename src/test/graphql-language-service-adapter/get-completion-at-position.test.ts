@@ -1,7 +1,7 @@
 import test from 'ava';
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter } from '../../lib/graphql-language-service-adapter';
-import { findNode } from '../../lib/ts-util/index';
+import { findNode, isTagged } from '../../lib/ts-util/index';
 import { createSimpleSchema } from '../graphql-util/schema/simple-schema';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {

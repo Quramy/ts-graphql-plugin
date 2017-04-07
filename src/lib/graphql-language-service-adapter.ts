@@ -2,10 +2,12 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 
 import { buildClientSchema } from 'graphql';
 import { CompletionItem, getAutocompleteSuggestions } from 'graphql-language-service-interface';
+import { isTagged, TagCondition } from './ts-util/index';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: any;
   logger?: (msg: string) => void;
+  tag?: string;
 }
 
 export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
@@ -13,6 +15,7 @@ export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPositi
 export class GraphQLLanguageServiceAdapter {
 
   private _schema: any;
+  private _tagCondition: TagCondition = null;
 
   constructor(
     private _getNode: (fileName: string, position) => ts.Node = () => null,
@@ -20,6 +23,7 @@ export class GraphQLLanguageServiceAdapter {
   ) {
       if (opt.logger) this._logger = opt.logger;
       if (opt.schema) this.updateSchema(opt.schema);
+      if (opt.tag) this._tagCondition = opt.tag;
   }
 
   updateSchema(schema: { data: any }) {
@@ -38,6 +42,9 @@ export class GraphQLLanguageServiceAdapter {
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
       return delegate(fileName, position);
     }
+    if (this._tagCondition && !isTagged(node, this._tagCondition)) {
+      return delegate(fileName, position);
+    }
     const cursor = position - node.getStart();
     const text = node.getText().slice(1, cursor + 1);  // remove the backquote char
     this._logger('Search text: "' + text + '"');
@@ -47,7 +54,6 @@ export class GraphQLLanguageServiceAdapter {
   }
 
   private _logger: (msg: string) => void = () => { };
-
 }
 
 function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
