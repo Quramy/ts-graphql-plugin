@@ -11,8 +11,8 @@
   "types": "types/index.d.ts",
   "scripts": {
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
-    "test": "npm run lint",
     "compile": "tsc -p .",
+    "test": "npm run lint && ava built/**/**.test.js",
     "clean": "rimraf built",
     "watch": "tsc -w -p ."
   },

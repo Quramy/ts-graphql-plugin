@@ -12,14 +12,14 @@ build:
         HOME=$YARN_CACHE yarn
 
     - script:
-      name: lint
-      code: |
-        yarn run lint
-
-    - script:
-      name: build
+      name: compile
       code: |
         yarn run compile
+
+    - script:
+      name: test
+      code: |
+        yarn test
 
 deploy:
   steps:
