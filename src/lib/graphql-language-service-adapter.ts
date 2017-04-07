@@ -32,7 +32,7 @@ export class GraphQLLanguageServiceAdapter {
     }
   }
 
-  getCompletionPosition(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
+  getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
     if (!this._schema) return delegate(fileName, position);
     const node = this._getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {

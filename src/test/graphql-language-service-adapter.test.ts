@@ -30,25 +30,25 @@ function createFixuture(name: string, sourceText: string, schemaJson?: { data: a
 
 test('should delegate original method when schema is not set', t => {
   const fixture = createFixuture('input.ts', 'const a = 1', null);
-  const actual = fixture.adapter.getCompletionPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 0);
+  const actual = fixture.adapter.getCompletionAtPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 0);
   t.is(actual, fixture.notFoundCompletionInfo);
 });
 
 test('should delegate original method when the cursor is not on Template String Literal', async t => {
   const fixture = createFixuture('input.ts', 'const a = 1', await createSimpleSchema());
-  const actual = fixture.adapter.getCompletionPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 0);
+  const actual = fixture.adapter.getCompletionAtPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 0);
   t.is(actual, fixture.notFoundCompletionInfo);
 });
 
 test('should delegate original method when the cursor is not on Template String Literal', async t => {
   const fixture = createFixuture('input.ts', 'const a = `', await createSimpleSchema());
-  const actual = fixture.adapter.getCompletionPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 10);
+  const actual = fixture.adapter.getCompletionAtPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 10);
   t.truthy(actual.entries.length);
 });
 
 test('should delegate original method when the cursor is not on Template String Literal', async t => {
   const fixture = createFixuture('input.ts', 'const a = `v', await createSimpleSchema());
-  const actual = fixture.adapter.getCompletionPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 11);
+  const actual = fixture.adapter.getCompletionAtPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 11);
   t.truthy(actual.entries.length);
   const expected: ts.CompletionEntry[] = [{ kind: 'unknown', kindModifiers: 'declare', name: '{', sortText: '0'}];
   t.deepEqual(actual.entries, expected);
@@ -56,7 +56,7 @@ test('should delegate original method when the cursor is not on Template String 
 
 test('should delegate original method when the cursor is not on Template String Literal', async t => {
   const fixture = createFixuture('input.ts', 'const a = `v', await createSimpleSchema());
-  const actual = fixture.adapter.getCompletionPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 10);
+  const actual = fixture.adapter.getCompletionAtPosition(fixture.getCompletionAtPositionDlgt, 'input.ts', 10);
   t.truthy(actual.entries.length);
   const expected: ts.CompletionEntry[] = [{ kind: 'unknown', kindModifiers: 'declare', name: '{', sortText: '0'}];
   t.deepEqual(actual.entries, expected);
