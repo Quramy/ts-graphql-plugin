@@ -22,8 +22,9 @@ function run() {
   specs.then(() => {
     console.log(`🌟  ${files.length} specs were passed.`);
   }).catch(reason => {
-    console.log('fail');
+    console.log('😢  some specs was failed...');
     console.error(reason);
+    process.exit(1);
   });
 }
 
