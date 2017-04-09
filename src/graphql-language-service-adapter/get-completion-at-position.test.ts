@@ -1,10 +1,6 @@
 import test from 'ava';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import {
-  GraphQLLanguageServiceAdapter,
-  ScriptSourceHelper,
-} from '../graphql-language-service-adapter';
-import { findAllNodes, findNode } from '../ts-util';
+import { AdapterFixture } from '../testing/adapter-fixture';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {
@@ -15,48 +11,6 @@ const notFoundCompletionInfo: ts.CompletionInfo = {
 };
 
 const delegateFn = () => notFoundCompletionInfo;
-
-class AdapterFixture {
-
-  adapter: GraphQLLanguageServiceAdapter;
-  private _source: ts.SourceFile;
-
-  constructor(name: string, schemaJson?: { data: any }) {
-    this._source = ts.createSourceFile(name, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
-    const getNode = (fileName: string, position: number) => findNode(this._source, position);
-    const getAllNodes = (findNode: string, cond: (n: ts.Node) => boolean) => {
-      return findAllNodes(this._source, cond);
-    };
-    const getLineAndChar = (fileName: string, position: number) => {
-      return ts.getLineAndCharacterOfPosition(this._source, position);
-    };
-    const helper: ScriptSourceHelper = {
-      getNode,
-      getAllNodes,
-      getLineAndChar,
-    };
-    this.adapter = new GraphQLLanguageServiceAdapter(helper, {
-      schema: schemaJson,
-      /* tslint:disable:no-console */
-      // logger: msg => console.log(msg),
-    });
-  }
-
-  get source() {
-    return this._source && this._source.getText();
-  }
-
-  set source(newText: string) {
-    const range: ts.TextChangeRange = {
-      span: {
-        start: 0,
-        length: this._source.getText().length,
-      },
-      newLength: newText.length,
-    };
-    this._source = this._source.update(newText, range);
-  }
-}
 
 function craeteFixture(name: string, schemaJson?: { data: any }) {
   return new AdapterFixture(name, schemaJson);
