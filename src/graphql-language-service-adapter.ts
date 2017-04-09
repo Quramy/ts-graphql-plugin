@@ -82,15 +82,15 @@ export class GraphQLLanguageServiceAdapter {
       return isTagged(n, this._tagCondition);
     });
     const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 2)), this._schema);
-    const result = errors;
+    const result = [...errors];
     diagonosticsList.forEach((diagnostics, i) => {
       const node = nodes[i];
       const nodeLC = this._helper.getLineAndChar(fileName, node.getStart());
       diagnostics.forEach(d => {
         const sl = nodeLC.line + d.range.start.line;
-        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character - 1;
+        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character + 1;
         const el = nodeLC.line + d.range.end.line;
-        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character - 1;
+        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character + 1;
         const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc);
         const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, ec);
         result.push(translateDiagnostic(d, node.getSourceFile(), start, end - start));
@@ -121,10 +121,11 @@ function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
 }
 
 function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
-  const code = typeof d.code === 'string' ? 10000 : d.code;
+  const code = typeof d.code === 'number' ? d.code : 9999;
+  const messageText = d.message.split('\n')[0];
   return {
     code,
-    messageText: d.message,
+    messageText,
     category: d.severity as ts.DiagnosticCategory,
     file,
     start,
