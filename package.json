@@ -12,11 +12,11 @@
   "scripts": {
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
     "compile": "tsc -p .",
-    "test": "npm run lint && ava",
+    "test": "yarn run lint && ava",
     "clean": "rimraf built types",
     "watch:compile": "tsc --watch -p .",
     "watch:ava": "ava --watch",
-    "watch": "run-p watch:*"
+    "watch": "yarn run clean  && run-p watch:*"
   },
   "author": "Quramy",
   "license": "MIT",
