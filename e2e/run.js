@@ -7,20 +7,20 @@ function run() {
     cwd: __dirname,
   });
   const specs = files.reduce((queue, file) => {
-    try {
-      const spec = require(path.join(__dirname, file));
+    return queue.then(() => {
+      let spec;
+      try {
+        spec = require(path.join(__dirname, file));
+      } catch (e) {
+        console.error(`${file} is not server spec...`);
+        return Promise.reject(e);
+      }
       const server = createServer();
-      return queue
-        .then(() => spec(server))
-        .then(() => server.close());
-      ;
-    } catch (e) {
-      console.error(`${file} is server spec`);
-      return Promise.reject(e);
-    }
+      return spec(server).then(() => server.close());
+    });
   }, Promise.resolve(null));
   specs.then(() => {
-    console.log(`success ${files.length} specs.`);
+    console.log(`🌟  ${files.length} specs were passed.`);
   }).catch(reason => {
     console.log('fail');
     console.error(reason);
