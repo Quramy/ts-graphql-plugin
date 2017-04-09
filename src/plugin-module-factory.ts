@@ -39,6 +39,8 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   return proxy;
 }
 
-export const moduleFactory: ts.server.PluginModuleFactory = (mod: { typescript: typeof ts }) => {
+const moduleFactory: ts.server.PluginModuleFactory = (mod: { typescript: typeof ts }) => {
   return { create };
 };
+
+export default moduleFactory;

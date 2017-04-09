@@ -1,2 +1,2 @@
-import { moduleFactory } from './lib';
+import moduleFactory from './plugin-module-factory';
 export = moduleFactory;

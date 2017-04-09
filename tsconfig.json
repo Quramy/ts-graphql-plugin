@@ -4,11 +4,11 @@
     "declaration": true,
     "target": "es5",
     "sourceMap": true,
-    "outDir": "built",
+    "outDir": "lib",
     "declarationDir": "types",
     "rootDir": "src",
     "lib": ["es2015"],
     "typeRoots": ["./node_modules/@types", "./typedef"]
   },
-  "exclude": ["built", "types", "typedef", "node_modules"]
+  "exclude": ["lib", "types", "typedef", "node_modules"]
 }

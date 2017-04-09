@@ -3,9 +3,9 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import {
   GraphQLLanguageServiceAdapter,
   ScriptSourceHelper,
-} from '../../lib/graphql-language-service-adapter';
-import { findAllNodes, findNode, isTagged } from '../../lib/ts-util/index';
-import { createSimpleSchema } from '../graphql-util/schema/simple-schema';
+} from '../graphql-language-service-adapter';
+import { findAllNodes, findNode } from '../ts-util';
+import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {
   entries: [],
@@ -97,10 +97,4 @@ test('should return completion entries', async t => {
   fixture.source = 'const a = `query { }`';
   t.truthy(completionFn(17).entries);
   t.truthy(completionFn(17).entries.filter(e => e.name === 'hello').length, 'contains schema keyword');
-});
-
-test('s re', async t => {
-  const fixture = craeteFixture('input.ts', await createSimpleSchema());
-
-  t.pass();
 });

@@ -1,6 +1,6 @@
 import test from 'ava';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { findAllNodes, findNode, isTagged } from '../../lib/ts-util/index';
+import { findAllNodes, findNode, isTagged } from './';
 
 test('isTagged should return true when the tag condition is matched', t => {
   const text = 'function myTag(...args: any[]) { return "" }' + '\n'

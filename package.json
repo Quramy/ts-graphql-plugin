@@ -7,13 +7,13 @@
     "graphql",
     "language service"
   ],
-  "main": "built/index.js",
+  "main": "lib/index.js",
   "types": "types/index.d.ts",
   "scripts": {
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
     "compile": "tsc -p .",
     "test": "yarn run lint && ava",
-    "clean": "rimraf built types",
+    "clean": "rimraf lib types",
     "watch:compile": "tsc --watch -p .",
     "watch:ava": "ava --watch",
     "watch": "yarn run clean  && run-p watch:*"
@@ -43,7 +43,7 @@
   },
   "ava": {
     "files": [
-      "built/test/**/*.test.js"
+      "lib/**/*.test.js"
     ]
   }
 }

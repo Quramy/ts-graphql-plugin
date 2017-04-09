@@ -19,7 +19,8 @@
     "semicolon": [true, "always"],
     "class-name": true,
     "prefer-const": true,
-    "import-spacing": true
+    "import-spacing": true,
+    "ordered-imports": false
   },
   "rulesDirectory": []
 }

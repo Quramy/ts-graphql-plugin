@@ -1,4 +1,3 @@
 src/
 typedef/
-built/test/
-types/test/
+*.test.js
