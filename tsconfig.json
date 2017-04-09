@@ -10,5 +10,5 @@
     "lib": ["es2015"],
     "typeRoots": ["./node_modules/@types", "./typedef"]
   },
-  "exclude": ["lib", "types", "typedef", "node_modules"]
+  "exclude": ["lib", "e2e", "types", "typedef", "node_modules"]
 }
