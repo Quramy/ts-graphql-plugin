@@ -31,5 +31,13 @@ test('should validate GraphQL syntax in template string', async t => {
   fixture.source = 'const ql = `' + '\n'
                  + '{`';
   const [actual2] = validateFn();
-  t.is(actual2.start, 13, 'start character (multi line)');
+  t.is(actual2.start, 13, 'start character (multiline)');
+
+  fixture.source = 'const ql = `query { hello }`';
+  t.deepEqual(validateFn(), [], 'no errors for valid query');
+
+  fixture.source = 'const ql = `query {' + '\n'
+                             + '  hello' + '\n'
+                             + ' }`';
+  t.deepEqual(validateFn(), [], 'no errors for valid query (multiline)');
 });

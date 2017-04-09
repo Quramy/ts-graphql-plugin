@@ -81,7 +81,7 @@ export class GraphQLLanguageServiceAdapter {
       if (!this._tagCondition) return true;
       return isTagged(n, this._tagCondition);
     });
-    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 2)), this._schema);
+    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 1)), this._schema);
     const result = [...errors];
     diagonosticsList.forEach((diagnostics, i) => {
       const node = nodes[i];
