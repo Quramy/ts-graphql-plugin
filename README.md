@@ -2,8 +2,8 @@
 
 **It's highly experimental!**
 
-TypeScript Language Service Plugin to help GraphQL client(e.g. Apollo, Relay, etc...) development.
-This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql).
+TypeScript Language Service Plugin to help GraphQL client development(e.g. Apollo).
+This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql) to your editor or IDE.
 
 ![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.gif)
 
@@ -24,7 +24,7 @@ To install this plugin, execute the following:
 npm install ts-graphql-plugin -D
 ```
 
-And configure `plugins` section of your tsconfig.json, for example:
+And configure `plugins` section in your tsconfig.json, for example:
 
 ```json
 {
@@ -32,11 +32,17 @@ And configure `plugins` section of your tsconfig.json, for example:
     "module": "commonjs",
     "target": "es5",
     "plugins": [
-      { "name": "ts-graphql-plugin", "schema": "path-to-your-schema.json", "tag": "gql" }
+      {
+        "name": "ts-graphql-plugin",
+        "schema": "path-to-your-schema.json",
+        "tag": "gql" 
+      }
     ]
   }
 }
 ```
+
+It's ready to go. Launch your TypeScript IDE.
 
 ### Plugin options
 
@@ -78,6 +84,21 @@ const str3 = otherTagFn `foooo`;  // don't work
 ```
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
+
+## Available editors
+I've checked the operation with the following editors:
+
+- Visual Studio Code
+- Vim (with tsuquyomi)
+
+And the following editor have TypeScript plugin with LanguageService so they're compatible with this plugin:
+
+- Emacs
+- Sublime text
+- Eclipse
+
+## How it works
+This plugin relies on [graphql-language-service](https://github.com/graphql/graphql-language-service) and adapts it for [TypeScript Language Service](https://github.com/Microsoft/TypeScript/wiki/Architectural-Overview#layer-overview).
 
 ## License
 This software is released under the MIT License, see LICENSE.txt.
