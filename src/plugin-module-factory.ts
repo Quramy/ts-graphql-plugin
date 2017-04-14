@@ -5,6 +5,8 @@ import { SchamaJsonManager } from './schema-json-manager';
 import { findAllNodes, findNode } from './ts-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
+  const logger = (msg: string) => info.project.projectService.logger.info(msg);
+  logger('ts-graphql-plugin config: ' + JSON.stringify(info.config));
   const getNode = (fileName: string, position: number) => {
     return findNode(info.languageService.getProgram().getSourceFile(fileName), position);
   };
@@ -24,7 +26,6 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   };
   const schema = schemaManager.getSchema();
   const tag = info.config.tag;
-  const logger = (msg: string) => info.project.projectService.logger.info(msg);
   const adapter = new GraphQLLanguageServiceAdapter(helper, { schema, logger, tag });
 
   const proxy = new LanguageServiceProxyBuilder(info)
