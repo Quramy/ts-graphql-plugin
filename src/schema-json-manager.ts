@@ -1,3 +1,4 @@
+import path = require('path');
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 export class SchamaJsonManager {
@@ -12,14 +13,21 @@ export class SchamaJsonManager {
   getSchema() {
     if (!this._schemaPath || typeof this._schemaPath !== 'string') return;
     try {
-      const isExists = this._info.languageServiceHost.fileExists(this._schemaPath);
+      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
+      this._log('Read schema from ' + resolvedSchmaPath);
+      const isExists = this._info.languageServiceHost.fileExists(resolvedSchmaPath);
       if (!isExists) return;
-      return JSON.parse(this._info.languageServiceHost.readFile(this._schemaPath, 'utf-8'));
+      return JSON.parse(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
     } catch (e) {
       this._log('Fail to read schema file...');
       this._log(e.message);
       return;
     }
+  }
+
+  getAbsoluteSchemaPath(projectRootPath: string, schemaPath: string) {
+    if (path.isAbsolute(schemaPath)) return schemaPath;
+    return path.resolve(projectRootPath, schemaPath);
   }
 
   registerOnChange(cb: (schema: any) => void) {
@@ -31,7 +39,8 @@ export class SchamaJsonManager {
 
   startWatch(interval: number = 100) {
     try {
-      this._watcher = this._info.serverHost.watchFile(this._schemaPath, () => {
+      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
+      this._watcher = this._info.serverHost.watchFile(resolvedSchmaPath, () => {
         this._log('Change schema file.');
         if (this._onChanges.length) {
           const schema = this.getSchema();
