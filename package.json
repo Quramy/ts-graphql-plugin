@@ -1,6 +1,6 @@
 {
   "name": "ts-graphql-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TypeScript Language Service Plugin for GraphQL",
   "keywords": [
     "typescript",
@@ -27,7 +27,7 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
-    "graphql-language-service-interface": "0.0.7"
+    "graphql-language-service-interface": "0.0.8"
   },
   "devDependencies": {
     "@types/graphql": "^0.9.0",
