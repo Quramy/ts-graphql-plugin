@@ -5,8 +5,8 @@ import { SchamaJsonManager } from './schema-json-manager';
 import { findAllNodes, findNode } from './ts-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
-  const logger = (msg: string) => info.project.projectService.logger.info(msg);
-  logger('ts-graphql-plugin config: ' + JSON.stringify(info.config));
+  const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
+  logger('config: ' + JSON.stringify(info.config));
   const getNode = (fileName: string, position: number) => {
     return findNode(info.languageService.getProgram().getSourceFile(fileName), position);
   };

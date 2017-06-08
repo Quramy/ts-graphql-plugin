@@ -59,7 +59,7 @@ export class SchamaJsonManager {
   }
 
   private _log(msg: string) {
-    this._info.project.projectService.logger.info(msg);
+    this._info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
   }
 
 }
