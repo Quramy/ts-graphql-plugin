@@ -1,20 +1,25 @@
-import path = require('path');
+import * as path from 'path';
 import * as ts from 'typescript/lib/tsserverlibrary';
+import { SchemaManager } from './schema-manager';
 
-export class FileSchemaManager {
+export interface FileSchemaManagerOptions {
+  path: string;
+}
+
+export class FileSchemaManager extends SchemaManager {
   private _schemaPath: string;
   private _watcher: ts.FileWatcher;
-  private _onChanges: Array<(schema: any) => void> = [];
 
-  constructor(private _info: ts.server.PluginCreateInfo) {
-    this._schemaPath = this._info.config.schema;
+  constructor(_info: ts.server.PluginCreateInfo, options: FileSchemaManagerOptions) {
+    super(_info);
+    this._schemaPath = options.path;
   }
 
   getSchema() {
     if (!this._schemaPath || typeof this._schemaPath !== 'string') return;
     try {
       const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
-      this._log('Read schema from ' + resolvedSchmaPath);
+      this.log('Read schema from ' + resolvedSchmaPath);
       const isExists = this._info.languageServiceHost.fileExists(resolvedSchmaPath);
       if (!isExists) return;
       return JSON.parse(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
@@ -30,22 +35,12 @@ export class FileSchemaManager {
     return path.resolve(projectRootPath, schemaPath);
   }
 
-  registerOnChange(cb: (schema: any) => void) {
-    this._onChanges.push(cb);
-    return () => {
-      this._onChanges = this._onChanges.filter(x => x !== cb);
-    };
-  }
-
   startWatch(interval: number = 100) {
     try {
       const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
       this._watcher = this._info.serverHost.watchFile(resolvedSchmaPath, () => {
         this._log('Change schema file.');
-        if (this._onChanges.length) {
-          const schema = this.getSchema();
-          if (schema) this._onChanges.forEach(cb => cb(schema));
-        }
+        this.emitChange();
       }, interval);
     } catch (e) {
       this._log('Fail to read schema file...');
