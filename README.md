@@ -34,7 +34,7 @@ And configure `plugins` section in your tsconfig.json, for example:
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "schema": "path-to-your-schema.json",
+        "schema": "path-or-url-to-your-schema.json",
         "tag": "gql" 
       }
     ]
@@ -47,7 +47,7 @@ It's ready to go. Launch your TypeScript IDE.
 ### Plugin options
 
 #### `schema`
-It's a required parameter and should point a file which contains your GraphQL schema data such as :
+It's a required parameter and should point a file or URL which contains your GraphQL schema data such as :
 
 ```js
 {
@@ -68,6 +68,36 @@ It's a required parameter and should point a file which contains your GraphQL sc
 ```
 
 You can generate a schema data .json file using `introspectionQuery`. If you want detail, see https://facebook.github.io/relay/docs/guides-babel-plugin.html#schema-json .
+
+You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL server like [GitHub v4 API](https://developer.github.com/v4/). For example:
+
+```json
+  "schema": {
+    "http": {
+      "url": "https://api.github.com/graphql",
+      "headers": {
+        "Authorization": "Bearer YOUR_GITHUB_API_TOKEN"
+      }
+    }
+  },
+```
+
+The `schema` option accepts the following type:
+
+```ts
+type SchemaConfig = string |
+{
+  file: {
+    path: string;
+  }
+} |
+{
+  http: {
+    url: string;
+    headers?: { [key: string]: string };
+  }
+};
+```
 
 #### `tag`
 It's optional. When it's set, this plugin works only if the target template string is tagged by a function whose name is equal to this parameter.
