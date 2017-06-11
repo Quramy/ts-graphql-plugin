@@ -30,7 +30,7 @@ export class HttpSchemaManager extends SchemaManager {
     return new Promise((resolve, reject) => {
       const uri = parse(options.url);
       let body = '';
-      const r = uri.protocol === 'http' ? Http.request : Https.request;
+      const r = uri.protocol === 'https:' ? Https.request : Http.request;
       const req = r({
         hostname: uri.hostname,
         protocol: uri.protocol,
