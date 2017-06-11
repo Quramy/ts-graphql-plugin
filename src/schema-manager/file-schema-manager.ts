@@ -1,7 +1,7 @@
 import path = require('path');
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-export class SchamaJsonManager {
+export class FileSchemaManager {
   private _schemaPath: string;
   private _watcher: ts.FileWatcher;
   private _onChanges: Array<(schema: any) => void> = [];

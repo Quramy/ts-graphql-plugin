@@ -1,7 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
-import { SchamaJsonManager } from './schema-json-manager';
+import { FileSchemaManager } from './schema-manager/file-schema-manager';
 import { findAllNodes, findNode } from './ts-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
@@ -18,7 +18,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     const s = info.languageService.getProgram().getSourceFile(fileName);
     return ts.getLineAndCharacterOfPosition(s, position);
   };
-  const schemaManager = new SchamaJsonManager(info);
+  const schemaManager = new FileSchemaManager(info);
   const helper: ScriptSourceHelper = {
     getNode,
     getAllNodes,
