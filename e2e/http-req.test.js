@@ -6,7 +6,7 @@ if (!GITHUB_TOKEN) {
   process.exit(0);
 }
 
-console.warn('Seding http-request to Github GraphQL API...');
+console.warn('Sending http-request to Github GraphQL API...');
 
 HttpSchemaManager.request({
   url: 'https://api.github.com/graphql',
