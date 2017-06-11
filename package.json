@@ -14,7 +14,7 @@
     "compile": "tsc -p .",
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
     "ava": "ava",
-    "e2e": "node e2e/run.js",
+    "e2e": "node e2e/run.js && node e2e/http-req.test.js",
     "test": "yarn run lint && ava && yarn run e2e",
     "watch:compile": "tsc --watch -p .",
     "watch:ava": "ava --watch",

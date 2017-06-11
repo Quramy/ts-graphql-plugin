@@ -1,8 +1,8 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
-import { SchamaJsonManager } from './schema-json-manager';
 import { findAllNodes, findNode } from './ts-util';
+import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
@@ -18,7 +18,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     const s = info.languageService.getProgram().getSourceFile(fileName);
     return ts.getLineAndCharacterOfPosition(s, position);
   };
-  const schemaManager = new SchamaJsonManager(info);
+  const schemaManager = new SchemaManagerFactory(info).create();
   const helper: ScriptSourceHelper = {
     getNode,
     getAllNodes,
