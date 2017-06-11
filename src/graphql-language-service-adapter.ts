@@ -42,6 +42,7 @@ export class GraphQLLanguageServiceAdapter {
   updateSchema(schema: { data: any }) {
     try {
       this._schema = buildClientSchema(schema.data);
+      this._logger('Build client schema.');
     } catch (err) {
       this._logger('Fail to build schema...');
       this._logger(err);
