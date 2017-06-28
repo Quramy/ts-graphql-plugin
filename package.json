@@ -32,7 +32,7 @@
   "devDependencies": {
     "@types/graphql": "^0.9.1",
     "@types/node": "^7.0.22",
-    "ava": "^0.19.1",
+    "ava": "^0.20.0",
     "glob": "^7.1.2",
     "graphql": "^0.9.6",
     "npm-run-all": "^4.0.2",
