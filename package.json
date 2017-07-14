@@ -30,7 +30,7 @@
     "graphql-language-service-interface": "^0.0.17"
   },
   "devDependencies": {
-    "@types/graphql": "^0.9.1",
+    "@types/graphql": "^0.10.0",
     "@types/node": "^7.0.22",
     "ava": "^0.19.1",
     "glob": "^7.1.2",
