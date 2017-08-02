@@ -107,10 +107,12 @@ If not set, this plugin treats all template strings in your .ts as GraphQL query
 For example:
 
 ```ts
+import gql from 'graphql-tag';
+
 // when tag paramter is 'gql'
-const str1 = gql `query { }`;     // work
+const str1 = gql`query { }`;     // work
 const str2 = `<div></div>`;       // don't work
-const str3 = otherTagFn `foooo`;  // don't work
+const str3 = otherTagFn`foooo`;  // don't work
 ```
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
