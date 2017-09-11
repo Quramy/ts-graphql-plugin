@@ -12,7 +12,7 @@ export class AdapterFixture {
   constructor(scriptFileName: string, schemaJson?: { data: any }) {
     this._source = ts.createSourceFile(scriptFileName, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
     const getNode = (fileName: string, position: number) => findNode(this._source, position);
-    const getAllNodes = (findNode: string, cond: (n: ts.Node) => boolean) => {
+    const getAllNodes = (foundNode: string, cond: (n: ts.Node) => boolean) => {
       return findAllNodes(this._source, cond);
     };
     const getLineAndChar = (fileName: string, position: number) => {
