@@ -89,12 +89,13 @@ export class GraphQLLanguageServiceAdapter {
       const nodeLC = this._helper.getLineAndChar(fileName, node.getStart());
       diagnostics.forEach(d => {
         const sl = nodeLC.line + d.range.start.line;
-        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character + 1;
+        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character;
         const el = nodeLC.line + d.range.end.line;
-        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character + 1;
-        const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc);
-        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, ec);
-        result.push(translateDiagnostic(d, node.getSourceFile(), start, end - start));
+        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character;
+        const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc) + 1;
+        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, ec) + 1;
+        const h = start === end ? 0 : 1;
+        result.push(translateDiagnostic(d, node.getSourceFile(), start - h, end - start));
       });
     });
     return result;
@@ -109,7 +110,8 @@ function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
     isMemberCompletion: false,
     isNewIdentifierLocation: false,
     entries: items.map(r => {
-      const kind = r.kind ? r.kind + '' : 'unknown';
+      // FIXME use ts.ScriptElementKind
+      const kind = r.kind ? r.kind + '' : 'unknown' as any;
       return {
         name: r.label,
         kindModifiers: 'declare',

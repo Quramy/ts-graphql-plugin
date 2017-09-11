@@ -2,12 +2,12 @@
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
-    "target": "es5",
+    "target": "es2015",
     "sourceMap": true,
     "outDir": "lib",
     "declarationDir": "types",
     "rootDir": "src",
-    "lib": ["es2015"],
+    "lib": ["es2015", "esnext.asynciterable"],
     "typeRoots": ["./node_modules/@types", "./typedef"]
   },
   "exclude": ["lib", "e2e", "types", "typedef", "node_modules"]

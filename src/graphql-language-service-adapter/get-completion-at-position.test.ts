@@ -40,8 +40,8 @@ test('should return completion entries', async t => {
   fixture.source = 'const a = `q';
   t.truthy(completionFn(11).entries.length);
   t.deepEqual(completionFn(11).entries, [
-    { kind: 'unknown', kindModifiers: 'declare', name: '{', sortText: '0'},
-    { kind: 'unknown', kindModifiers: 'declare', name: 'query', sortText: '0'},
+    { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: '{', sortText: '0'},
+    { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: 'query', sortText: '0'},
   ] as ts.CompletionEntry[]);
 
   fixture.source = 'const a = `query {';
