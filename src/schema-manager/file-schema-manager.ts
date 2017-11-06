@@ -18,7 +18,7 @@ export class FileSchemaManager extends SchemaManager {
   getSchema() {
     if (!this._schemaPath || typeof this._schemaPath !== 'string') return;
     try {
-      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
+      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._getProjectRootPath(this._info), this._schemaPath);
       this.log('Read schema from ' + resolvedSchmaPath);
       const isExists = this._info.languageServiceHost.fileExists(resolvedSchmaPath);
       if (!isExists) return;
@@ -37,7 +37,7 @@ export class FileSchemaManager extends SchemaManager {
 
   startWatch(interval: number = 100) {
     try {
-      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._info.project.getProjectRootPath(), this._schemaPath);
+      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._getProjectRootPath(this._info), this._schemaPath);
       this._watcher = this._info.serverHost.watchFile(resolvedSchmaPath, () => {
         this._log('Change schema file.');
         this.emitChange();
@@ -51,6 +51,14 @@ export class FileSchemaManager extends SchemaManager {
 
   closeWatch() {
     if (this._watcher) this._watcher.close();
+  }
+
+  private _getProjectRootPath(info: ts.server.PluginCreateInfo) {
+    const { project } = info;
+    if (typeof (project as any).getProjectRootPath === 'function') {
+      return (project as any).getProjectRootPath();
+    }
+    return path.dirname(project.getProjectName());
   }
 
   private _log(msg: string) {
