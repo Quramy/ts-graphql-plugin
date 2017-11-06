@@ -1,8 +1,10 @@
 const assert = require('assert');
+const path = require('path');
 
 function run(server) {
-  server.send({ command: 'open', arguments: { file: './main.ts', fileContent: 'const q = gql`query { ', scriptKindName: "TS" } });
-  server.send({ command: 'completions', arguments: { file: 'main.ts', offset: 22, line: 1, prefix: '' } });
+  const file = path.resolve(__dirname, '../project-fixture/main.ts');
+  server.send({ command: 'open', arguments: { file, fileContent: 'const q = gql`query { ', scriptKindName: "TS" } });
+  server.send({ command: 'completions', arguments: { file, offset: 22, line: 1, prefix: '' } });
   return server.close().then(() => {
     assert.equal(server.responses.length, 3);
     assert.equal(server.responses[2].body.length, 3);
