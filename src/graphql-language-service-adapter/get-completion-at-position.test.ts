@@ -12,25 +12,25 @@ const notFoundCompletionInfo: ts.CompletionInfo = {
 
 const delegateFn = () => notFoundCompletionInfo;
 
-function craeteFixture(name: string, schemaJson?: { data: any }) {
+function createFixture(name: string, schemaJson?: { data: any }) {
   return new AdapterFixture(name, schemaJson);
 }
 
 test('should delegate original method when schema is not set', t => {
-  const fixture = craeteFixture('input.ts', null);
+  const fixture = createFixture('input.ts', null);
   const actual = fixture.adapter.getCompletionAtPosition(delegateFn, 'input.ts', 0);
   t.is(actual, notFoundCompletionInfo);
 });
 
 test('should delegate original method when the cursor is not on Template String Literal', async t => {
-  const fixture = craeteFixture('input.ts', await createSimpleSchema());
+  const fixture = createFixture('input.ts', await createSimpleSchema());
   fixture.source = 'const a = 1;';
   const actual = fixture.adapter.getCompletionAtPosition(delegateFn, 'input.ts', 0);
   t.is(actual, notFoundCompletionInfo);
 });
 
 test('should return completion entries', async t => {
-  const fixture = craeteFixture('input.ts', await createSimpleSchema());
+  const fixture = createFixture('input.ts', await createSimpleSchema());
   const completionFn: (p: number) => ts.CompletionInfo =
     fixture.adapter.getCompletionAtPosition.bind(fixture.adapter, delegateFn, 'input.ts');
 
