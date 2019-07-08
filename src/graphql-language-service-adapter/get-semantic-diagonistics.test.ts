@@ -26,18 +26,42 @@ test('should validate GraphQL syntax in template string', async t => {
   const [actual1] = validateFn();
   const messageText = actual1.messageText as string;
   t.truthy(messageText.match(/Syntax Error:/));
-  t.is(actual1.start, 12, 'start character');
+  t.is(actual1.start, 11, 'start character');
 
   fixture.source = 'const ql = `' + '\n'
                  + '{`';
   const [actual2] = validateFn();
-  t.is(actual2.start, 13, 'start character (multiline)');
+  t.is(actual2.start, 14, 'start character (multiline)');
 
   fixture.source = 'const ql = `query { hello }`';
   t.deepEqual(validateFn(), [], 'no errors for valid query');
 
   fixture.source = 'const ql = `query {' + '\n'
-                             + '  hello' + '\n'
-                             + ' }`';
+                 + '  hello' + '\n'
+                 + ' }`';
+  t.deepEqual(validateFn(), [], 'no errors for valid query (multiline)');
+});
+
+test('should return diagnostic array for invalid GraphQL template string', async t => {
+  const fixture = craeteFixture('input.ts', await createSimpleSchema());
+  const validateFn: () => ts.Diagnostic[]
+    = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+  fixture.source = 'const ql = `query {' + '\n'
+                 + '  hoge,' + '\n'
+                 + ' }`';
+  const [actual] = validateFn();
+  const messageText = actual.messageText as string;
+  t.truthy(/Cannot query field "hoge"/.test(messageText));
+});
+
+test('should return empty array for valid GraphQL template string', async t => {
+  const fixture = craeteFixture('input.ts', await createSimpleSchema());
+  const validateFn: () => ts.Diagnostic[]
+    = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+  fixture.source = 'const ql = `query {' + '\n'
+                 + '  hello' + '\n'
+                 + ' }`';
   t.deepEqual(validateFn(), [], 'no errors for valid query (multiline)');
 });

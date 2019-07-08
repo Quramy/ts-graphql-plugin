@@ -82,7 +82,7 @@ export class GraphQLLanguageServiceAdapter {
       if (!this._tagCondition) return true;
       return isTagged(n, this._tagCondition);
     });
-    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 1)), this._schema);
+    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 1), this._schema));
     const result = [...errors];
     diagonosticsList.forEach((diagnostics, i) => {
       const node = nodes[i];
@@ -93,7 +93,7 @@ export class GraphQLLanguageServiceAdapter {
         const el = nodeLC.line + d.range.end.line;
         const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character;
         const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc) + 1;
-        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, ec) + 1;
+        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, Math.max(0, ec - 1)) + 1;
         const h = start === end ? 0 : 1;
         result.push(translateDiagnostic(d, node.getSourceFile(), start - h, end - start));
       });
