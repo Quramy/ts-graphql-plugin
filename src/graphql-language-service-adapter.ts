@@ -50,14 +50,14 @@ export class GraphQLLanguageServiceAdapter {
     }
   }
 
-  getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number ) {
-    if (!this._schema) return delegate(fileName, position);
+  getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number, options?: ts.GetCompletionsAtPositionOptions) {
+    if (!this._schema) return delegate(fileName, position, options);
     const node = this._helper.getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
-      return delegate(fileName, position);
+      return delegate(fileName, position, options);
     }
     if (this._tagCondition && !isTagged(node, this._tagCondition)) {
-      return delegate(fileName, position);
+      return delegate(fileName, position, options);
     }
     const cursor = position - node.getStart();
     const baseLC = this._helper.getLineAndChar(fileName, node.getStart());

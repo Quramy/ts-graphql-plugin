@@ -35,7 +35,7 @@ export class HttpSchemaManager extends SchemaManager {
         hostname: uri.hostname,
         protocol: uri.protocol,
         path: uri.path,
-        port: Number.parseInt(uri.port),
+        port: Number.parseInt(uri.port, 10),
         headers,
         method: options.method,
       }, res => {
