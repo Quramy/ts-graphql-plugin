@@ -25,7 +25,7 @@ test('should validate GraphQL syntax in template string', async t => {
   fixture.source = 'const ql = `';
   const [actual1] = validateFn();
   const messageText = actual1.messageText as string;
-  t.truthy(messageText.match(/Syntax Error GraphQL/));
+  t.truthy(messageText.match(/Syntax Error:/));
   t.is(actual1.start, 12, 'start character');
 
   fixture.source = 'const ql = `' + '\n'
