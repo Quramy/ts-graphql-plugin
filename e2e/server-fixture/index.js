@@ -36,6 +36,10 @@ class TSServer {
     }
     return this._exitPromise;
   }
+
+  wait(time = 0) {
+    return new Promise(res => setTimeout(() => res(), time));
+  }
 }
 
 function createServer() {

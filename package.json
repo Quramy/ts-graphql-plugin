@@ -38,7 +38,7 @@
     "npm-run-all": "^4.1.1",
     "rimraf": "^2.6.1",
     "tslint": "^5.7.0",
-    "typescript": "^2.6.1"
+    "typescript": "~3.5.0"
   },
   "peerDependencies": {
     "graphql": "^0.10.2",
