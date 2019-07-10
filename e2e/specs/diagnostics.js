@@ -18,7 +18,7 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag')
     assert(!!semanticDiagEvent)
     assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(semanticDiagEvent.body.diagnostics[0].text, 'Cannot query field "goodbye" on type "SimpleSchemaType".');
+    assert.equal(semanticDiagEvent.body.diagnostics[0].text, 'Cannot query field "goodbye" on type "Query".');
   });
 }
 

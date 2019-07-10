@@ -3,6 +3,7 @@ import { parse } from 'url';
 import * as Http from 'http';
 import * as Https from 'https';
 import * as ts from 'typescript/lib/tsserverlibrary';
+import { buildClientSchema } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
 import { SchemaManager } from './schema-manager';
 
@@ -47,10 +48,10 @@ export class HttpSchemaManager extends SchemaManager {
               body,
             });
           } else {
-            let data: any;
+            let result: any;
             try {
-              data = JSON.parse(body);
-              resolve(data);
+              result = JSON.parse(body);
+              resolve(buildClientSchema(result.data));
             } catch (e) {
               reject(e);
             }

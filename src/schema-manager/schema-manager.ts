@@ -1,4 +1,5 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
+import { GraphQLSchema } from 'graphql';
 
 export type OnChangeCallback = (schema: any) => void;
 
@@ -9,7 +10,7 @@ export abstract class SchemaManager {
     this._onChanges = [];
   }
 
-  abstract getSchema(): any | null;
+  abstract getSchema(): GraphQLSchema | null;
   abstract startWatch(interval?: number): void;
 
   registerOnChange(cb: OnChangeCallback) {

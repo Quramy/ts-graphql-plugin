@@ -34,7 +34,7 @@ And configure `plugins` section in your tsconfig.json, for example:
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "schema": "path-or-url-to-your-schema.json",
+        "schema": "path-or-url-to-your-schema.graphql",
         "tag": "gql" 
       }
     ]
@@ -47,7 +47,28 @@ It's ready to go. Launch your TypeScript IDE.
 ### Plugin options
 
 #### `schema`
-It's a required parameter and should point a file or URL which contains your GraphQL schema data such as :
+It's a required parameter and should point your GraphQL schema SDL file such as :
+
+```graphql
+type Author {
+  id: Int!
+  firstName: String
+  lastName: String
+  posts: [Post]
+}
+type Post {
+  id: Int!
+  title: String
+  author: Author
+  votes: Int
+}
+type Query {
+  posts: [Post]
+  author(id: Int!): Author
+}
+```
+
+Also you can use GraphQL introspection query result data such as:
 
 ```js
 {
@@ -66,8 +87,6 @@ It's a required parameter and should point a file or URL which contains your Gra
               "name": "viewer",
               :
 ```
-
-You can generate a schema data .json file using `introspectionQuery`. If you want detail, see https://facebook.github.io/relay/docs/guides-babel-plugin.html#schema-json .
 
 You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL server like [GitHub v4 API](https://developer.github.com/v4/). For example:
 

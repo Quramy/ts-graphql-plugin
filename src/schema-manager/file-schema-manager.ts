@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { SchemaManager } from './schema-manager';
+import { buildSchema, buildClientSchema } from 'graphql';
 
 export interface FileSchemaManagerOptions {
   path: string;
@@ -22,10 +23,15 @@ export class FileSchemaManager extends SchemaManager {
       this.log('Read schema from ' + resolvedSchmaPath);
       const isExists = this._info.languageServiceHost.fileExists(resolvedSchmaPath);
       if (!isExists) return;
-      return JSON.parse(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
+      if (this._schemaPath.endsWith('.graphql') || this._schemaPath.endsWith('.gql')) {
+        return buildSchema(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
+      } else {
+        const { data } = JSON.parse(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
+        return buildClientSchema(data);
+      }
     } catch (e) {
-      this._log('Fail to read schema file...');
-      this._log(e.message);
+      this.log('Fail to read schema file...');
+      this.log(e.message);
       return;
     }
   }
@@ -39,12 +45,12 @@ export class FileSchemaManager extends SchemaManager {
     try {
       const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._getProjectRootPath(this._info), this._schemaPath);
       this._watcher = this._info.serverHost.watchFile(resolvedSchmaPath, () => {
-        this._log('Change schema file.');
+        this.log('Change schema file.');
         this.emitChange();
       }, interval);
     } catch (e) {
-      this._log('Fail to read schema file...');
-      this._log(e.message);
+      this.log('Fail to read schema file...');
+      this.log(e.message);
       return;
     }
   }
@@ -59,10 +65,6 @@ export class FileSchemaManager extends SchemaManager {
       return (project as any).getProjectRootPath();
     }
     return path.dirname(project.getProjectName());
-  }
-
-  private _log(msg: string) {
-    this._info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
   }
 
 }
