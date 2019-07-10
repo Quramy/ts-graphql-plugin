@@ -1,4 +1,4 @@
-import { buildClientSchema } from 'graphql';
+import { GraphQLSchema } from 'graphql';
 import {
   CompletionItem,
   Diagnostic,
@@ -10,7 +10,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { isTagged, TagCondition } from './ts-util/index';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
-  schema?: any;
+  schema?: GraphQLSchema | null;
   logger?: (msg: string) => void;
   tag?: string;
 }
@@ -27,7 +27,7 @@ export interface ScriptSourceHelper {
 
 export class GraphQLLanguageServiceAdapter {
 
-  private _schema: any;
+  private _schema: GraphQLSchema;
   private _tagCondition: TagCondition = null;
 
   constructor(
@@ -39,15 +39,8 @@ export class GraphQLLanguageServiceAdapter {
       if (opt.tag) this._tagCondition = opt.tag;
   }
 
-  updateSchema(schema: { data: any }) {
-    try {
-      this._schema = buildClientSchema(schema.data);
-      this._logger('Build client schema.');
-    } catch (err) {
-      this._logger('Fail to build schema...');
-      this._logger(err);
-      this._schema = null;
-    }
+  updateSchema(schema: GraphQLSchema) {
+    this._schema = schema;
   }
 
   getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number, options?: ts.GetCompletionsAtPositionOptions) {
