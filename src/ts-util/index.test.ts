@@ -1,29 +1,28 @@
-import test from 'ava';
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { findAllNodes, findNode, isTagged } from './';
 
-test('isTagged should return true when the tag condition is matched', t => {
+it('isTagged should return true when the tag condition is matched', () => {
   const text = 'function myTag(...args: any[]) { return "" }' + '\n'
              + 'const x = myTag`query { }`';
   const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.ES2015, true);
   const node: ts.Node = findNode(s, text.length - 3);
-  t.truthy(isTagged(node, 'myTag'));
+  expect(isTagged(node, 'myTag')).toBeTruthy();
 });
 
-test('isTagged should return true when the tag condition is not matched', t => {
+it('isTagged should return true when the tag condition is not matched', () => {
   const text = 'function myTag(...args: any[]) { return "" }' + '\n'
              + 'const x = myTag`query { }`';
   const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.ES2015, true);
   const node: ts.Node = findNode(s, text.length - 3);
-  t.falsy(isTagged(node, 'MyTag'));
+  expect(isTagged(node, 'MyTag')).toBeFalsy();
 });
 
-test('findAllNodes should return nodes which match given condition', t => {
+it('findAllNodes should return nodes which match given condition', () => {
   const text = 'const a = `AAA`;' + '\n'
              + 'const b = `BBB`;';
 
   const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.ES2015, true);
   const actual = findAllNodes(s, node => node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral);
-  t.is(actual.length, 2);
-  t.deepEqual(actual.map(n => n.getText()), ['`AAA`', '`BBB`']);
+  expect(actual.length).toBe(2);
+  expect(actual.map(n => n.getText())).toEqual(['`AAA`', '`BBB`']);
 });
