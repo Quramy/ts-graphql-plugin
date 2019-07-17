@@ -5,7 +5,7 @@ it('isTagged should return true when the tag condition is matched', () => {
   const text = 'function myTag(...args: any[]) { return "" }' + '\n'
              + 'const x = myTag`query { }`';
   const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.ES2015, true);
-  const node: ts.Node = findNode(s, text.length - 3);
+  const node = findNode(s, text.length - 3) as ts.Node;
   expect(isTagged(node, 'myTag')).toBeTruthy();
 });
 
@@ -13,7 +13,7 @@ it('isTagged should return true when the tag condition is not matched', () => {
   const text = 'function myTag(...args: any[]) { return "" }' + '\n'
              + 'const x = myTag`query { }`';
   const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.ES2015, true);
-  const node: ts.Node = findNode(s, text.length - 3);
+  const node = findNode(s, text.length - 3) as ts.Node;
   expect(isTagged(node, 'MyTag')).toBeFalsy();
 });
 

@@ -7,15 +7,26 @@ import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
   logger('config: ' + JSON.stringify(info.config));
+  const getSourceFile = (fileName: string) => {
+    const program = info.languageService.getProgram();
+    if (!program) {
+      throw new Error();
+    }
+    const s = program.getSourceFile(fileName);
+    if (!s) {
+      throw new Error('no source file');
+    }
+    return s;
+  };
   const getNode = (fileName: string, position: number) => {
-    return findNode(info.languageService.getProgram().getSourceFile(fileName), position);
+    return findNode(getSourceFile(fileName), position);
   };
   const getAllNodes = (fileName: string, cond: (n: ts.Node) => boolean) => {
-    const s = info.languageService.getProgram().getSourceFile(fileName);
+    const s = getSourceFile(fileName);
     return findAllNodes(s, cond);
   };
   const getLineAndChar = (fileName: string, position: number) => {
-    const s = info.languageService.getProgram().getSourceFile(fileName);
+    const s = getSourceFile(fileName);
     return ts.getLineAndCharacterOfPosition(s, position);
   };
   const schemaManager = new SchemaManagerFactory(info).create();
@@ -24,7 +35,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     getAllNodes,
     getLineAndChar,
   };
-  const schema = schemaManager.getSchema();
+  const schema = schemaManager && schemaManager.getSchema();
   const tag = info.config.tag;
   const adapter = new GraphQLLanguageServiceAdapter(helper, { schema, logger, tag });
 
@@ -34,8 +45,10 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     .build()
   ;
 
-  schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));
-  schemaManager.startWatch();
+  if (schemaManager) {
+    schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));
+    schemaManager.startWatch();
+  }
 
   return proxy;
 }
