@@ -36,13 +36,13 @@ export class HttpSchemaManager extends SchemaManager {
         hostname: uri.hostname,
         protocol: uri.protocol,
         path: uri.path,
-        port: Number.parseInt(uri.port, 10),
+        port: uri.port && Number.parseInt(uri.port, 10),
         headers,
         method: options.method,
       }, res => {
         res.on('data', chunk => body += chunk);
         res.on('end', () => {
-          if (res.statusCode < 200 || res.statusCode > 300) {
+          if (!res.statusCode || res.statusCode < 200 || res.statusCode > 300) {
             reject({
               statusCode: res.statusCode,
               body,

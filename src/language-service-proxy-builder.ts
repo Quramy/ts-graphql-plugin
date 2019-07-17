@@ -5,19 +5,19 @@ export type LanguageServiceMethodWrapper<K extends keyof ts.LanguageService>
 
 export class LanguageServiceProxyBuilder {
 
-  private _wrappers = [];
+  private _wrappers: any[] = [];
 
   constructor(private _info: ts.server.PluginCreateInfo) { }
 
-  wrap<K extends keyof ts.LanguageService>(name: K, wrapper: LanguageServiceMethodWrapper<K>) {
+  wrap<K extends keyof ts.LanguageService, Q extends LanguageServiceMethodWrapper<K>>(name: K, wrapper: Q) {
     this._wrappers.push({ name, wrapper });
     return this;
   }
 
-  build() {
+  build(): ts.LanguageService {
     const ret = this._info.languageService;
     this._wrappers.forEach(({ name, wrapper }) => {
-      ret[name] = wrapper(this._info.languageService[name], this._info);
+      (ret as any)[name] = wrapper(this._info.languageService[name as keyof ts.LanguageService], this._info);
     });
     return ret;
   }

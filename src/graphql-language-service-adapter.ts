@@ -20,15 +20,15 @@ export type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'
 
 export interface ScriptSourceHelper {
   // getSource: (fileName: string) => ts.SourceFile;
-  getAllNodes: (fileName: string, condition) => ts.Node[];
-  getNode: (fileName: string, position) => ts.Node;
-  getLineAndChar: (fileName: string, position) => ts.LineAndCharacter;
+  getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
+  getNode: (fileName: string, position: number) => ts.Node | undefined;
+  getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
 }
 
 export class GraphQLLanguageServiceAdapter {
 
-  private _schema: GraphQLSchema;
-  private _tagCondition: TagCondition = null;
+  private _schema?: GraphQLSchema;
+  private _tagCondition?: TagCondition;
 
   constructor(
     private _helper: ScriptSourceHelper,
@@ -142,8 +142,6 @@ class SimplePosition implements Position {
   lessThanOrEqualTo(p: Position) {
     if (this.line < p.line) return true;
     if (this.line > p.line) return false;
-    if (this.line === p.line) {
-      return this.character <= p.character;
-    }
+    return this.character <= p.character;
   }
 }

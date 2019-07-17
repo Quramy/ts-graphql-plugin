@@ -9,7 +9,7 @@ export interface FileSchemaManagerOptions {
 
 export class FileSchemaManager extends SchemaManager {
   private _schemaPath: string;
-  private _watcher: ts.FileWatcher;
+  private _watcher?: ts.FileWatcher;
 
   constructor(_info: ts.server.PluginCreateInfo, options: FileSchemaManagerOptions) {
     super(_info);
@@ -17,22 +17,26 @@ export class FileSchemaManager extends SchemaManager {
   }
 
   getSchema() {
-    if (!this._schemaPath || typeof this._schemaPath !== 'string') return;
+    if (!this._schemaPath || typeof this._schemaPath !== 'string') return null;
     try {
       const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._getProjectRootPath(this._info), this._schemaPath);
       this.log('Read schema from ' + resolvedSchmaPath);
+      if (!this._info.languageServiceHost.fileExists || !this._info.languageServiceHost.readFile) {
+        throw new Error('for this plugin, languageServiceHost should has readFile and fileExists method');
+      }
       const isExists = this._info.languageServiceHost.fileExists(resolvedSchmaPath);
-      if (!isExists) return;
+      if (!isExists) return null;
       if (this._schemaPath.endsWith('.graphql') || this._schemaPath.endsWith('.gql')) {
-        return buildSchema(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
+        const sdl = this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8');
+        return sdl ? buildSchema(sdl) : null;
       } else {
-        const { data } = JSON.parse(this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8'));
-        return buildClientSchema(data);
+        const introspectionContents = this._info.languageServiceHost.readFile(resolvedSchmaPath, 'utf-8');
+        return introspectionContents ? buildClientSchema(JSON.parse(introspectionContents).data) : null;
       }
     } catch (e) {
       this.log('Fail to read schema file...');
       this.log(e.message);
-      return;
+      return null;
     }
   }
 
