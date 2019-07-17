@@ -13,11 +13,11 @@
     "clean": "rimraf lib types e2e/*.log",
     "compile": "tsc -p .",
     "lint": "tslint -p tsconfig.json --type-check src/**/*.ts",
-    "ava": "ava",
+    "jest": "jest",
     "e2e": "node e2e/run.js && node e2e/http-req.test.js",
-    "test": "yarn run lint && ava && yarn run e2e",
+    "test": "yarn run lint && jest && yarn run e2e",
     "watch:compile": "tsc --watch -p .",
-    "watch:ava": "ava --watch",
+    "watch:jest": "jest --watch",
     "watch": "yarn run clean  && run-p watch:*"
   },
   "author": "Quramy",
@@ -31,12 +31,14 @@
   },
   "devDependencies": {
     "@types/graphql": "^0.12.0",
+    "@types/jest": "^24.0.15",
     "@types/node": "^12.6.0",
-    "ava": "^2.1.0",
     "glob": "^7.1.2",
     "graphql": "^0.12.0",
+    "jest": "^24.8.0",
     "npm-run-all": "^4.1.1",
     "rimraf": "^2.6.1",
+    "ts-jest": "^24.0.2",
     "tslint": "^5.7.0",
     "typescript": "~3.5.0"
   },
@@ -44,9 +46,22 @@
     "graphql": "^0.12.0 | ^14.0.0",
     "typescript": "^2.3.0 | ^3.0.0"
   },
-  "ava": {
-    "files": [
-      "lib/**/*.test.js"
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "(src/.*\\.test)\\.ts$",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "\\.d\\.ts$",
+      "lib/.*",
+      "typedef/.*",
+      "types/.*"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json"
     ]
   }
 }
