@@ -1,0 +1,5 @@
+__generated__/
+*.css.d.ts
+dist/
+built/
+tools/

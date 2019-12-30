@@ -1,6 +1,6 @@
 # ts-graphql-plugin
 
-[![wercker status](https://app.wercker.com/status/c2528abe2327a0b1dfa007225f2de471/s/master "wercker status")](https://app.wercker.com/project/byKey/c2528abe2327a0b1dfa007225f2de471) [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin) ![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/ts-graphql-plugin.svg)](https://greenkeeper.io/) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
+[![wercker status](https://app.wercker.com/status/c2528abe2327a0b1dfa007225f2de471/s/master 'wercker status')](https://app.wercker.com/project/byKey/c2528abe2327a0b1dfa007225f2de471) [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin) ![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/ts-graphql-plugin.svg)](https://greenkeeper.io/) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
 
 TypeScript Language Service Plugin to help GraphQL client development(e.g. [Apollo](https://github.com/apollographql/apollo-client)).
 This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql) to your editor or IDE.
@@ -35,7 +35,7 @@ And configure `plugins` section in your tsconfig.json, for example:
       {
         "name": "ts-graphql-plugin",
         "schema": "path-or-url-to-your-schema.graphql",
-        "tag": "gql" 
+        "tag": "gql"
       }
     ]
   }
@@ -47,6 +47,7 @@ It's ready to go. Launch your TypeScript IDE.
 ### Plugin options
 
 #### `schema`
+
 It's a required parameter and should point your GraphQL schema SDL file such as :
 
 ```graphql
@@ -104,21 +105,23 @@ You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL
 The `schema` option accepts the following type:
 
 ```ts
-type SchemaConfig = string |
-{
-  file: {
-    path: string;
-  }
-} |
-{
-  http: {
-    url: string;
-    headers?: { [key: string]: string };
-  }
-};
+type SchemaConfig =
+  | string
+  | {
+      file: {
+        path: string;
+      };
+    }
+  | {
+      http: {
+        url: string;
+        headers?: { [key: string]: string };
+      };
+    };
 ```
 
 #### `tag`
+
 It's optional. When it's set, this plugin works only if the target template string is tagged by a function whose name is equal to this parameter.
 
 If not set, this plugin treats all template strings in your .ts as GraphQL query.
@@ -129,14 +132,15 @@ For example:
 import gql from 'graphql-tag';
 
 // when tag paramter is 'gql'
-const str1 = gql`query { }`;     // work
-const str2 = `<div></div>`;       // don't work
-const str3 = otherTagFn`foooo`;  // don't work
+const str1 = gql`query { }`; // work
+const str2 = `<div></div>`; // don't work
+const str3 = otherTagFn`foooo`; // don't work
 ```
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
 
 ## Available editors
+
 I've checked the operation with the following editors:
 
 - Visual Studio Code
@@ -149,7 +153,9 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Eclipse
 
 ## How it works
+
 This plugin relies on [graphql-language-service](https://github.com/graphql/graphql-language-service) and adapts it for [TypeScript Language Service](https://github.com/Microsoft/TypeScript/wiki/Architectural-Overview#layer-overview).
 
 ## License
+
 This software is released under the MIT License, see LICENSE.txt.

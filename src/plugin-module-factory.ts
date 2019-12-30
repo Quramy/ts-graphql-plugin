@@ -3,7 +3,7 @@ import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-lan
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { findAllNodes, findNode } from './ts-util';
 import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
-import { resolveTemplateExpression } from "./ts-util/resolve-template-expression";
+import { resolveTemplateExpression } from './ts-util/resolve-template-expression';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
@@ -50,8 +50,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const proxy = new LanguageServiceProxyBuilder(info)
     .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionAtPosition.bind(adapter, delegate))
     .wrap('getSemanticDiagnostics', delegate => adapter.getSemanticDiagnostics.bind(adapter, delegate))
-    .build()
-  ;
+    .build();
 
   if (schemaManager) {
     schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));
