@@ -1,9 +1,8 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
-import { findAllNodes, findNode } from './ts-util';
+import { findAllNodes, findNode, resolveTemplateExpression } from './ts-util';
 import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
-import { resolveTemplateExpression } from './ts-util/resolve-template-expression';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);

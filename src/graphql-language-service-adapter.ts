@@ -7,8 +7,7 @@ import {
   Position,
 } from 'graphql-language-service-interface';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { isTagged, TagCondition } from './ts-util/index';
-import { ResolveTemplateExpressionResult } from './ts-util/resolve-template-expression';
+import { isTagged, TagCondition, ResolveTemplateExpressionResult } from './ts-util';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;

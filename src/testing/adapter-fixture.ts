@@ -1,8 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { findAllNodes, findNode } from '../ts-util';
+import { findAllNodes, findNode, createResultForNoSubstitution, ResolveTemplateExpressionResult } from '../ts-util';
 import { buildClientSchema } from 'graphql';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
-import { createResultForNoSubstitution, ResolveTemplateExpressionResult } from '../ts-util/resolve-template-expression';
 export class AdapterFixture {
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;
@@ -34,8 +33,6 @@ export class AdapterFixture {
     };
     this.adapter = new GraphQLLanguageServiceAdapter(helper, {
       schema: introspectionResultJson && buildClientSchema(introspectionResultJson.data),
-      /* tslint:disable:no-console */
-      // logger: msg => console.log(msg),
     });
   }
 
