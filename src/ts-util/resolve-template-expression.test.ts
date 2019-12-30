@@ -1,8 +1,8 @@
 import * as ts from 'typescript';
 
 import { findAllNodes } from './index';
-import { resolveTemplateExpression } from "./resolve-template-expression";
-import { createTestingLanguageService } from "../testing/lang-service-fixture";
+import { resolveTemplateExpression } from './resolve-template-expression';
+import { createTestingLanguageService } from '../testing/lang-service-fixture';
 import { contentMark, Markers } from '../testing/content-mark';
 
 describe(resolveTemplateExpression, () => {
@@ -18,7 +18,11 @@ describe(resolveTemplateExpression, () => {
     const source = langService.getProgram()!.getSourceFile('main.ts');
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
-    const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+    const actual = resolveTemplateExpression({
+      node: node as ts.NoSubstitutionTemplateLiteral,
+      fileName: 'main.ts',
+      languageService: langService,
+    });
     if (!actual) return fail();
     expect(actual.combinedText).toBe('');
     expect(() => actual.getInnerPosition(0)).toThrowError();
@@ -28,27 +32,33 @@ describe(resolveTemplateExpression, () => {
   });
 
   it('should resolve for no closed NoSubstitutionTemplateLiteral node', () => {
-    const markers = { } as Markers;
+    const markers = {} as Markers;
     const langService = createTestingLanguageService({
       files: [
         {
           fileName: 'main.ts',
+          // prettier-ignore
           content: contentMark(
             'const query = `query { }' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
             markers,
-          ),
+          )
         },
       ],
     });
     const source = langService.getProgram()!.getSourceFile('main.ts');
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
-    const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+    const actual = resolveTemplateExpression({
+      node: node as ts.NoSubstitutionTemplateLiteral,
+      fileName: 'main.ts',
+      languageService: langService,
+    });
     if (!actual) return fail();
 
     expect(actual.combinedText).toBe(
+      // prettier-ignore
       contentMark(
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
@@ -68,27 +78,33 @@ describe(resolveTemplateExpression, () => {
   });
 
   it('should resolve for closed NoSubstitutionTemplateLiteral node', () => {
-    const markers = { } as Markers;
+    const markers = {} as Markers;
     const langService = createTestingLanguageService({
       files: [
         {
           fileName: 'main.ts',
+          // prettier-ignore
           content: contentMark(
             'const query = `query { }`' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
             markers,
-          ),
+          )
         },
       ],
     });
     const source = langService.getProgram()!.getSourceFile('main.ts');
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
-    const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+    const actual = resolveTemplateExpression({
+      node: node as ts.NoSubstitutionTemplateLiteral,
+      fileName: 'main.ts',
+      languageService: langService,
+    });
     if (!actual) return fail();
 
     expect(actual.combinedText).toBe(
+      // prettier-ignore
       contentMark(
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
@@ -108,12 +124,13 @@ describe(resolveTemplateExpression, () => {
   });
 
   it('should resolve templateExpression spans in no closed TemplateExpression node', () => {
-    const markers = { } as Markers;
+    const markers = {} as Markers;
     const langService = createTestingLanguageService({
       files: [
         {
           fileName: 'main.ts',
-          content: contentMark('\n' + 
+          // prettier-ignore
+          content: contentMark('\n' +
             '    const fragment = gql`fragment Hoge on Foo { name }`;'     + '\n' +
             '    const query = gql`'                                       + '\n' +
             '%%%                  ^                                   %%%' + '\n' +
@@ -123,11 +140,11 @@ describe(resolveTemplateExpression, () => {
             '%%%     a3      a2                                       %%%' + '\n' +
             '      query MyQuery {'                                        + '\n' +
             '        ...Hoge'                                              + '\n' +
-            '      }'                                                      + '\n' + 
+            '      }'                                                      + '\n' +
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    ', markers),
+            '    ', markers)
         },
       ],
     });
@@ -141,14 +158,15 @@ describe(resolveTemplateExpression, () => {
     });
     if (!actual) return fail();
 
-    const expectedCombinedText = contentMark('\n' + 
+    // prettier-ignore
+    const expectedCombinedText = contentMark('\n' +
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b1%%%' + '\n' +
-      '      query MyQuery {'                   + '\n' + 
+      '      query MyQuery {'                   + '\n' +
       '        ...Hoge'                         + '\n' +
       '      }'                                 + '\n' +
-      '      fragment Hoge on Foo { name }'     + '\n' + 
+      '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b2%%%' + '\n' +
       '    ', markers);
@@ -162,21 +180,28 @@ describe(resolveTemplateExpression, () => {
     expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
     expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a3.pos });
-    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.a2.pos + 1 });
+    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a2.pos + 1,
+    });
 
     expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
     expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a5.pos });
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.a4.pos + 1 });
+    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a4.pos + 1,
+    });
   });
 
   it('should resolve templateExpression spans in closed TemplateExpression node', () => {
-    const markers = { } as Markers;
+    const markers = {} as Markers;
     const langService = createTestingLanguageService({
       files: [
         {
           fileName: 'main.ts',
-          content: contentMark('\n' + 
+          // prettier-ignore
+          content: contentMark('\n' +
             '    const fragment = gql`fragment Hoge on Foo { name }`;'     + '\n' +
             '    const query = gql`'                                       + '\n' +
             '%%%                  ^                                   %%%' + '\n' +
@@ -186,11 +211,11 @@ describe(resolveTemplateExpression, () => {
             '%%%     a3      a2                                       %%%' + '\n' +
             '      query MyQuery {'                                        + '\n' +
             '        ...Hoge'                                              + '\n' +
-            '      }'                                                      + '\n' + 
+            '      }'                                                      + '\n' +
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    `;', markers),
+            '    `;', markers)
         },
       ],
     });
@@ -204,14 +229,15 @@ describe(resolveTemplateExpression, () => {
     });
     if (!actual) return fail();
 
-    const expectedCombinedText = contentMark('\n' + 
+    // prettier-ignore
+    const expectedCombinedText = contentMark('\n' +
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b1%%%' + '\n' +
-      '      query MyQuery {'                   + '\n' + 
+      '      query MyQuery {'                   + '\n' +
       '        ...Hoge'                         + '\n' +
       '      }'                                 + '\n' +
-      '      fragment Hoge on Foo { name }'     + '\n' + 
+      '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b2%%%' + '\n' +
       '    ', markers);
@@ -225,12 +251,18 @@ describe(resolveTemplateExpression, () => {
     expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
     expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a3.pos });
-    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.a2.pos + 1 });
+    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a2.pos + 1,
+    });
 
     expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
     expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a5.pos });
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.a4.pos + 1 });
+    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a4.pos + 1,
+    });
   });
 
   describe('string combinination pattern', () => {
@@ -246,7 +278,11 @@ describe(resolveTemplateExpression, () => {
       const source = langService.getProgram()!.getSourceFile('main.ts');
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
-      const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+      const actual = resolveTemplateExpression({
+        node: node as ts.NoSubstitutionTemplateLiteral,
+        fileName: 'main.ts',
+        languageService: langService,
+      });
       expect(actual!.combinedText).toBe('query { }');
     });
 
@@ -255,14 +291,18 @@ describe(resolveTemplateExpression, () => {
         files: [
           {
             fileName: 'main.ts',
-            content: 'const query = `query { ${\'foo\'} }`',
+            content: "const query = `query { ${'foo'} }`",
           },
         ],
       });
       const source = langService.getProgram()!.getSourceFile('main.ts');
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
-      const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+      const actual = resolveTemplateExpression({
+        node: node as ts.NoSubstitutionTemplateLiteral,
+        fileName: 'main.ts',
+        languageService: langService,
+      });
       expect(actual!.combinedText).toBe('query { foo }');
     });
 
@@ -288,7 +328,11 @@ describe(resolveTemplateExpression, () => {
       const source = langService.getProgram()!.getSourceFile('main.ts');
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
-      const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+      const actual = resolveTemplateExpression({
+        node: node as ts.NoSubstitutionTemplateLiteral,
+        fileName: 'main.ts',
+        languageService: langService,
+      });
       const expectedText = `
                 
                 fragment Foo on Hoge {
@@ -323,7 +367,11 @@ describe(resolveTemplateExpression, () => {
       const source = langService.getProgram()!.getSourceFile('main.ts');
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
-      const actual = resolveTemplateExpression({ node: node as ts.NoSubstitutionTemplateLiteral, fileName: 'main.ts', languageService: langService });
+      const actual = resolveTemplateExpression({
+        node: node as ts.NoSubstitutionTemplateLiteral,
+        fileName: 'main.ts',
+        languageService: langService,
+      });
       const expectedText = `
                 
                 fragment Foo on Hoge {

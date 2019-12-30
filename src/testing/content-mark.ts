@@ -1,11 +1,11 @@
-import { location2pos } from "../string-util";
+import { location2pos } from '../string-util';
 
 function getCols(line: string, pre = 0): number[] {
   const idx = line.indexOf('^');
   if (idx === -1) {
     return [];
   }
-  return [idx + pre, ...getCols(line.slice(idx + 1), pre + idx + 1)]
+  return [idx + pre, ...getCols(line.slice(idx + 1), pre + idx + 1)];
 }
 
 export type Marker = {
@@ -21,7 +21,7 @@ export type Markers = {
 export function contentMark(content: string, inputMarkes: Markers) {
   const lines = content.split('\n');
   const actualLines = [] as string[];
-  const markInfos = [] as { col: number, line: number; name: string }[];
+  const markInfos = [] as { col: number; line: number; name: string }[];
   for (let i = 0; i < lines.length; ++i) {
     const line = lines[i];
     if (!line.match(/\s*%%%.*%%%\s*$/)) {
@@ -43,7 +43,7 @@ export function contentMark(content: string, inputMarkes: Markers) {
     }
   }
   const actualContent = actualLines.join('\n');
-  const markers = markInfos.reduce((acc, { name, line, col: character } ) => {
+  const markers = markInfos.reduce((acc, { name, line, col: character }) => {
     return {
       ...acc,
       [name]: {
@@ -52,7 +52,7 @@ export function contentMark(content: string, inputMarkes: Markers) {
         pos: location2pos(actualContent, { line, character }),
       },
     };
-  }, { } as Markers);
+  }, {} as Markers);
   Object.assign(inputMarkes, markers);
   return actualContent;
-};
+}

@@ -1,8 +1,9 @@
 export function pos2location(initalContent: string, pos: number) {
-  let l = 0, c = 0;
+  let l = 0,
+    c = 0;
   for (let i = 0; i < initalContent.length && i < pos; i++) {
     const cc = initalContent[i];
-    if (cc === "\n") {
+    if (cc === '\n') {
       c = 0;
       l++;
     } else {
@@ -12,8 +13,9 @@ export function pos2location(initalContent: string, pos: number) {
   return { line: l, character: c };
 }
 
-export function location2pos(initalContent: string, location: { line: number, character: number }) {
-  let il = 0,  ic = 0;
+export function location2pos(initalContent: string, location: { line: number; character: number }) {
+  let il = 0,
+    ic = 0;
   for (let i = 0; i < initalContent.length; i++) {
     const cc = initalContent[i];
     if (il === location.line) {
@@ -21,7 +23,7 @@ export function location2pos(initalContent: string, location: { line: number, ch
         return i;
       }
     }
-    if (cc === "\n") {
+    if (cc === '\n') {
       ic = 0;
       il++;
     } else {
