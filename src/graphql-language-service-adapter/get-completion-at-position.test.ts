@@ -29,7 +29,7 @@ describe('getCompletionAtPosition', () => {
     expect(actual).toBe(notFoundCompletionInfo);
   });
 
-  test('should return completion entries', async () => {
+  it('should return completion entries', async () => {
     const fixture = createFixture('input.ts', await createSimpleSchema());
     const completionFn = fixture.adapter.getCompletionAtPosition.bind(fixture.adapter, delegateFn, 'input.ts');
 

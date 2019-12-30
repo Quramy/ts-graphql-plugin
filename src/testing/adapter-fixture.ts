@@ -5,6 +5,7 @@ import {
   GraphQLLanguageServiceAdapter,
   ScriptSourceHelper,
 } from '../graphql-language-service-adapter';
+import { createResultForNoSubstitution, ResolveTemplateExpressionResult } from "../ts-util/resolve-template-expression";
 export class AdapterFixture {
 
   adapter: GraphQLLanguageServiceAdapter;
@@ -19,10 +20,18 @@ export class AdapterFixture {
     const getLineAndChar = (fileName: string, position: number) => {
       return ts.getLineAndCharacterOfPosition(this._source, position);
     };
+    const resolveTemplateLiteral = (fileName: string, node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) => {
+      if (ts.isTemplateExpression(node)) {
+        throw new Error('not implemented');
+      } else {
+        return createResultForNoSubstitution(node, scriptFileName);
+      }
+    };
     const helper: ScriptSourceHelper = {
       getNode,
       getAllNodes,
       getLineAndChar,
+      resolveTemplateLiteral,
     };
     this.adapter = new GraphQLLanguageServiceAdapter(helper, {
       schema: introspectionResultJson && buildClientSchema(introspectionResultJson.data),
