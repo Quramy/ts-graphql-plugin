@@ -42,8 +42,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const proxy = new LanguageServiceProxyBuilder(info)
     .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionAtPosition.bind(adapter, delegate))
     .wrap('getSemanticDiagnostics', delegate => adapter.getSemanticDiagnostics.bind(adapter, delegate))
-    .build()
-  ;
+    .build();
 
   if (schemaManager) {
     schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));

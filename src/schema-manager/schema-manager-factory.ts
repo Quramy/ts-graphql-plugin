@@ -24,8 +24,7 @@ export function isHttpType(conf: SchemaConfigOptions): conf is HttpSchemaConfigO
 export type SchemaConfig = string | SchemaConfigOptions;
 
 export class SchemaManagerFactory {
-  constructor(private _info: ts.server.PluginCreateInfo) {
-  }
+  constructor(private _info: ts.server.PluginCreateInfo) {}
 
   create(): SchemaManager | null {
     const schemaConfig = this._info.config.schema as SchemaConfig;

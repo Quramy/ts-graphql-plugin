@@ -19,8 +19,11 @@ describe('getSemanticDiagnostics', () => {
 
   it('should validate GraphQL syntax in template string', async () => {
     const fixture = craeteFixture('input.ts', await createSimpleSchema());
-    const validateFn: () => ts.Diagnostic[]
-      = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+    const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(
+      fixture.adapter,
+      delegateFn,
+      'input.ts',
+    );
 
     fixture.source = 'const ql = `';
     const [actual1] = validateFn();
@@ -28,6 +31,7 @@ describe('getSemanticDiagnostics', () => {
     expect(messageText.match(/Syntax Error:/)).toBeTruthy();
     expect(actual1.start).toBe(11); // start character
 
+    // prettier-ignore
     fixture.source = 'const ql = `' + '\n'
                    + '{`';
     const [actual2] = validateFn();
@@ -36,6 +40,7 @@ describe('getSemanticDiagnostics', () => {
     fixture.source = 'const ql = `query { hello }`';
     expect(validateFn()).toEqual([]); // no errors for valid query
 
+    // prettier-ignore
     fixture.source = 'const ql = `query {' + '\n'
                    + '  hello' + '\n'
                    + ' }`';
@@ -44,9 +49,13 @@ describe('getSemanticDiagnostics', () => {
 
   it('should return diagnostic array for invalid GraphQL template string', async () => {
     const fixture = craeteFixture('input.ts', await createSimpleSchema());
-    const validateFn: () => ts.Diagnostic[]
-      = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+    const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(
+      fixture.adapter,
+      delegateFn,
+      'input.ts',
+    );
 
+    // prettier-ignore
     fixture.source = 'const ql = `query {' + '\n'
                    + '  hoge,' + '\n'
                    + ' }`';
@@ -57,9 +66,13 @@ describe('getSemanticDiagnostics', () => {
 
   it('should return empty array for valid GraphQL template string', async () => {
     const fixture = craeteFixture('input.ts', await createSimpleSchema());
-    const validateFn: () => ts.Diagnostic[]
-      = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+    const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(
+      fixture.adapter,
+      delegateFn,
+      'input.ts',
+    );
 
+    // prettier-ignore
     fixture.source = 'const ql = `query {' + '\n'
                    + '  hello' + '\n'
                    + ' }`';
