@@ -344,7 +344,7 @@ describe(resolveTemplateExpression, () => {
       expect(actual!.combinedText).toBe(expectedText);
     });
 
-    fit('should return combined string with hopping reference', () => {
+    it('should return combined string with hopping reference', () => {
       const langService = createTestingLanguageService({
         files: [
           {
