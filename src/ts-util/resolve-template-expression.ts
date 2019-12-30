@@ -168,10 +168,8 @@ export function resolveTemplateExpression({ node, fileName, languageService }: R
   const [getInnerPosForHead, getSourcePosForHead] = createComputePositionsForTemplateHead(head, fileName);
   let headLength = head.text.length;
   const texts = [head.text];
-  const getInnerPositions: [(pos: number, next: ComputePosition) => ReturnType<ComputePosition>] = [getInnerPosForHead];
-  const getSourcePositions: [(pos: number, next: ComputePosition) => ReturnType<ComputePosition>] = [
-    getSourcePosForHead,
-  ];
+  const getInnerPositions = [getInnerPosForHead];
+  const getSourcePositions = [getSourcePosForHead];
   for (const spanNode of template.templateSpans) {
     const stringForSpan = getValueAsString(fileName, spanNode.expression, languageService);
     if (!stringForSpan) return;
