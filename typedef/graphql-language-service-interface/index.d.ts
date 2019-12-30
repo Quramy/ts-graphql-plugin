@@ -1,5 +1,4 @@
 declare module 'graphql-language-service-interface' {
-
   export interface Position {
     line: number;
     character: number;
@@ -61,10 +60,5 @@ declare module 'graphql-language-service-interface' {
     contextToken?: ContextToken,
   ): CompletionItem[];
 
-  export function getDiagnostics(
-    queryText: string,
-    schema?: any,
-    customRules?: CustomValidationRule[],
-  ): Diagnostic[];
-
+  export function getDiagnostics(queryText: string, schema?: any, customRules?: CustomValidationRule[]): Diagnostic[];
 }

@@ -9,7 +9,12 @@
     "rootDir": "src",
     "strict": true,
     "lib": ["es2015", "esnext.asynciterable"],
-    "typeRoots": ["./node_modules/@types", "./typedef"]
+    "typeRoots": ["./node_modules/@types", "./typedef"],
+    "plugins": [
+      {
+        "name": "typescript-eslint-language-service"
+      }
+    ]
   },
   "exclude": ["lib", "e2e", "types", "typedef", "node_modules"]
 }

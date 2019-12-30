@@ -25,25 +25,74 @@ export interface ScriptSourceHelper {
   getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
 }
 
-export class GraphQLLanguageServiceAdapter {
+function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
+  const result: ts.CompletionInfo = {
+    isGlobalCompletion: false,
+    isMemberCompletion: false,
+    isNewIdentifierLocation: false,
+    entries: items.map(r => {
+      // FIXME use ts.ScriptElementKind
+      const kind = r.kind ? r.kind + '' : ('unknown' as any);
+      return {
+        name: r.label,
+        kindModifiers: 'declare',
+        kind,
+        sortText: '0',
+      };
+    }),
+  };
+  return result;
+}
 
+function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
+  const code = typeof d.code === 'number' ? d.code : 9999;
+  const messageText = d.message.split('\n')[0];
+  return {
+    code,
+    messageText,
+    category: d.severity as ts.DiagnosticCategory,
+    file,
+    start,
+    length,
+  };
+}
+
+class SimplePosition implements Position {
+  line: number;
+  character: number;
+
+  constructor(lc: ts.LineAndCharacter) {
+    this.line = lc.line;
+    this.character = lc.character;
+  }
+
+  lessThanOrEqualTo(p: Position) {
+    if (this.line < p.line) return true;
+    if (this.line > p.line) return false;
+    return this.character <= p.character;
+  }
+}
+
+export class GraphQLLanguageServiceAdapter {
   private _schema?: GraphQLSchema;
   private _tagCondition?: TagCondition;
 
-  constructor(
-    private _helper: ScriptSourceHelper,
-    opt: GraphQLLanguageServiceAdapterCreateOptions = { },
-  ) {
-      if (opt.logger) this._logger = opt.logger;
-      if (opt.schema) this.updateSchema(opt.schema);
-      if (opt.tag) this._tagCondition = opt.tag;
+  constructor(private _helper: ScriptSourceHelper, opt: GraphQLLanguageServiceAdapterCreateOptions = {}) {
+    if (opt.logger) this._logger = opt.logger;
+    if (opt.schema) this.updateSchema(opt.schema);
+    if (opt.tag) this._tagCondition = opt.tag;
   }
 
   updateSchema(schema: GraphQLSchema) {
     this._schema = schema;
   }
 
-  getCompletionAtPosition(delegate: GetCompletionAtPosition, fileName: string, position: number, options?: ts.GetCompletionsAtPositionOptions) {
+  getCompletionAtPosition(
+    delegate: GetCompletionAtPosition,
+    fileName: string,
+    position: number,
+    options?: ts.GetCompletionsAtPositionOptions,
+  ) {
     if (!this._schema) return delegate(fileName, position, options);
     const node = this._helper.getNode(fileName, position);
     if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
@@ -57,7 +106,7 @@ export class GraphQLLanguageServiceAdapter {
     const cursorLC = this._helper.getLineAndChar(fileName, position);
     const relativeLC = { line: cursorLC.line - baseLC.line, character: cursorLC.character - baseLC.character + 1 };
     const p = new SimplePosition(relativeLC);
-    const text = node.getText().slice(1, cursor + 1);  // remove the backquote char
+    const text = node.getText().slice(1, cursor + 1); // remove the backquote char
     this._logger('Search text: "' + text + '" at ' + cursor + ' position');
     const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, p);
     this._logger(JSON.stringify(gqlCompletionItems));
@@ -94,54 +143,5 @@ export class GraphQLLanguageServiceAdapter {
     return result;
   }
 
-  private _logger: (msg: string) => void = () => { };
-}
-
-function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
-  const result: ts.CompletionInfo = {
-    isGlobalCompletion: false,
-    isMemberCompletion: false,
-    isNewIdentifierLocation: false,
-    entries: items.map(r => {
-      // FIXME use ts.ScriptElementKind
-      const kind = r.kind ? r.kind + '' : 'unknown' as any;
-      return {
-        name: r.label,
-        kindModifiers: 'declare',
-        kind,
-        sortText: '0',
-      };
-    }),
-  };
-  return result;
-}
-
-function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
-  const code = typeof d.code === 'number' ? d.code : 9999;
-  const messageText = d.message.split('\n')[0];
-  return {
-    code,
-    messageText,
-    category: d.severity as ts.DiagnosticCategory,
-    file,
-    start,
-    length,
-  };
-}
-
-class SimplePosition implements Position {
-
-  line: number;
-  character: number;
-
-  constructor(lc: ts.LineAndCharacter) {
-    this.line = lc.line;
-    this.character = lc.character;
-  }
-
-  lessThanOrEqualTo(p: Position) {
-    if (this.line < p.line) return true;
-    if (this.line > p.line) return false;
-    return this.character <= p.character;
-  }
+  private _logger: (msg: string) => void = () => {};
 }

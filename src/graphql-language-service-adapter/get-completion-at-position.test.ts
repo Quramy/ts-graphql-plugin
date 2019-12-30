@@ -39,8 +39,8 @@ describe('getCompletionAtPosition', () => {
     fixture.source = 'const a = `q';
     expect(completionFn(11)!.entries.length);
     expect(completionFn(11)!.entries).toEqual([
-      { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: '{', sortText: '0'},
-      { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: 'query', sortText: '0'},
+      { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: '{', sortText: '0' },
+      { kind: 'unknown' as ts.ScriptElementKind, kindModifiers: 'declare', name: 'query', sortText: '0' },
     ] as ts.CompletionEntry[]);
 
     fixture.source = 'const a = `query {';

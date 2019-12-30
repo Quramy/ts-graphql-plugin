@@ -1,12 +1,8 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { findAllNodes, findNode } from '../ts-util';
 import { buildClientSchema } from 'graphql';
-import {
-  GraphQLLanguageServiceAdapter,
-  ScriptSourceHelper,
-} from '../graphql-language-service-adapter';
+import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
 export class AdapterFixture {
-
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;
 
