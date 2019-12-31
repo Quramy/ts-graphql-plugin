@@ -179,7 +179,11 @@ describe(resolveTemplateExpression, () => {
 
     expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
-    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a3.pos });
+    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a3.pos,
+      isInOtherExpression: true,
+    });
     expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
       pos: markers.a2.pos + 1,
@@ -187,7 +191,11 @@ describe(resolveTemplateExpression, () => {
 
     expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a5.pos });
+    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a5.pos,
+      isInOtherExpression: true,
+    });
     expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
       pos: markers.a4.pos + 1,
@@ -250,7 +258,11 @@ describe(resolveTemplateExpression, () => {
 
     expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
-    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a3.pos });
+    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a3.pos,
+      isInOtherExpression: true,
+    });
     expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
       pos: markers.a2.pos + 1,
@@ -258,7 +270,11 @@ describe(resolveTemplateExpression, () => {
 
     expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
     expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a5.pos });
+    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a5.pos,
+      isInOtherExpression: true,
+    });
     expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
       pos: markers.a4.pos + 1,

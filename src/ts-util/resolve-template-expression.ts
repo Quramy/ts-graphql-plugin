@@ -2,7 +2,13 @@ import * as ts from 'typescript';
 import { findNode } from './';
 import { location2pos, pos2location } from '../string-util';
 
-export type ComputePosition = (innerPosition: number) => { fileName: string; pos: number };
+export type ComputePosition = (
+  innerPosition: number,
+) => {
+  fileName: string;
+  pos: number;
+  isInOtherExpression?: boolean;
+};
 
 export type ResolveTemplateExpressionOption = {
   node: ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
@@ -96,7 +102,7 @@ function createComputePositionsForTemplateSpan(node: ts.TemplateSpan, fileName: 
   };
   const getSourcePosition = (pos: number, next: ComputePosition) => {
     if (pos < headLength) {
-      return { fileName, pos: expressionStart };
+      return { fileName, pos: expressionStart, isInOtherExpression: true };
     } else if (pos > headLength + textLength - (textLength ? 1 : 0)) {
       return next(pos);
     }

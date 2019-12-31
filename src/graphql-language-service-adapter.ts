@@ -152,22 +152,46 @@ export class GraphQLLanguageServiceAdapter {
     });
     const result = [...errors];
     diagnosticsAndResolvedInfoList.forEach((info, i) => {
-      if (!info) return;
+      const node = nodes[i];
+      if (!info) {
+        result.push({
+          code: 9999,
+          category: ts.DiagnosticCategory.Warning,
+          messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
+          file: node.getSourceFile(),
+          start: node.getStart(),
+          length: node.getEnd() - node.getStart(),
+        });
+        return;
+      }
       const {
         diagnostics,
         resolvedTemplateInfo: { getSourcePosition, convertInnerLocation2InnerPosition },
       } = info;
-      const node = nodes[i];
       diagnostics.forEach(d => {
         let length = 0;
-        const startPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.start)).pos;
+        const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
+          convertInnerLocation2InnerPosition(d.range.start),
+        );
         try {
           const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end)).pos;
           length = endPositionOfSource - startPositionOfSource - 1;
         } catch (error) {
           length = 0;
         }
-        result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
+        if (isInOtherExpression) {
+          result.push({
+            code: 9999,
+            category: ts.DiagnosticCategory.Error,
+            messageText: 'This expression has some GraphQL errors.',
+            file: node.getSourceFile(),
+            start: startPositionOfSource,
+            length,
+          });
+          return;
+        } else {
+          result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
+        }
       });
     });
     return result;
