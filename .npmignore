@@ -2,3 +2,9 @@ src/
 typedef/
 e2e/
 *.test.js
+tsconfig.json
+wercker.yml
+.eslintrc
+.eslintrc.yml
+.prettierignore
+.prettierrc.yml
