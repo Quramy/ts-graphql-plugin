@@ -14,7 +14,6 @@ async function run(server) {
   return server.close().then(() => {
     const completionsResponse = findResponse(server.responses, 'completions')
     assert(!!completionsResponse)
-    assert.equal(completionsResponse.body.length, 3);
     assert(completionsResponse.body.some(item => item.name === 'hello'));
   });
 }

@@ -8,7 +8,7 @@
     "language service"
   ],
   "main": "lib/index.js",
-  "types": "types/index.d.ts",
+  "typings": "types/index.d.ts",
   "scripts": {
     "clean": "rimraf lib types e2e/*.log",
     "compile": "tsc -p .",
@@ -30,7 +30,8 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
-    "graphql-language-service-interface": "^2.0.0"
+    "graphql-language-service-interface": "^2.0.0",
+    "graphql-language-service-types": "^1.5.2"
   },
   "devDependencies": {
     "@types/graphql": "^14.2.3",
@@ -50,7 +51,8 @@
     "rimraf": "^3.0.0",
     "ts-jest": "^24.0.2",
     "typescript": "~3.5.0",
-    "typescript-eslint-language-service": "^2.0.3"
+    "typescript-eslint-language-service": "^2.0.3",
+    "vscode-languageserver-types": "^3.14.0"
   },
   "peerDependencies": {
     "graphql": "^0.12.0 | ^14.0.0",
