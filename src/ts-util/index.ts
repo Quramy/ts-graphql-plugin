@@ -1,4 +1,6 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary';
+
+export * from './resolve-template-expression';
 
 export type TagCondition = string;
 

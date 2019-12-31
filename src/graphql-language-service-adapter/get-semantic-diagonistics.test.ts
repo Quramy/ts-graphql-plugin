@@ -35,7 +35,7 @@ describe('getSemanticDiagnostics', () => {
     fixture.source = 'const ql = `' + '\n'
                    + '{`';
     const [actual2] = validateFn();
-    expect(actual2.start).toBe(14); // start character (multiline)
+    expect(actual2.start).toBe(13); // start character (multiline)
 
     fixture.source = 'const ql = `query { hello }`';
     expect(validateFn()).toEqual([]); // no errors for valid query

@@ -1,3 +1,4 @@
 dist/
 lib/
 e2e/
+__snapshots__/

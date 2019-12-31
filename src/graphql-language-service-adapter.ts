@@ -7,7 +7,7 @@ import {
   Position,
 } from 'graphql-language-service-interface';
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { isTagged, TagCondition } from './ts-util/index';
+import { isTagged, TagCondition, ResolveTemplateExpressionResult } from './ts-util';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
@@ -23,6 +23,10 @@ export interface ScriptSourceHelper {
   getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
   getNode: (fileName: string, position: number) => ts.Node | undefined;
   getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
+  resolveTemplateLiteral: (
+    fileName: string,
+    node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
+  ) => ResolveTemplateExpressionResult | undefined;
 }
 
 function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
@@ -94,21 +98,35 @@ export class GraphQLLanguageServiceAdapter {
     options?: ts.GetCompletionsAtPositionOptions,
   ) {
     if (!this._schema) return delegate(fileName, position, options);
-    const node = this._helper.getNode(fileName, position);
-    if (!node || node.kind !== ts.SyntaxKind.NoSubstitutionTemplateLiteral) {
+    const foundNode = this._helper.getNode(fileName, position);
+    if (!foundNode) return delegate(fileName, position, options);
+    let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+    if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
+      node = foundNode;
+    } else if (ts.isTemplateHead(foundNode)) {
+      node = foundNode.parent;
+    } else if (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) {
+      node = foundNode.parent.parent;
+    } else {
       return delegate(fileName, position, options);
     }
     if (this._tagCondition && !isTagged(node, this._tagCondition)) {
       return delegate(fileName, position, options);
     }
-    const cursor = position - node.getStart();
-    const baseLC = this._helper.getLineAndChar(fileName, node.getStart());
-    const cursorLC = this._helper.getLineAndChar(fileName, position);
-    const relativeLC = { line: cursorLC.line - baseLC.line, character: cursorLC.character - baseLC.character + 1 };
-    const p = new SimplePosition(relativeLC);
-    const text = node.getText().slice(1, cursor + 1); // remove the backquote char
-    this._logger('Search text: "' + text + '" at ' + cursor + ' position');
-    const gqlCompletionItems = getAutocompleteSuggestions(this._schema, text, p);
+    const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
+    if (!resolvedTemplateInfo) {
+      return delegate(fileName, position, options);
+    }
+    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedTemplateInfo;
+    // NOTE: The getAutocompleteSuggestions function does not return if missing '+1' shift
+    const innerPositionToSearch = getInnerPosition(position).pos + 1;
+    const innerLocation = convertInnerPosition2InnerLocation(innerPositionToSearch);
+    this._logger('Search text: "' + combinedText + '" at ' + innerPositionToSearch + ' position');
+    const positionForSeach = new SimplePosition({
+      line: innerLocation.line,
+      character: innerLocation.character,
+    });
+    const gqlCompletionItems = getAutocompleteSuggestions(this._schema, combinedText, positionForSeach);
     this._logger(JSON.stringify(gqlCompletionItems));
     return translateCompletionItems(gqlCompletionItems);
   }
@@ -118,26 +136,62 @@ export class GraphQLLanguageServiceAdapter {
     if (!this._schema) return errors;
     const allTemplateStringNodes = this._helper.getAllNodes(
       fileName,
-      (n: ts.Node) => n.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral,
+      (n: ts.Node) => ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateExpression(n),
     );
     const nodes = allTemplateStringNodes.filter(n => {
       if (!this._tagCondition) return true;
       return isTagged(n, this._tagCondition);
+    }) as ts.NoSubstitutionTemplateLiteral[];
+    const diagnosticsAndResolvedInfoList = nodes.map(n => {
+      const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, n);
+      if (!resolvedTemplateInfo) return;
+      return {
+        resolvedTemplateInfo,
+        diagnostics: getDiagnostics(resolvedTemplateInfo.combinedText, this._schema),
+      };
     });
-    const diagonosticsList = nodes.map(n => getDiagnostics(n.getText().slice(1, n.getWidth() - 1), this._schema));
     const result = [...errors];
-    diagonosticsList.forEach((diagnostics, i) => {
+    diagnosticsAndResolvedInfoList.forEach((info, i) => {
       const node = nodes[i];
-      const nodeLC = this._helper.getLineAndChar(fileName, node.getStart());
+      if (!info) {
+        result.push({
+          code: 9999,
+          category: ts.DiagnosticCategory.Warning,
+          messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
+          file: node.getSourceFile(),
+          start: node.getStart(),
+          length: node.getEnd() - node.getStart(),
+        });
+        return;
+      }
+      const {
+        diagnostics,
+        resolvedTemplateInfo: { getSourcePosition, convertInnerLocation2InnerPosition },
+      } = info;
       diagnostics.forEach(d => {
-        const sl = nodeLC.line + d.range.start.line;
-        const sc = d.range.start.line ? d.range.start.character : nodeLC.character + d.range.start.character;
-        const el = nodeLC.line + d.range.end.line;
-        const ec = d.range.end.line ? d.range.end.character : nodeLC.character + d.range.end.character;
-        const start = ts.getPositionOfLineAndCharacter(node.getSourceFile(), sl, sc) + 1;
-        const end = ts.getPositionOfLineAndCharacter(node.getSourceFile(), el, Math.max(0, ec - 1)) + 1;
-        const h = start === end ? 0 : 1;
-        result.push(translateDiagnostic(d, node.getSourceFile(), start - h, end - start));
+        let length = 0;
+        const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
+          convertInnerLocation2InnerPosition(d.range.start),
+        );
+        try {
+          const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end)).pos;
+          length = endPositionOfSource - startPositionOfSource - 1;
+        } catch (error) {
+          length = 0;
+        }
+        if (isInOtherExpression) {
+          result.push({
+            code: 9999,
+            category: ts.DiagnosticCategory.Error,
+            messageText: 'This expression has some GraphQL errors.',
+            file: node.getSourceFile(),
+            start: startPositionOfSource,
+            length,
+          });
+          return;
+        } else {
+          result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
+        }
       });
     });
     return result;
