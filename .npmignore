@@ -1,6 +1,7 @@
 src/
 typedef/
 e2e/
+example-project/
 *.test.js
 tsconfig.json
 wercker.yml
