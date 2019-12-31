@@ -303,7 +303,7 @@ describe(resolveTemplateExpression, () => {
         fileName: 'main.ts',
         languageService: langService,
       });
-      expect(actual!.combinedText).toBe('query { foo }');
+      expect(actual!.combinedText).toMatchSnapshot();
     });
 
     it('should return combined string with reference to other literal', () => {
@@ -333,15 +333,7 @@ describe(resolveTemplateExpression, () => {
         fileName: 'main.ts',
         languageService: langService,
       });
-      const expectedText = `
-                
-                fragment Foo on Hoge {
-                  name
-                }
-                query {
-                  ...Foo
-                }`;
-      expect(actual!.combinedText).toBe(expectedText);
+      expect(actual!.combinedText).toMatchSnapshot();
     });
 
     it('should return combined string with hopping reference', () => {
@@ -372,15 +364,43 @@ describe(resolveTemplateExpression, () => {
         fileName: 'main.ts',
         languageService: langService,
       });
-      const expectedText = `
-                
+      expect(actual!.combinedText).toMatchSnapshot();
+    });
+
+    it('should return combined string with reference between multiple files', () => {
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'fragment.ts',
+            content: `
+              export const fragment = \`
                 fragment Foo on Hoge {
                   name
-                }
+                }\`;
+            `,
+          },
+          {
+            fileName: 'main.ts',
+            content: `
+              import { fragment } from './fragment';
+              const query = \`
+                \${fragment}
                 query {
                   ...Foo
-                }`;
-      expect(actual!.combinedText).toBe(expectedText);
+                }\`;
+            `,
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
+      const actual = resolveTemplateExpression({
+        node: node as ts.NoSubstitutionTemplateLiteral,
+        fileName: 'main.ts',
+        languageService: langService,
+      });
+      expect(actual!.combinedText).toMatchSnapshot();
     });
   });
 });
