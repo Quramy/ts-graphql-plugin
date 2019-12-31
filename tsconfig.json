@@ -9,8 +9,7 @@
     "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,
-    "lib": ["es2015", "esnext.asynciterable"],
-    "typeRoots": ["./node_modules/@types", "./typedef"],
+    "lib": ["es2015", "esnext.asynciterable", "dom"],
     "plugins": [
       {
         "name": "typescript-eslint-language-service"
