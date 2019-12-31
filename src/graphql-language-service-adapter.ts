@@ -1,6 +1,6 @@
 import { GraphQLSchema } from 'graphql';
 import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-types';
-import { getAutocompleteSuggestions, getDiagnostics } from 'graphql-language-service-interface';
+import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { isTagged, TagCondition, ResolveTemplateExpressionResult } from './ts-util';
 
@@ -93,21 +93,8 @@ export class GraphQLLanguageServiceAdapter {
     options?: ts.GetCompletionsAtPositionOptions,
   ) {
     if (!this._schema) return delegate(fileName, position, options);
-    const foundNode = this._helper.getNode(fileName, position);
-    if (!foundNode) return delegate(fileName, position, options);
-    let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
-    if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
-      node = foundNode;
-    } else if (ts.isTemplateHead(foundNode)) {
-      node = foundNode.parent;
-    } else if (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) {
-      node = foundNode.parent.parent;
-    } else {
-      return delegate(fileName, position, options);
-    }
-    if (this._tagCondition && !isTagged(node, this._tagCondition)) {
-      return delegate(fileName, position, options);
-    }
+    const node = this._findTemplateNode(fileName, position);
+    if (!node) return delegate(fileName, position, options);
     const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
     if (!resolvedTemplateInfo) {
       return delegate(fileName, position, options);
@@ -190,6 +177,46 @@ export class GraphQLLanguageServiceAdapter {
       });
     });
     return result;
+  }
+
+  getQuickInfoAtPosition(delegate: ts.LanguageService['getQuickInfoAtPosition'], fileName: string, position: number) {
+    if (!this._schema) return delegate(fileName, position);
+    const node = this._findTemplateNode(fileName, position);
+    if (!node) return delegate(fileName, position);
+    const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
+    if (!resolvedTemplateInfo) return delegate(fileName, position);
+    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedTemplateInfo;
+    const cursor = new SimplePosition(convertInnerPosition2InnerLocation(getInnerPosition(position).pos + 1));
+    const result = getHoverInformation(this._schema, combinedText, cursor);
+    if (typeof result !== 'string' || !result.length) return delegate(fileName, position);
+    return {
+      kind: ts.ScriptElementKind.string,
+      textSpan: {
+        start: position,
+        length: 1,
+      },
+      kindModifiers: '',
+      displayParts: [{ text: result, kind: '' }],
+    } as ts.QuickInfo;
+  }
+
+  private _findTemplateNode(fileName: string, position: number) {
+    const foundNode = this._helper.getNode(fileName, position);
+    if (!foundNode) return;
+    let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+    if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
+      node = foundNode;
+    } else if (ts.isTemplateHead(foundNode)) {
+      node = foundNode.parent;
+    } else if (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) {
+      node = foundNode.parent.parent;
+    } else {
+      return;
+    }
+    if (this._tagCondition && !isTagged(node, this._tagCondition)) {
+      return;
+    }
+    return node;
   }
 
   private _logger: (msg: string) => void = () => {};
