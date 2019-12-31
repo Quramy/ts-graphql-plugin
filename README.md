@@ -13,6 +13,7 @@ This plugin extends TypeScript Language Service and provides the following featu
 
 - Completion suggestion
 - Get GraphQL diagnostics
+- Display GraphQL quick info within tooltip
 
 ## Usage
 
