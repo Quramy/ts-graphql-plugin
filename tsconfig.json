@@ -16,5 +16,5 @@
       }
     ]
   },
-  "exclude": ["lib", "e2e", "types", "typedef", "node_modules"]
+  "exclude": ["lib", "e2e", "types", "typedef", "node_modules", "example-project"]
 }

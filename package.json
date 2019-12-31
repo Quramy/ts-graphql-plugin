@@ -1,6 +1,6 @@
 {
   "name": "ts-graphql-plugin",
-  "version": "1.4.0",
+  "version": "1.3.0",
   "description": "TypeScript Language Service Plugin for GraphQL",
   "keywords": [
     "typescript",
