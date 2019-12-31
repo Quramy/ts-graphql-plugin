@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "jsx": "react",
+    "strict": true,
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "schema": "schema.graphql",
+        "tag": "gql"
+      }
+    ]
+  }
+}
