@@ -78,4 +78,22 @@ describe('getSemanticDiagnostics', () => {
                    + ' }`';
     expect(validateFn()).toEqual([]); // no errors for valid query (multiline)
   });
+
+  it('should work with incomplete document', async () => {
+    const fixture = craeteFixture('input.ts', await createSimpleSchema());
+    const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(
+      fixture.adapter,
+      delegateFn,
+      'input.ts',
+    );
+
+    fixture.source = `
+      export const fragment = gql\`
+        fragment MyFragment on Query {
+          __typename
+
+      \`;
+    `;
+    expect(validateFn().length).toBe(1);
+  });
 });

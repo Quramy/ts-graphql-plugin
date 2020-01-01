@@ -105,15 +105,87 @@ function createComputePositionsForTemplateSpan(node: ts.TemplateSpan, fileName: 
   return [getInnerPosition, getSourcePosition];
 }
 
+class ResultCache<T> {
+  private _cacheMap = new Map<ts.Node, T>();
+
+  constructor(private _maxSize: number = 200) {}
+
+  set(key: ts.Node, value: T) {
+    this._cacheMap.set(key, value);
+    if (this._cacheMap.size > this._maxSize) {
+      const lru = this._cacheMap.keys().next();
+      this._cacheMap.delete(lru.value);
+    }
+  }
+
+  get(key: ts.Node) {
+    const result = this._cacheMap.get(key);
+    if (!result) return;
+    return result;
+  }
+
+  has(key: ts.Node) {
+    return this._cacheMap.has(key);
+  }
+
+  touch(key: ts.Node) {
+    const result = this._cacheMap.get(key);
+    if (!result) return;
+    this._cacheMap.delete(key);
+    this._cacheMap.set(key, result);
+  }
+
+  del(key: ts.Node) {
+    this._cacheMap.delete(key);
+  }
+}
+
 export class TemplateExpressionResolver {
-  constructor(private _langService: ts.LanguageService) {}
+  /** @internal **/
+  readonly _resultCache = new ResultCache<{
+    result: ResolvedTemplateInfo;
+    dependencyVersions: { fileName: string; version: string }[];
+  }>();
+
+  /** @internal **/
+  readonly _stringValueCache = new ResultCache<{
+    result: string | undefined;
+    dependencyVersions: { fileName: string; version: string }[];
+  }>();
+
+  logger: (msg: string) => void = (msg: string) => {};
+
+  constructor(
+    private readonly _langService: ts.LanguageService,
+    private readonly _getFileVersion: (fileName: string) => string,
+  ) {}
 
   resolve(
     fileName: string,
     node: ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
   ): ResolvedTemplateInfo | undefined {
+    const cacheValue = this._resultCache.get(node);
+    if (cacheValue) {
+      if (cacheValue.dependencyVersions.every(dep => this._getFileVersion(dep.fileName) === dep.version)) {
+        this._resultCache.touch(node);
+        this.logger('Use cache value: ' + cacheValue.result.combinedText);
+        return cacheValue.result;
+      } else {
+        this._resultCache.del(node);
+      }
+    }
+
+    const setValueToCache = (result: ResolvedTemplateInfo, dependencies = [fileName]) => {
+      const versions = [...new Set(dependencies)].map(fileName => ({
+        fileName,
+        version: this._getFileVersion(fileName),
+      }));
+      this._resultCache.set(node, { result, dependencyVersions: versions });
+      return result;
+    };
+
     if (ts.isNoSubstitutionTemplateLiteral(node)) {
-      return createResultForNoSubstitution(node, fileName);
+      return setValueToCache(createResultForNoSubstitution(node, fileName));
     }
     let template: ts.TemplateExpression;
     if (ts.isTemplateExpression(node)) {
@@ -121,18 +193,23 @@ export class TemplateExpressionResolver {
     } else if (ts.isTemplateExpression(node.template)) {
       template = node.template;
     } else if (ts.isNoSubstitutionTemplateLiteral(node.template)) {
-      return createResultForNoSubstitution(node.template, fileName);
+      return setValueToCache(createResultForNoSubstitution(node.template, fileName));
     } else {
       return;
     }
     const head = template.head;
     const [getInnerPosForHead, getSourcePosForHead] = createComputePositionsForTemplateHead(head, fileName);
     let headLength = head.text.length;
+    let dependencies = [fileName];
     const texts = [head.text];
     const getInnerPositions = [getInnerPosForHead];
     const getSourcePositions = [getSourcePosForHead];
     for (const spanNode of template.templateSpans) {
-      const stringForSpan = this._getValueAsString(fileName, spanNode.expression);
+      const { text: stringForSpan, dependencies: childDeps } = this._getValueAsString(
+        fileName,
+        spanNode.expression,
+        dependencies,
+      );
       if (!stringForSpan) return;
       headLength += stringForSpan.length;
       texts.push(stringForSpan);
@@ -145,60 +222,100 @@ export class TemplateExpressionResolver {
       getSourcePositions.unshift(getSourcePositionForSpan);
       headLength += spanNode.literal.text.length;
       texts.push(spanNode.literal.text);
+      dependencies = [...dependencies, ...childDeps];
     }
 
     const combinedText = texts.join('');
-    return {
-      combinedText,
-      getInnerPosition: getInnerPositions.reduce((acc: ComputePosition, fn) => (pos: number) => fn(pos, acc), last),
-      getSourcePosition: getSourcePositions.reduce((acc: ComputePosition, fn) => (pos: number) => fn(pos, acc), last),
-      convertInnerLocation2InnerPosition: location2pos.bind(null, combinedText),
-      convertInnerPosition2InnerLocation: pos2location.bind(null, combinedText),
-    } as ResolvedTemplateInfo;
+    return setValueToCache(
+      {
+        combinedText,
+        getInnerPosition: getInnerPositions.reduce((acc: ComputePosition, fn) => (pos: number) => fn(pos, acc), last),
+        getSourcePosition: getSourcePositions.reduce((acc: ComputePosition, fn) => (pos: number) => fn(pos, acc), last),
+        convertInnerLocation2InnerPosition: location2pos.bind(null, combinedText),
+        convertInnerPosition2InnerLocation: pos2location.bind(null, combinedText),
+      } as ResolvedTemplateInfo,
+      dependencies,
+    );
   }
 
-  private _getValueAsString(fileName: string, node: ts.Node): string | undefined {
-    const getValueForTemplateExpression = (node: ts.TemplateExpression) => {
+  private _getValueAsString(
+    fileName: string,
+    node: ts.Node,
+    dependencies = [fileName],
+  ): { text?: string; dependencies: string[] } {
+    const cacheValue = this._stringValueCache.get(node);
+    if (cacheValue) {
+      if (cacheValue.dependencyVersions.every(dep => this._getFileVersion(dep.fileName) === dep.version)) {
+        this._stringValueCache.touch(node);
+        this.logger('Use cache value: ' + cacheValue.result);
+        return { text: cacheValue.result, dependencies: cacheValue.dependencyVersions.map(dep => dep.fileName) };
+      } else {
+        this._stringValueCache.del(node);
+      }
+    }
+
+    const setValueToCache = ({ text, dependencies }: { text?: string; dependencies: string[] }) => {
+      this._stringValueCache.set(node, {
+        result: text,
+        dependencyVersions: [...new Set(dependencies)].map(fileName => ({
+          fileName,
+          version: this._getFileVersion(fileName),
+        })),
+      });
+      return { text, dependencies };
+    };
+
+    const getValueForTemplateExpression = (node: ts.TemplateExpression, dependencies: string[]) => {
       const texts = [node.head.text];
+      let newDependenciees = [...dependencies];
       for (const span of node.templateSpans) {
-        const stringForSpan = this._getValueAsString(fileName, span.expression);
-        if (!stringForSpan) return;
+        const { text: stringForSpan, dependencies: childDepes } = this._getValueAsString(
+          fileName,
+          span.expression,
+          dependencies,
+        );
+        if (!stringForSpan) return { dependencies };
         texts.push(stringForSpan);
         texts.push(span.literal.text);
+        newDependenciees = [...newDependenciees, ...childDepes];
       }
-      return texts.join('');
+      return { text: texts.join(''), dependencies: newDependenciees };
     };
 
     if (ts.isStringLiteral(node)) {
-      return node.text;
+      return setValueToCache({ text: node.text, dependencies });
     } else if (ts.isNoSubstitutionTemplateLiteral(node)) {
-      return node.text;
+      return setValueToCache({ text: node.text, dependencies });
     } else if (ts.isIdentifier(node)) {
       let currentFileName = fileName;
       let currentNode: ts.Node = node;
       while (true) {
         const defs = this._langService.getDefinitionAtPosition(currentFileName, currentNode.getStart());
-        if (!defs || !defs[0]) return;
+        if (!defs || !defs[0]) return { dependencies };
         const def = defs[0];
         const src = this._langService.getProgram()!.getSourceFile(def.fileName);
-        if (!src) return;
+        if (!src) return { dependencies };
         const found = findNode(src, def.textSpan.start);
-        if (!found || !found.parent || !ts.isVariableDeclaration(found.parent) || !found.parent.initializer) return;
+        if (!found || !found.parent || !ts.isVariableDeclaration(found.parent) || !found.parent.initializer)
+          return { dependencies };
         currentFileName = def.fileName;
         currentNode = found.parent.initializer;
         if (ts.isIdentifier(found.parent.initializer)) {
           continue;
         }
-        return this._getValueAsString(currentFileName, currentNode);
+        return setValueToCache(
+          this._getValueAsString(currentFileName, currentNode, [...dependencies, currentFileName]),
+        );
       }
     } else if (ts.isTaggedTemplateExpression(node)) {
       if (ts.isNoSubstitutionTemplateLiteral(node.template)) {
-        return node.template.text;
+        return setValueToCache({ text: node.template.text, dependencies });
       } else {
-        return getValueForTemplateExpression(node.template);
+        return setValueToCache(getValueForTemplateExpression(node.template, dependencies));
       }
     } else if (ts.isTemplateExpression(node)) {
-      return getValueForTemplateExpression(node);
+      return setValueToCache(getValueForTemplateExpression(node, dependencies));
     }
+    return { dependencies };
   }
 }
