@@ -1,4 +1,4 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { findAllNodes, findNode, resolveTemplateExpression } from './ts-util';

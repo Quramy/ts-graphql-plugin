@@ -1,4 +1,4 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary';
 
 export type LanguageServiceMethodWrapper<K extends keyof ts.LanguageService> = (
   delegate: ts.LanguageService[K],

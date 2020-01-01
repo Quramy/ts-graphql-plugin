@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as ts from 'typescript/lib/tsserverlibrary';
+import path from 'path';
+import ts from 'typescript/lib/tsserverlibrary';
 import { SchemaManager } from './schema-manager';
 import { buildSchema, buildClientSchema } from 'graphql';
 

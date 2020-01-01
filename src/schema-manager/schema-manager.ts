@@ -1,4 +1,4 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLSchema } from 'graphql';
 
 export type OnChangeCallback = (schema: any) => void;

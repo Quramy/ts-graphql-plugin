@@ -1,8 +1,9 @@
+import ts from 'typescript';
 import { GraphQLSchema } from 'graphql';
 import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-types';
 import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
-import * as ts from 'typescript/lib/tsserverlibrary';
-import { isTagged, TagCondition, ResolveTemplateExpressionResult } from './ts-util';
+
+import { isTagged, TagCondition, ResolveTemplateExpressionResult } from '../ts-util';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
@@ -10,11 +11,7 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   tag?: string;
 }
 
-export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
-export type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'];
-
 export interface ScriptSourceHelper {
-  // getSource: (fileName: string) => ts.SourceFile;
   getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
   getNode: (fileName: string, position: number) => ts.Node | undefined;
   getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
@@ -23,6 +20,10 @@ export interface ScriptSourceHelper {
     node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
   ) => ResolveTemplateExpressionResult | undefined;
 }
+
+type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
+type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'];
+type GetQuickInfoAtPosition = ts.LanguageService['getQuickInfoAtPosition'];
 
 function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
   const result: ts.CompletionInfo = {
@@ -179,7 +180,7 @@ export class GraphQLLanguageServiceAdapter {
     return result;
   }
 
-  getQuickInfoAtPosition(delegate: ts.LanguageService['getQuickInfoAtPosition'], fileName: string, position: number) {
+  getQuickInfoAtPosition(delegate: GetQuickInfoAtPosition, fileName: string, position: number) {
     if (!this._schema) return delegate(fileName, position);
     const node = this._findTemplateNode(fileName, position);
     if (!node) return delegate(fileName, position);

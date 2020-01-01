@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import { parse } from 'url';
-import * as Http from 'http';
-import * as Https from 'https';
-import * as ts from 'typescript/lib/tsserverlibrary';
+import Http from 'http';
+import Https from 'https';
+import ts from 'typescript/lib/tsserverlibrary';
 import { buildClientSchema } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
 import { SchemaManager } from './schema-manager';

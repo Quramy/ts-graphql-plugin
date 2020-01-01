@@ -1,4 +1,4 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript';
 import { findAllNodes, findNode, isTagged } from './';
 
 it('isTagged should return true when the tag condition is matched', () => {

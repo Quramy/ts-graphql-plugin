@@ -1,17 +1,17 @@
-import * as GraphQL from 'graphql';
+import { graphql, GraphQLSchema, GraphQLObjectType, GraphQLString, introspectionQuery } from 'graphql';
 
-const schema = new GraphQL.GraphQLSchema({
-  query: new GraphQL.GraphQLObjectType({
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
     name: 'SimpleSchemaType',
     description: 'Simple schema type',
     fields: {
       hello: {
-        type: GraphQL.GraphQLString,
+        type: GraphQLString,
       },
     },
   }),
 });
 
 export function createSimpleSchema(): Promise<any> {
-  return GraphQL.graphql(schema, GraphQL.introspectionQuery);
+  return graphql(schema, introspectionQuery);
 }
