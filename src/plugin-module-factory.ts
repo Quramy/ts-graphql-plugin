@@ -1,7 +1,7 @@
 import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
-import { findAllNodes, findNode, resolveTemplateExpression } from './ts-util';
+import { findAllNodes, findNode, TemplateExpressionResolver } from './ts-util';
 import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
@@ -30,17 +30,13 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     return ts.getLineAndCharacterOfPosition(s, position);
   };
   const schemaManager = new SchemaManagerFactory(info).create();
+  const templateExpressionResolver = new TemplateExpressionResolver(info.languageService);
+  const resolveTemplateLiteral = templateExpressionResolver.resolve;
   const helper: ScriptSourceHelper = {
     getNode,
     getAllNodes,
     getLineAndChar,
-    resolveTemplateLiteral(fileName: string, node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) {
-      return resolveTemplateExpression({
-        fileName: fileName,
-        node,
-        languageService: info.languageService,
-      });
-    },
+    resolveTemplateLiteral,
   };
   const schema = schemaManager && schemaManager.getSchema();
   const tag = info.config.tag;

@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, createResultForNoSubstitution, ResolveTemplateExpressionResult } from '../ts-util';
+import { findAllNodes, findNode, createResultForNoSubstitution, ResolvedTemplateInfo } from '../ts-util';
 import { buildClientSchema } from 'graphql';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
 export class AdapterFixture {

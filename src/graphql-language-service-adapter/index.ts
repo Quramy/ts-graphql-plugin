@@ -3,7 +3,7 @@ import { GraphQLSchema } from 'graphql';
 import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-types';
 import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
 
-import { isTagged, TagCondition, ResolveTemplateExpressionResult } from '../ts-util';
+import { isTagged, TagCondition, ResolvedTemplateInfo } from '../ts-util';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
@@ -18,7 +18,7 @@ export interface ScriptSourceHelper {
   resolveTemplateLiteral: (
     fileName: string,
     node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-  ) => ResolveTemplateExpressionResult | undefined;
+  ) => ResolvedTemplateInfo | undefined;
 }
 
 type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];

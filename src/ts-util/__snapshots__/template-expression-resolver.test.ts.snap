@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`resolve string combinination pattern should return combined string in TemplateExpression with StringLiteral 1`] = `"query { foo }"`;
+
+exports[`resolve string combinination pattern should return combined string with hopping reference 1`] = `
+"
+                
+                fragment Foo on Hoge {
+                  name
+                }
+                query {
+                  ...Foo
+                }"
+`;
+
+exports[`resolve string combinination pattern should return combined string with reference between multiple files 1`] = `
+"
+                
+                fragment Foo on Hoge {
+                  name
+                }
+                query {
+                  ...Foo
+                }"
+`;
+
+exports[`resolve string combinination pattern should return combined string with reference to other literal 1`] = `
+"
+                
+                fragment Foo on Hoge {
+                  name
+                }
+                query {
+                  ...Foo
+                }"
+`;
