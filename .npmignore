@@ -2,7 +2,7 @@ src/
 typedef/
 e2e/
 example-project/
-*.test.js
+*.test.*
 tsconfig.json
 wercker.yml
 .eslintrc
