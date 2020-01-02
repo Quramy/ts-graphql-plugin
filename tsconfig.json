@@ -5,7 +5,6 @@
     "target": "es2015",
     "sourceMap": true,
     "outDir": "lib",
-    "declarationDir": "types",
     "rootDir": "src",
     "strict": true,
     "esModuleInterop": true,

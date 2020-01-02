@@ -8,9 +8,9 @@
     "language service"
   ],
   "main": "lib/index.js",
-  "typings": "types/index.d.ts",
+  "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib types e2e/*.log",
+    "clean": "rimraf lib e2e/*.log",
     "compile": "tsc -p .",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "jest": "jest",
@@ -71,9 +71,7 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "\\.d\\.ts$",
-      "lib/.*",
-      "typedef/.*",
-      "types/.*"
+      "lib/.*"
     ],
     "moduleFileExtensions": [
       "js",
