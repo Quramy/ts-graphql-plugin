@@ -69,7 +69,7 @@ export class ExtensionManager {
     } catch (error) {
       if (error instanceof Error && error.name === 'GraphQLError') {
         const { message, locations } = error as any;
-        this._log('Faild to parse: ' + fileName + ', ' + message);
+        this._log('Failed to parse: ' + fileName + ', ' + message);
         this._graphqlErrorMap.set(fileName, { message, fileName, locations });
       }
     }
