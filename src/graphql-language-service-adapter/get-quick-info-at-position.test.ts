@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
-import { AdapterFixture } from '../testing/adapter-fixture';
+import { AdapterFixture } from './testing/adapter-fixture';
 import { contentMark, Markers } from '../testing/content-mark';
 import { GraphQLSchema } from 'graphql';
 

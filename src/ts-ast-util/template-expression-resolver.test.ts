@@ -1,8 +1,8 @@
 import * as ts from 'typescript';
 
-import { findAllNodes } from './index';
-import { TemplateExpressionResolver } from './template-expression-resolver';
-import { createTestingLanguageService } from '../testing/lang-service-fixture';
+import { findAllNodes } from '.';
+import { TemplateExpressionResolver } from '../ts-ast-util/template-expression-resolver';
+import { createTestingLanguageService } from './testing/lang-service-fixture';
 import { contentMark, Markers } from '../testing/content-mark';
 
 describe(TemplateExpressionResolver.prototype.resolve, () => {

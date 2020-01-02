@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { findNode } from './';
+import { findNode } from '.';
 import { location2pos, pos2location } from '../string-util';
 
 export type ComputePosition = (

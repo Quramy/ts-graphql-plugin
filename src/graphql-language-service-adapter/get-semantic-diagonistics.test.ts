@@ -1,5 +1,5 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
-import { AdapterFixture } from '../testing/adapter-fixture';
+import { AdapterFixture } from './testing/adapter-fixture';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 import { GraphQLSchema } from 'graphql';
 

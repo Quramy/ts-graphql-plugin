@@ -1,7 +1,7 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, createResultForNoSubstitution } from '../ts-util';
+import { findAllNodes, findNode, createResultForNoSubstitution, ScriptSourceHelper } from '../../ts-ast-util';
 import { GraphQLSchema } from 'graphql';
-import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
+import { GraphQLLanguageServiceAdapter } from '..';
 export class AdapterFixture {
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;

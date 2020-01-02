@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, isTagged } from './';
+import { findAllNodes, findNode, isTagged } from '../ts-ast-util';
 
 it('isTagged should return true when the tag condition is matched', () => {
   // prettier-ignore

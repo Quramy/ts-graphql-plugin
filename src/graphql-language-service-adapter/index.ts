@@ -3,24 +3,15 @@ import { GraphQLSchema } from 'graphql';
 import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-types';
 import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
 
-import { isTagged, TagCondition, ResolvedTemplateInfo } from '../ts-util';
+import { isTagged, TagCondition } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
+import { ScriptSourceHelper } from '../ts-ast-util/types';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
   schemaErrors?: SchemaBuildErrorInfo[] | null;
   logger?: (msg: string) => void;
   tag?: string;
-}
-
-export interface ScriptSourceHelper {
-  getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
-  getNode: (fileName: string, position: number) => ts.Node | undefined;
-  getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
-  resolveTemplateLiteral: (
-    fileName: string,
-    node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-  ) => ResolvedTemplateInfo | undefined;
 }
 
 type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
