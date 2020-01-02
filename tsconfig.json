@@ -7,6 +7,8 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "esModuleInterop": true,
     "lib": ["es2015", "esnext.asynciterable", "dom"],
     "plugins": [

@@ -1,4 +1,3 @@
-import ts from 'typescript/lib/tsserverlibrary';
 import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
 import { HttpSchemaManagerOptions, HttpSchemaManager } from './http-schema-manager';

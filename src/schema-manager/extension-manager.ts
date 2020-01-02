@@ -76,12 +76,4 @@ export class ExtensionManager {
     if (path.isAbsolute(schemaPath)) return schemaPath;
     return path.resolve(projectRootPath, schemaPath);
   }
-
-  private _getProjectRootPath(info: ts.server.PluginCreateInfo) {
-    const { project } = info;
-    if (typeof (project as any).getProjectRootPath === 'function') {
-      return (project as any).getProjectRootPath();
-    }
-    return path.dirname(project.getProjectName());
-  }
 }

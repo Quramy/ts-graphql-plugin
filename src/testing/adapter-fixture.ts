@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, createResultForNoSubstitution, ResolvedTemplateInfo } from '../ts-util';
+import { findAllNodes, findNode, createResultForNoSubstitution } from '../ts-util';
 import { GraphQLSchema } from 'graphql';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
 export class AdapterFixture {
@@ -8,14 +8,18 @@ export class AdapterFixture {
 
   constructor(scriptFileName: string, schema?: GraphQLSchema) {
     this._source = ts.createSourceFile(scriptFileName, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
+    // @ts-ignore
     const getNode = (fileName: string, position: number) => findNode(this._source, position);
+    // @ts-ignore
     const getAllNodes = (foundNode: string, cond: (n: ts.Node) => boolean) => {
       return findAllNodes(this._source, cond);
     };
+    // @ts-ignore
     const getLineAndChar = (fileName: string, position: number) => {
       return ts.getLineAndCharacterOfPosition(this._source, position);
     };
     const resolveTemplateLiteral = (
+      // @ts-ignore
       fileName: string,
       node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
     ) => {

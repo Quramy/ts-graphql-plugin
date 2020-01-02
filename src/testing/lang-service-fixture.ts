@@ -18,7 +18,7 @@ export function createTestingLanguageService({ files = [] }: Options) {
       if (!file) return;
       return ts.ScriptSnapshot.fromString(file.content);
     },
-    getScriptVersion(fileName: string) {
+    getScriptVersion() {
       return '0';
     },
     getScriptFileNames() {

@@ -1,4 +1,4 @@
-import { buildSchema, printSchema } from 'graphql';
+import { printSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
 import { createMockSchemaManagerHost } from './testing/mock-schema-manager-host';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';

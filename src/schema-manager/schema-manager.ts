@@ -1,4 +1,3 @@
-import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
 import { SchemaManagerHost } from './types';

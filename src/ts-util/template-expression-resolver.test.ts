@@ -141,9 +141,9 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     });
     const source = langService.getProgram()!.getSourceFile('main.ts');
     if (!source) return fail();
-    const [_, node] = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
+    const nodes = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression);
     if (!actual) return fail();
 
     // prettier-ignore
@@ -217,9 +217,9 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     });
     const source = langService.getProgram()!.getSourceFile('main.ts');
     if (!source) return fail();
-    const [_, node] = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
+    const nodes = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression);
     if (!actual) return fail();
 
     // prettier-ignore
@@ -418,9 +418,6 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       });
       const [node] = findAllNodes(langService.getProgram()!.getSourceFile('main.ts')!, node =>
         ts.isTemplateExpression(node),
-      );
-      const [fragmentNode] = findAllNodes(langService.getProgram()!.getSourceFile('fragment.ts')!, node =>
-        ts.isNoSubstitutionTemplateLiteral(node),
       );
       const resolver = new TemplateExpressionResolver(langService, () => '');
       const firstResult = resolver.resolve('main.ts', node as ts.TemplateExpression);

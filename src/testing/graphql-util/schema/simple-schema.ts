@@ -1,4 +1,4 @@
-import { graphql, buildSchema } from 'graphql';
+import { buildSchema } from 'graphql';
 
 const schemaSDL = `
   type Query {

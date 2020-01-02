@@ -153,7 +153,7 @@ export class TemplateExpressionResolver {
     dependencyVersions: { fileName: string; version: string }[];
   }>();
 
-  logger: (msg: string) => void = (msg: string) => {};
+  logger: (msg: string) => void = () => {};
 
   constructor(
     private readonly _langService: ts.LanguageService,
