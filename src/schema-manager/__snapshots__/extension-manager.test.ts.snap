@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ExtensionManager should parse and extend base schema 1`] = `
+"type Query {
+  hello: String!
+  me: User!
+}
+
+type User {
+  name: String!
+}
+"
+`;
+
+exports[`ExtensionManager should store parser errors with invalid extension 1`] = `
+Array [
+  Object {
+    "fileName": "/__test__/invalid_extension.graphql",
+    "locations": undefined,
+    "message": "Cannot extend type \\"NoExisitingType\\" because it is not defined.",
+  },
+]
+`;
+
+exports[`ExtensionManager should store parser errors with invalid syntax file 1`] = `
+Array [
+  Object {
+    "fileName": "/__test__/invalid_syntax.graphql",
+    "locations": Array [
+      Object {
+        "column": 17,
+        "line": 1,
+      },
+    ],
+    "message": "Syntax Error: Expected Name, found )",
+  },
+]
+`;

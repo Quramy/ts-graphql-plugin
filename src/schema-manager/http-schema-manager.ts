@@ -74,7 +74,7 @@ export class HttpSchemaManager extends SchemaManager {
     super(_info);
   }
 
-  getSchema() {
+  getBaseSchema() {
     return this._schema;
   }
 

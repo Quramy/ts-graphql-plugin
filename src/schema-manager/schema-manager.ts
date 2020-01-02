@@ -1,17 +1,42 @@
 import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLSchema } from 'graphql';
+import { ExtensionManager } from './extension-manager';
 
-export type OnChangeCallback = (schema: any) => void;
+export type SchemaBuildErrorInfo = {
+  message: string;
+  fileName?: string;
+  locations?: { line: number; column: number }[];
+};
+
+export type OnChangeCallback = (errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) => void;
 
 export abstract class SchemaManager {
   private _onChanges: OnChangeCallback[];
+  private _extensionManager: ExtensionManager;
 
   constructor(protected _info: ts.server.PluginCreateInfo) {
     this._onChanges = [];
+    this._extensionManager = new ExtensionManager(_info);
+    this._extensionManager.readExtensions();
   }
 
-  abstract getSchema(): GraphQLSchema | null;
-  abstract startWatch(interval?: number): void;
+  abstract getBaseSchema(): GraphQLSchema | null;
+  protected abstract startWatch(interval?: number): void;
+
+  start(interval?: number) {
+    this._extensionManager.startWatch(() => this.emitChange(), interval);
+    this.startWatch(interval);
+  }
+
+  getSchema(): { schema: GraphQLSchema | null; errors: SchemaBuildErrorInfo[] | null } {
+    const baseSchema = this.getBaseSchema();
+    const schema = baseSchema && this._extensionManager.extendSchema(baseSchema);
+    if (schema) {
+      return { schema, errors: null };
+    } else {
+      return { schema: null, errors: this._extensionManager.getSchemaErrors() };
+    }
+  }
 
   registerOnChange(cb: OnChangeCallback) {
     this._onChanges.push(cb);
@@ -21,12 +46,19 @@ export abstract class SchemaManager {
   }
 
   protected emitChange() {
-    const data = this.getSchema();
-    if (!data) return;
-    this._onChanges.forEach(cb => cb(data));
+    const { errors, schema } = this.getSchema();
+    this._onChanges.forEach(cb => cb(errors, schema));
   }
 
   protected log(msg: string) {
     this._info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
+  }
+}
+
+export class NoopSchemaManager extends SchemaManager {
+  startWatch() {}
+
+  getBaseSchema() {
+    return null;
   }
 }

@@ -3,7 +3,12 @@
     "target": "es2015",
     "module": "commonjs",
     "plugins": [
-      { "name": "../../lib", "schema": "schema.graphql", "tag": "gql" }
+      {
+        "name": "../../lib",
+        "tag": "gql",
+        "schema": "schema.graphql",
+        "localSchemaExtensions": ["local-extension.graphql"]
+      }
     ]
   }
 }
