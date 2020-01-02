@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`getQuickInfoAtPosition should return GraphQL quick info 1`] = `"SimpleSchemaType.hello: String"`;
+exports[`getQuickInfoAtPosition should return GraphQL quick info 1`] = `"Query.hello: String!"`;
 
-exports[`getQuickInfoAtPosition should return GraphQL quick info 2`] = `"SimpleSchemaType.hello: String"`;
+exports[`getQuickInfoAtPosition should return GraphQL quick info 2`] = `"Query.hello: String!"`;

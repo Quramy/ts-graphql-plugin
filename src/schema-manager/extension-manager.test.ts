@@ -1,7 +1,6 @@
 import ts from 'typescript';
 import { buildSchema, printSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
-import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 
 function createManager(config: { localSchemaExtensions?: string[] }) {
   const sys = ts.sys as any;

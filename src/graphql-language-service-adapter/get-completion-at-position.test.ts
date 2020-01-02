@@ -1,6 +1,7 @@
 import * as ts from 'typescript/lib/tsserverlibrary';
 import { AdapterFixture } from '../testing/adapter-fixture';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
+import { GraphQLSchema } from 'graphql';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {
   entries: [],
@@ -11,8 +12,8 @@ const notFoundCompletionInfo: ts.CompletionInfo = {
 
 const delegateFn = () => notFoundCompletionInfo;
 
-function createFixture(name: string, schemaJson?: { data: any }) {
-  return new AdapterFixture(name, schemaJson);
+function createFixture(name: string, schema?: GraphQLSchema) {
+  return new AdapterFixture(name, schema);
 }
 
 describe('getCompletionAtPosition', () => {
@@ -22,15 +23,15 @@ describe('getCompletionAtPosition', () => {
     expect(actual).toBe(notFoundCompletionInfo);
   });
 
-  it('should delegate original method when the cursor is not on Template String Literal', async () => {
-    const fixture = createFixture('input.ts', await createSimpleSchema());
+  it('should delegate original method when the cursor is not on Template String Literal', () => {
+    const fixture = createFixture('input.ts', createSimpleSchema());
     fixture.source = 'const a = 1;';
     const actual = fixture.adapter.getCompletionAtPosition(delegateFn, 'input.ts', 0);
     expect(actual).toBe(notFoundCompletionInfo);
   });
 
-  it('should return completion entries', async () => {
-    const fixture = createFixture('input.ts', await createSimpleSchema());
+  it('should return completion entries', () => {
+    const fixture = createFixture('input.ts', createSimpleSchema());
     const completionFn = fixture.adapter.getCompletionAtPosition.bind(fixture.adapter, delegateFn, 'input.ts');
 
     fixture.source = 'const a = `';

@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 import { AdapterFixture } from '../testing/adapter-fixture';
 import { contentMark, Markers } from '../testing/content-mark';
+import { GraphQLSchema } from 'graphql';
 
 function delegateFn(): ts.QuickInfo {
   return {
@@ -15,12 +16,12 @@ function delegateFn(): ts.QuickInfo {
   };
 }
 
-function createFixture(name: string, schemaJson?: { data: any }) {
-  return new AdapterFixture(name, schemaJson);
+function createFixture(name: string, schema?: GraphQLSchema) {
+  return new AdapterFixture(name, schema);
 }
 describe('getQuickInfoAtPosition', () => {
-  it('should return GraphQL quick info', async () => {
-    const fixture = createFixture('main.ts', await createSimpleSchema());
+  it('should return GraphQL quick info', () => {
+    const fixture = createFixture('main.ts', createSimpleSchema());
     const quickInfoFn = fixture.adapter.getQuickInfoAtPosition.bind(fixture.adapter, delegateFn, 'main.ts');
     const markers: Markers = {};
     fixture.source = contentMark(

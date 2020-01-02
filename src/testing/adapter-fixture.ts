@@ -1,12 +1,12 @@
 import ts from 'typescript';
 import { findAllNodes, findNode, createResultForNoSubstitution, ResolvedTemplateInfo } from '../ts-util';
-import { buildClientSchema } from 'graphql';
+import { GraphQLSchema } from 'graphql';
 import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from '../graphql-language-service-adapter';
 export class AdapterFixture {
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;
 
-  constructor(scriptFileName: string, introspectionResultJson?: { data: any }) {
+  constructor(scriptFileName: string, schema?: GraphQLSchema) {
     this._source = ts.createSourceFile(scriptFileName, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
     const getNode = (fileName: string, position: number) => findNode(this._source, position);
     const getAllNodes = (foundNode: string, cond: (n: ts.Node) => boolean) => {
@@ -32,7 +32,7 @@ export class AdapterFixture {
       resolveTemplateLiteral,
     };
     this.adapter = new GraphQLLanguageServiceAdapter(helper, {
-      schema: introspectionResultJson && buildClientSchema(introspectionResultJson.data),
+      schema: schema || null,
     });
   }
 
