@@ -2,10 +2,10 @@ import { Buffer } from 'buffer';
 import { parse } from 'url';
 import Http from 'http';
 import Https from 'https';
-import ts from 'typescript/lib/tsserverlibrary';
 import { buildClientSchema } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
 import { SchemaManager } from './schema-manager';
+import { SchemaManagerHost } from './types';
 
 const INTROSPECTION_QUERY_BODY = JSON.stringify({
   query: introspectionQuery,
@@ -70,8 +70,8 @@ export class HttpSchemaManager extends SchemaManager {
 
   private _schema: any = null;
 
-  constructor(_info: ts.server.PluginCreateInfo, private _options: HttpSchemaManagerOptions) {
-    super(_info);
+  constructor(_host: SchemaManagerHost, private _options: HttpSchemaManagerOptions) {
+    super(_host);
   }
 
   getBaseSchema() {

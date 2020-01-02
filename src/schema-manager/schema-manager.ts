@@ -1,6 +1,7 @@
 import ts from 'typescript/lib/tsserverlibrary';
 import { GraphQLSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
+import { SchemaManagerHost } from './types';
 
 export type SchemaBuildErrorInfo = {
   message: string;
@@ -14,9 +15,9 @@ export abstract class SchemaManager {
   private _onChanges: OnChangeCallback[];
   private _extensionManager: ExtensionManager;
 
-  constructor(protected _info: ts.server.PluginCreateInfo) {
+  constructor(protected _host: SchemaManagerHost) {
     this._onChanges = [];
-    this._extensionManager = new ExtensionManager(_info);
+    this._extensionManager = new ExtensionManager(_host);
     this._extensionManager.readExtensions();
   }
 
@@ -51,7 +52,7 @@ export abstract class SchemaManager {
   }
 
   protected log(msg: string) {
-    this._info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
+    this._host.log(msg);
   }
 }
 

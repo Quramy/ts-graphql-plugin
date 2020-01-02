@@ -3,6 +3,7 @@ import { GraphQLLanguageServiceAdapter, ScriptSourceHelper } from './graphql-lan
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { findAllNodes, findNode, TemplateExpressionResolver } from './ts-util';
 import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
+import { createSchemaManagerHostFromPluginInfo } from './schema-manager/schema-manager-host';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
@@ -29,7 +30,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     const s = getSourceFile(fileName);
     return ts.getLineAndCharacterOfPosition(s, position);
   };
-  const schemaManager = new SchemaManagerFactory(info).create();
+  const schemaManager = new SchemaManagerFactory(createSchemaManagerHostFromPluginInfo(info)).create();
   const resolver = new TemplateExpressionResolver(info.languageService, (fileName: string) =>
     info.languageServiceHost.getScriptVersion(fileName),
   );

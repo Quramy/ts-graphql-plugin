@@ -2,32 +2,31 @@ import ts from 'typescript/lib/tsserverlibrary';
 import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
 import { HttpSchemaManagerOptions, HttpSchemaManager } from './http-schema-manager';
+import { SchemaManagerHost } from './types';
 
-export interface FileSchemaConfigOptions {
+interface FileSchemaConfigOptions {
   file: FileSchemaManagerOptions;
 }
 
-export interface HttpSchemaConfigOptions {
+interface HttpSchemaConfigOptions {
   http: HttpSchemaManagerOptions;
 }
 
-export type SchemaConfigOptions = FileSchemaConfigOptions | HttpSchemaConfigOptions;
+type SchemaConfigOptions = FileSchemaConfigOptions | HttpSchemaConfigOptions;
 
-export function isFileType(conf: SchemaConfigOptions): conf is FileSchemaConfigOptions {
+function isFileType(conf: SchemaConfigOptions): conf is FileSchemaConfigOptions {
   return !!(conf as any).file;
 }
 
-export function isHttpType(conf: SchemaConfigOptions): conf is HttpSchemaConfigOptions {
+function isHttpType(conf: SchemaConfigOptions): conf is HttpSchemaConfigOptions {
   return !!(conf as any).http;
 }
 
-export type SchemaConfig = string | SchemaConfigOptions;
-
 export class SchemaManagerFactory {
-  constructor(private _info: ts.server.PluginCreateInfo) {}
+  constructor(private _host: SchemaManagerHost) {}
 
   create(): SchemaManager {
-    const schemaConfig = this._info.config.schema as SchemaConfig;
+    const schemaConfig = this._host.getConfig().schema;
     let options: SchemaConfigOptions;
     if (typeof schemaConfig === 'string') {
       options = this._convertOptionsFromString(schemaConfig);
@@ -35,11 +34,11 @@ export class SchemaManagerFactory {
       options = schemaConfig;
     }
     if (isFileType(options)) {
-      return new FileSchemaManager(this._info, options.file);
+      return new FileSchemaManager(this._host, options.file);
     } else if (isHttpType(options)) {
-      return new HttpSchemaManager(this._info, options.http);
+      return new HttpSchemaManager(this._host, options.http);
     }
-    return new NoopSchemaManager(this._info);
+    return new NoopSchemaManager(this._host);
   }
 
   _convertOptionsFromString(path: string): SchemaConfigOptions {
