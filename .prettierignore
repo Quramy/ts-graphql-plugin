@@ -3,3 +3,4 @@ lib/
 e2e/
 example-project/
 __snapshots__/
+**/__test__/*.graphql

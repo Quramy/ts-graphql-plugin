@@ -4,9 +4,11 @@ import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-t
 import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
 
 import { isTagged, TagCondition, ResolvedTemplateInfo } from '../ts-util';
+import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
+  schemaErrors?: SchemaBuildErrorInfo[] | null;
   logger?: (msg: string) => void;
   tag?: string;
 }
@@ -57,6 +59,29 @@ function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, 
   };
 }
 
+function createDiagnosticFromSchemaErrorInfo(
+  errorInfo: SchemaBuildErrorInfo,
+  file: ts.SourceFile,
+  start: number,
+  length: number,
+): ts.Diagnostic {
+  let messageText = `[ts-graphql-plugin] Schema build error: '${errorInfo.message}' `;
+  if (errorInfo.fileName) {
+    messageText += `Check ${errorInfo.fileName}`;
+    if (errorInfo.locations && errorInfo.locations[0]) {
+      messageText += `[${errorInfo.locations[0].line}:${errorInfo.locations[0].column}]`;
+    }
+  }
+  return {
+    code: 9999,
+    category: ts.DiagnosticCategory.Error,
+    messageText,
+    file,
+    start,
+    length,
+  };
+}
+
 class SimplePosition implements Position {
   line: number;
   character: number;
@@ -74,17 +99,25 @@ class SimplePosition implements Position {
 }
 
 export class GraphQLLanguageServiceAdapter {
-  private _schema?: GraphQLSchema;
+  private _schemaErrors?: SchemaBuildErrorInfo[] | null;
+  private _schema?: GraphQLSchema | null;
   private _tagCondition?: TagCondition;
 
   constructor(private _helper: ScriptSourceHelper, opt: GraphQLLanguageServiceAdapterCreateOptions = {}) {
     if (opt.logger) this._logger = opt.logger;
-    if (opt.schema) this.updateSchema(opt.schema);
+    if (opt.schemaErrors) this.updateSchema(opt.schemaErrors, null);
+    if (opt.schema) this.updateSchema(null, opt.schema);
     if (opt.tag) this._tagCondition = opt.tag;
   }
 
-  updateSchema(schema: GraphQLSchema) {
-    this._schema = schema;
+  updateSchema(errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) {
+    if (errors) {
+      this._schemaErrors = errors;
+      this._schema = null;
+    } else {
+      this._schema = schema;
+      this._schemaErrors = null;
+    }
   }
 
   getCompletionAtPosition(
@@ -104,7 +137,9 @@ export class GraphQLLanguageServiceAdapter {
     // NOTE: The getAutocompleteSuggestions function does not return if missing '+1' shift
     const innerPositionToSearch = getInnerPosition(position).pos + 1;
     const innerLocation = convertInnerPosition2InnerLocation(innerPositionToSearch);
-    this._logger('Search text: "' + combinedText + '" at ' + innerPositionToSearch + ' position');
+    this._logger(
+      'Get GraphQL complete suggestions. documentText: "' + combinedText + '", position: ' + innerPositionToSearch,
+    );
     const positionForSeach = new SimplePosition({
       line: innerLocation.line,
       character: innerLocation.character,
@@ -116,7 +151,6 @@ export class GraphQLLanguageServiceAdapter {
 
   getSemanticDiagnostics(delegate: GetSemanticDiagnostics, fileName: string) {
     const errors = delegate(fileName) || [];
-    if (!this._schema) return errors;
     const allTemplateStringNodes = this._helper.getAllNodes(
       fileName,
       (n: ts.Node) => ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateExpression(n),
@@ -125,58 +159,73 @@ export class GraphQLLanguageServiceAdapter {
       if (!this._tagCondition) return true;
       return isTagged(n, this._tagCondition);
     }) as ts.NoSubstitutionTemplateLiteral[];
-    const diagnosticsAndResolvedInfoList = nodes.map(n => {
-      const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, n);
-      if (!resolvedTemplateInfo) return;
-      return {
-        resolvedTemplateInfo,
-        diagnostics: getDiagnostics(resolvedTemplateInfo.combinedText, this._schema),
-      };
-    });
     const result = [...errors];
-    diagnosticsAndResolvedInfoList.forEach((info, i) => {
-      const node = nodes[i];
-      if (!info) {
-        result.push({
-          code: 9999,
-          category: ts.DiagnosticCategory.Warning,
-          messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
-          file: node.getSourceFile(),
-          start: node.getStart(),
-          length: node.getEnd() - node.getStart(),
+    if (this._schemaErrors) {
+      nodes.forEach(node => {
+        this._schemaErrors!.forEach(schemaErrorInfo => {
+          result.push(
+            createDiagnosticFromSchemaErrorInfo(
+              schemaErrorInfo,
+              node.getSourceFile(),
+              node.getStart(),
+              node.getWidth(),
+            ),
+          );
         });
-        return;
-      }
-      const {
-        diagnostics,
-        resolvedTemplateInfo: { getSourcePosition, convertInnerLocation2InnerPosition },
-      } = info;
-      diagnostics.forEach(d => {
-        let length = 0;
-        const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
-          convertInnerLocation2InnerPosition(d.range.start),
-        );
-        try {
-          const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end)).pos;
-          length = endPositionOfSource - startPositionOfSource - 1;
-        } catch (error) {
-          length = 0;
-        }
-        if (isInOtherExpression) {
+      });
+    } else if (this._schema) {
+      const diagnosticsAndResolvedInfoList = nodes.map(n => {
+        const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, n);
+        if (!resolvedTemplateInfo) return;
+        return {
+          resolvedTemplateInfo,
+          diagnostics: getDiagnostics(resolvedTemplateInfo.combinedText, this._schema),
+        };
+      });
+      diagnosticsAndResolvedInfoList.forEach((info, i) => {
+        const node = nodes[i];
+        if (!info) {
           result.push({
             code: 9999,
-            category: ts.DiagnosticCategory.Error,
-            messageText: 'This expression has some GraphQL errors.',
+            category: ts.DiagnosticCategory.Warning,
+            messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
             file: node.getSourceFile(),
-            start: startPositionOfSource,
-            length,
+            start: node.getStart(),
+            length: node.getEnd() - node.getStart(),
           });
           return;
-        } else {
-          result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
         }
+        const {
+          diagnostics,
+          resolvedTemplateInfo: { getSourcePosition, convertInnerLocation2InnerPosition },
+        } = info;
+        diagnostics.forEach(d => {
+          let length = 0;
+          const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
+            convertInnerLocation2InnerPosition(d.range.start),
+          );
+          try {
+            const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end)).pos;
+            length = endPositionOfSource - startPositionOfSource - 1;
+          } catch (error) {
+            length = 0;
+          }
+          if (isInOtherExpression) {
+            result.push({
+              code: 9999,
+              category: ts.DiagnosticCategory.Error,
+              messageText: 'This expression has some GraphQL errors.',
+              file: node.getSourceFile(),
+              start: startPositionOfSource,
+              length,
+            });
+            return;
+          } else {
+            result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
+          }
+        });
       });
-    });
+    }
     return result;
   }
 

@@ -140,6 +140,32 @@ const str3 = otherTagFn`foooo`; // don't work
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
 
+#### `localSchemaExtensions`
+
+It's optional. If you want extend server-side schema, derived from `schema` option, use this.
+
+For example:
+
+```graphql
+# local-extension.graphql
+
+extend type Query {
+  someLocalField: String!
+}
+```
+
+```js
+/* tsconfig.json */
+
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "schema": "base-schema.graphql",
+        "localSchemaExtensions": ["local-extension.graphql"]
+      }
+    ]
+```
+
 ## Available editors
 
 I've checked the operation with the following editors:

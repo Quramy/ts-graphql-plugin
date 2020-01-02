@@ -1,0 +1,5 @@
+directive @myDirective on FIELD
+
+extend type Query {
+  bye: String!
+}
