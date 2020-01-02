@@ -142,15 +142,21 @@ It's useful to write multiple kinds template strings(e.g. one is Angular Compone
 
 #### `localSchemaExtensions`
 
-It's optional. If you want extend server-side schema, derived from `schema` option, use this.
+It's optional. If you want extend server-side schema, derived from `schema` option, you can set path of SDL file of your local extension.
 
 For example:
 
 ```graphql
 # local-extension.graphql
 
+directive @myClientDirective on FIELD
+
+type SomeClientOnlyType {
+  name: String!
+}
+
 extend type Query {
-  someLocalField: String!
+  someLocalField: SomeClientOnlyType!
 }
 ```
 
