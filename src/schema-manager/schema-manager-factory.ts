@@ -1,5 +1,5 @@
 import ts from 'typescript/lib/tsserverlibrary';
-import { SchemaManager } from './schema-manager';
+import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
 import { HttpSchemaManagerOptions, HttpSchemaManager } from './http-schema-manager';
 
@@ -26,7 +26,7 @@ export type SchemaConfig = string | SchemaConfigOptions;
 export class SchemaManagerFactory {
   constructor(private _info: ts.server.PluginCreateInfo) {}
 
-  create(): SchemaManager | null {
+  create(): SchemaManager {
     const schemaConfig = this._info.config.schema as SchemaConfig;
     let options: SchemaConfigOptions;
     if (typeof schemaConfig === 'string') {
@@ -39,7 +39,7 @@ export class SchemaManagerFactory {
     } else if (isHttpType(options)) {
       return new HttpSchemaManager(this._info, options.http);
     }
-    return null;
+    return new NoopSchemaManager(this._info);
   }
 
   _convertOptionsFromString(path: string): SchemaConfigOptions {

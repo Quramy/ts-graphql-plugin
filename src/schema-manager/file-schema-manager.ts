@@ -16,7 +16,7 @@ export class FileSchemaManager extends SchemaManager {
     this._schemaPath = options.path;
   }
 
-  getSchema() {
+  getBaseSchema() {
     if (!this._schemaPath || typeof this._schemaPath !== 'string') return null;
     try {
       const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._getProjectRootPath(this._info), this._schemaPath);

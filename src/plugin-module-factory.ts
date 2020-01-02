@@ -30,17 +30,20 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     return ts.getLineAndCharacterOfPosition(s, position);
   };
   const schemaManager = new SchemaManagerFactory(info).create();
-  const templateExpressionResolver = new TemplateExpressionResolver(info.languageService);
-  const resolveTemplateLiteral = templateExpressionResolver.resolve;
+  const resolver = new TemplateExpressionResolver(info.languageService, (fileName: string) =>
+    info.languageServiceHost.getScriptVersion(fileName),
+  );
+  // resolver.logger = logger;
+  const resolveTemplateLiteral = resolver.resolve.bind(resolver);
   const helper: ScriptSourceHelper = {
     getNode,
     getAllNodes,
     getLineAndChar,
     resolveTemplateLiteral,
   };
-  const schema = schemaManager && schemaManager.getSchema();
+  const { schema, errors: schemaErrors } = schemaManager.getSchema();
   const tag = info.config.tag;
-  const adapter = new GraphQLLanguageServiceAdapter(helper, { schema, logger, tag });
+  const adapter = new GraphQLLanguageServiceAdapter(helper, { schema, schemaErrors, logger, tag });
 
   const proxy = new LanguageServiceProxyBuilder(info)
     .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionAtPosition.bind(adapter, delegate))
@@ -48,10 +51,8 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     .wrap('getQuickInfoAtPosition', delegate => adapter.getQuickInfoAtPosition.bind(adapter, delegate))
     .build();
 
-  if (schemaManager) {
-    schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));
-    schemaManager.startWatch();
-  }
+  schemaManager.registerOnChange(adapter.updateSchema.bind(adapter));
+  schemaManager.start();
 
   return proxy;
 }
