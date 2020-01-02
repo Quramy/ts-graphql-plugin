@@ -1,4 +1,4 @@
-import { location2pos } from '../string-util';
+import { location2pos } from '..';
 
 function getCols(line: string, pre = 0): number[] {
   const idx = line.indexOf('^');
@@ -18,7 +18,7 @@ export type Markers = {
   [key: string]: Marker;
 };
 
-export function contentMark(content: string, inputMarkes: Markers) {
+export function mark(content: string, inputMarkes: Markers) {
   const lines = content.split('\n');
   const actualLines = [] as string[];
   const markInfos = [] as { col: number; line: number; name: string }[];

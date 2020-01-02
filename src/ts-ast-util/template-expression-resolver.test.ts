@@ -3,7 +3,7 @@ import * as ts from 'typescript';
 import { findAllNodes } from '.';
 import { TemplateExpressionResolver } from '../ts-ast-util/template-expression-resolver';
 import { createTestingLanguageService } from './testing/lang-service-fixture';
-import { contentMark, Markers } from '../testing/content-mark';
+import { mark, Markers } from '../string-util/testing/position-marker';
 
 describe(TemplateExpressionResolver.prototype.resolve, () => {
   it('should resolve for empty NoSubstitutionTemplateLiteral node', () => {
@@ -35,7 +35,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         {
           fileName: 'main.ts',
           // prettier-ignore
-          content: contentMark(
+          content: mark(
             'const query = `query { }' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
@@ -53,7 +53,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
 
     expect(actual.combinedText).toBe(
       // prettier-ignore
-      contentMark(
+      mark(
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
         '%%%     b2 %%%',
@@ -78,7 +78,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         {
           fileName: 'main.ts',
           // prettier-ignore
-          content: contentMark(
+          content: mark(
             'const query = `query { }`' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
@@ -96,7 +96,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
 
     expect(actual.combinedText).toBe(
       // prettier-ignore
-      contentMark(
+      mark(
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
         '%%%     b2 %%%',
@@ -121,7 +121,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         {
           fileName: 'main.ts',
           // prettier-ignore
-          content: contentMark('\n' +
+          content: mark('\n' +
             '    const fragment = gql`fragment Hoge on Foo { name }`;'     + '\n' +
             '    const query = gql`'                                       + '\n' +
             '%%%                  ^                                   %%%' + '\n' +
@@ -147,7 +147,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!actual) return fail();
 
     // prettier-ignore
-    const expectedCombinedText = contentMark('\n' +
+    const expectedCombinedText = mark('\n' +
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b1%%%' + '\n' +
@@ -197,7 +197,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         {
           fileName: 'main.ts',
           // prettier-ignore
-          content: contentMark('\n' +
+          content: mark('\n' +
             '    const fragment = gql`fragment Hoge on Foo { name }`;'     + '\n' +
             '    const query = gql`'                                       + '\n' +
             '%%%                  ^                                   %%%' + '\n' +
@@ -223,7 +223,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!actual) return fail();
 
     // prettier-ignore
-    const expectedCombinedText = contentMark('\n' +
+    const expectedCombinedText = mark('\n' +
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b1%%%' + '\n' +

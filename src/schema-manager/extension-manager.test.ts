@@ -1,7 +1,6 @@
-import { printSchema } from 'graphql';
+import { buildSchema, printSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
 import { createMockSchemaManagerHost } from './testing/mock-schema-manager-host';
-import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
 
 function createManager(config: { localSchemaExtensions?: string[] }) {
   const host = createMockSchemaManagerHost(
@@ -14,10 +13,17 @@ function createManager(config: { localSchemaExtensions?: string[] }) {
   return new ExtensionManager(host);
 }
 
+const baseSdl = `
+  type Query {
+    hello: String!
+  }
+`;
+
+const baseSchema = buildSchema(baseSdl);
+
 describe(ExtensionManager, () => {
   it('should parse and extend base schema', () => {
-    const extensionManager = createManager({ localSchemaExtensions: ['./__test__/normal.graphql'] });
-    const baseSchema = createSimpleSchema();
+    const extensionManager = createManager({ localSchemaExtensions: ['./testing/resources/normal.graphql'] });
     extensionManager.readExtensions();
     const schema = extensionManager.extendSchema(baseSchema);
     expect(printSchema(schema!)).toMatchSnapshot();
@@ -25,8 +31,7 @@ describe(ExtensionManager, () => {
   });
 
   it('should store parser errors with invalid syntax file', () => {
-    const extensionManager = createManager({ localSchemaExtensions: ['./__test__/invalid_syntax.graphql'] });
-    const baseSchema = createSimpleSchema();
+    const extensionManager = createManager({ localSchemaExtensions: ['./testing/resources/invalid_syntax.graphql'] });
     extensionManager.readExtensions();
     const schema = extensionManager.extendSchema(baseSchema);
     expect(schema).toBeNull();
@@ -37,8 +42,9 @@ describe(ExtensionManager, () => {
   });
 
   it('should store parser errors with invalid extension', () => {
-    const extensionManager = createManager({ localSchemaExtensions: ['./__test__/invalid_extension.graphql'] });
-    const baseSchema = createSimpleSchema();
+    const extensionManager = createManager({
+      localSchemaExtensions: ['./testing/resources/invalid_extension.graphql'],
+    });
     extensionManager.readExtensions();
     const schema = extensionManager.extendSchema(baseSchema);
     expect(schema).toBeNull();

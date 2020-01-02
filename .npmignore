@@ -9,5 +9,4 @@ wercker.yml
 .eslintrc.yml
 .prettierignore
 .prettierrc.yml
-__test__/
 __snapshots__/

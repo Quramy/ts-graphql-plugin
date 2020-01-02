@@ -1,7 +1,7 @@
 import ts from 'typescript';
-import { createSimpleSchema } from '../testing/graphql-util/schema/simple-schema';
+import { createSimpleSchema } from './testing/simple-schema';
 import { AdapterFixture } from './testing/adapter-fixture';
-import { contentMark, Markers } from '../testing/content-mark';
+import { mark, Markers } from '../string-util/testing/position-marker';
 import { GraphQLSchema } from 'graphql';
 
 function delegateFn(): ts.QuickInfo {
@@ -24,7 +24,7 @@ describe('getQuickInfoAtPosition', () => {
     const fixture = createFixture('main.ts', createSimpleSchema());
     const quickInfoFn = fixture.adapter.getQuickInfoAtPosition.bind(fixture.adapter, delegateFn, 'main.ts');
     const markers: Markers = {};
-    fixture.source = contentMark(
+    fixture.source = mark(
       `
         const query = \`
           query {
