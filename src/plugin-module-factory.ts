@@ -30,8 +30,11 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     return ts.getLineAndCharacterOfPosition(s, position);
   };
   const schemaManager = new SchemaManagerFactory(info).create();
-  const templateExpressionResolver = new TemplateExpressionResolver(info.languageService);
-  const resolveTemplateLiteral = templateExpressionResolver.resolve;
+  const resolver = new TemplateExpressionResolver(info.languageService, (fileName: string) =>
+    info.languageServiceHost.getScriptVersion(fileName),
+  );
+  // resolver.logger = logger;
+  const resolveTemplateLiteral = resolver.resolve.bind(resolver);
   const helper: ScriptSourceHelper = {
     getNode,
     getAllNodes,
