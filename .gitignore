@@ -5,3 +5,4 @@ types/
 *.swp
 *.swo
 .DS_Store
+manifest.json

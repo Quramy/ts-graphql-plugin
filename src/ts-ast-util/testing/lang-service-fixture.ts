@@ -8,7 +8,7 @@ type Options = {
   }[];
 };
 
-export function createTestingLanguageService({ files = [] }: Options) {
+export function createTestingLanguageServiceAndHost({ files = [] }: Options) {
   const host: ts.LanguageServiceHost = {
     getCurrentDirectory() {
       return path.resolve(__dirname, '../../');
@@ -32,5 +32,12 @@ export function createTestingLanguageService({ files = [] }: Options) {
     },
   };
 
-  return ts.createLanguageService(host);
+  return {
+    languageService: ts.createLanguageService(host),
+    languageServiceHost: host,
+  };
+}
+
+export function createTestingLanguageService(options: Options) {
+  return createTestingLanguageServiceAndHost(options).languageService;
 }
