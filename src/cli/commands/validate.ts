@@ -34,6 +34,7 @@ export async function validateCommand({ options }: CommandOptions<typeof cliDefi
     errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
     return false;
   } else {
+    logger.info(color.green('No GraphQL validation errors.'));
     return true;
   }
 }
