@@ -1,7 +1,5 @@
 src/
-typedef/
 e2e/
-example-project/
 *.test.*
 tsconfig.json
 wercker.yml
@@ -10,3 +8,4 @@ wercker.yml
 .prettierignore
 .prettierrc.yml
 __snapshots__/
+project-fixtures/

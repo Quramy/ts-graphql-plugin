@@ -6,7 +6,7 @@ function findResponse(responses, commandName) {
 }
 
 async function run(server) {
-  const file = path.resolve(__dirname, '../project-fixture/main.ts');
+  const file = path.resolve(__dirname, '../../project-fixtures/simple-prj/main.ts');
   server.send({ command: 'open', arguments: { file, fileContent: 'const q = gql`query { hello }`', scriptKindName: "TS" } });
   await server.waitEvent('projectLoadingFinish');
   server.send({ command: 'quickinfo', arguments: { file, offset: 23, line: 1 } });
