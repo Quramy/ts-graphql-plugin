@@ -4,8 +4,9 @@ import { SchemaManagerHost } from './types';
 
 export type SchemaBuildErrorInfo = {
   message: string;
-  fileName?: string;
-  locations?: { line: number; column: number }[];
+  fileName: string;
+  fileContent: string;
+  locations?: ReadonlyArray<{ line: number; character: number }>;
 };
 
 export type OnChangeCallback = (errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) => void;
@@ -21,6 +22,7 @@ export abstract class SchemaManager {
   }
 
   abstract getBaseSchema(): GraphQLSchema | null;
+  protected abstract waitBaseSchema(): Promise<GraphQLSchema | null>;
   protected abstract startWatch(interval?: number): void;
 
   start(interval?: number) {
@@ -31,6 +33,17 @@ export abstract class SchemaManager {
   getSchema(): { schema: GraphQLSchema | null; errors: SchemaBuildErrorInfo[] | null } {
     const baseSchema = this.getBaseSchema();
     const schema = baseSchema && this._extensionManager.extendSchema(baseSchema);
+    if (schema) {
+      return { schema, errors: null };
+    } else {
+      return { schema: null, errors: this._extensionManager.getSchemaErrors() };
+    }
+  }
+
+  async waitSchema(): Promise<{ schema: GraphQLSchema | null; errors: SchemaBuildErrorInfo[] | null }> {
+    const baseSchema = await this.waitBaseSchema();
+    if (!baseSchema) return { schema: null, errors: null };
+    const schema = this._extensionManager.extendSchema(baseSchema);
     if (schema) {
       return { schema, errors: null };
     } else {
@@ -57,6 +70,10 @@ export abstract class SchemaManager {
 
 export class NoopSchemaManager extends SchemaManager {
   startWatch() {}
+
+  async waitBaseSchema() {
+    return null;
+  }
 
   getBaseSchema() {
     return null;

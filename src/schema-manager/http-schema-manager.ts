@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 import { parse } from 'url';
 import Http from 'http';
 import Https from 'https';
-import { buildClientSchema } from 'graphql';
+import { buildClientSchema, GraphQLSchema } from 'graphql';
 import { introspectionQuery } from 'graphql/utilities';
 import { SchemaManager } from './schema-manager';
 import { SchemaManagerHost } from './types';
@@ -27,7 +27,7 @@ export class HttpSchemaManager extends SchemaManager {
       'User-Agent': 'ts-graphql-plugin',
       ...options.headers,
     };
-    return new Promise((resolve, reject) => {
+    return new Promise<GraphQLSchema>((resolve, reject) => {
       const uri = parse(options.url);
       let body = '';
       const r = uri.protocol === 'https:' ? Https.request : Http.request;
@@ -76,6 +76,14 @@ export class HttpSchemaManager extends SchemaManager {
 
   getBaseSchema() {
     return this._schema;
+  }
+
+  async waitBaseSchema() {
+    try {
+      return HttpSchemaManager.request(this._options);
+    } catch (error) {
+      return null;
+    }
   }
 
   startWatch(interval: number = 1000) {
