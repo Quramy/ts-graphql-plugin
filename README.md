@@ -66,7 +66,7 @@ Validates your GraphQL operations and fragments in your ts files and report synt
 
 ### `report` command
 
-Extracts GraphQL operations and fragments from ts files and report them to a Markdown file.
+Extracts GraphQL operations and fragments from ts files and report them to a Markdown file. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/master/project-fixtures/react-apollo-prj/GRAPHQL_OPERATIONS.md).
 
 ## Plugin options
 
