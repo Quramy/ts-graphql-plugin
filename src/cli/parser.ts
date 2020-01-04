@@ -1,3 +1,4 @@
+import path from 'path';
 import { pad } from '../string-util';
 
 type BooleanOptionEntry = {
@@ -182,7 +183,7 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
 
   const showHelp = () => {
     const lines: string[] = [];
-    lines.push(`Usage: ${rawArguments[1]} <command> [options]`);
+    lines.push(`Usage: ${path.basename(rawArguments[1])} <command> [options]`);
     lines.push('');
     lines.push('available commands are:');
     lines.push(`    ${Object.keys(parseOptions.commands).join(', ')}`);
@@ -209,7 +210,7 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
 
   const showCommandHelp = (commandName: string) => {
     const lines: string[] = [];
-    lines.push(`Usage: ${rawArguments[1]} ${commandName} [options]`);
+    lines.push(`Usage: ${path.basename(rawArguments[1])} ${commandName} [options]`);
     lines.push('');
     lines.push(`Description: ${parseOptions.commands[commandName as string].description}`);
     lines.push('');
