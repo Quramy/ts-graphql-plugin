@@ -2,19 +2,13 @@ import { CommandOptions } from '../parser';
 import { ConsoleLogger } from '../logger';
 
 export const cliDefinition = {
-  description: 'Extract GraphQL documents from TypeScript sources.',
+  description: 'Validate GraphQL documents in your TypeScript sources.',
   options: {
     project: {
       alias: 'p',
       description:
         "Analyze the project given the path to its configuration file, or to a folder with a 'tsconfig.json'.",
       defaultValue: '.',
-      type: 'string',
-    },
-    outFile: {
-      alias: 'o',
-      description: 'Output file name of manifest.',
-      defaultValue: 'manifest.json',
       type: 'string',
     },
     verbose: {
@@ -24,8 +18,7 @@ export const cliDefinition = {
   },
 } as const;
 
-export async function extractCommand({ options }: CommandOptions<typeof cliDefinition>) {
-  const ts = require('typescript') as typeof import('typescript');
+export async function validateCommand({ options }: CommandOptions<typeof cliDefinition>) {
   const {
     AnalyzerFactory,
   } = require('../../analyzer/analyzer-factory') as typeof import('../../analyzer/analyzer-factory');
@@ -34,13 +27,13 @@ export async function extractCommand({ options }: CommandOptions<typeof cliDefin
 
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
-
-  const { project, outFile } = options;
-  const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project);
-  const [errors, manifest] = analyzer.extract();
-
-  errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
-  ts.sys.writeFile(outFile, JSON.stringify(manifest, null, 2));
-  logger.info(`Write manifest file to '${color.green(outFile)}'.`);
-  return true;
+  const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(options.project, logger.debug.bind(logger));
+  const errors = await analyzer.validate();
+  if (errors.length) {
+    logger.error(`Found ${color.red(errors.length + '')} errors:`);
+    errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+    return false;
+  } else {
+    return true;
+  }
 }

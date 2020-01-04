@@ -2,9 +2,10 @@
 
 import { createParser } from './parser';
 import { cliDefinition as extractOptions, extractCommand } from './commands/extract';
+import { cliDefinition as validateOptions, validateCommand } from './commands/validate';
 import { ConsoleLogger } from './logger';
 
-function main() {
+async function main() {
   const parser = createParser({
     options: {
       help: {
@@ -20,15 +21,7 @@ function main() {
     },
     commands: {
       extract: extractOptions,
-      // validate: {
-      //   description: '',
-      //   options: {
-      //     verbose: {
-      //       description: 'Show debug messages.',
-      //       type: 'boolean',
-      //     },
-      //   },
-      // },
+      validate: validateOptions,
     },
   });
 
@@ -54,10 +47,14 @@ function main() {
     }
   }
 
+  let result: boolean = false;
   try {
     if (args.command.extract) {
-      extractCommand(args.command.extract);
+      result = await extractCommand(args.command.extract);
+    } else if (args.command.validate) {
+      result = await validateCommand(args.command.validate);
     }
+    process.exit(result ? 0 : 1);
   } catch (e) {
     logger.error(e);
     process.exit(1);

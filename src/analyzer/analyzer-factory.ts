@@ -2,6 +2,8 @@ import path from 'path';
 import ts from 'typescript';
 import { Analyzer } from './analyzer';
 import { TsGraphQLPluginConfigOptions } from '../types';
+import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
+import { SchemaManagerHost, SchemaConfig } from '../schema-manager/types';
 
 class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string>();
@@ -43,12 +45,45 @@ class ScriptHost implements ts.LanguageServiceHost {
   }
 }
 
+class SystemSchemaManagerHost implements SchemaManagerHost {
+  constructor(
+    private readonly _pluginConfig: TsGraphQLPluginConfigOptions,
+    private readonly _prjRootPath: string,
+    private readonly _debug: (msg: string) => void,
+  ) {}
+
+  log(msg: string): void {
+    return this._debug(msg);
+  }
+  watchFile(path: string, cb: (fileName: string) => void, interval: number): { close(): void } {
+    return ts.sys.watchFile!(path, cb, interval);
+  }
+  readFile(path: string, encoding?: string | undefined): string | undefined {
+    return ts.sys.readFile(path, encoding);
+  }
+  fileExists(path: string): boolean {
+    return ts.sys.fileExists(path);
+  }
+  getConfig(): SchemaConfig {
+    return this._pluginConfig;
+  }
+  getProjectRootPath(): string {
+    return this._prjRootPath;
+  }
+}
+
 export class AnalyzerFactory {
-  createAnalyzerFromProjectPath(projectPath: string, currentDirectory = process.cwd()) {
-    const { pluginConfig, tsconfig } = this._readTsconfig(projectPath);
+  createAnalyzerFromProjectPath(
+    projectPath: string,
+    debug: (msg: string) => void = () => {},
+    currentDirectory = process.cwd(),
+  ) {
+    const { pluginConfig, tsconfig, prjRootPath } = this._readTsconfig(projectPath);
     const scriptHost = new ScriptHost(currentDirectory, tsconfig.options);
     tsconfig.fileNames.forEach(fileName => scriptHost.readFile(fileName));
-    return new Analyzer(pluginConfig, scriptHost);
+    const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
+    const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
+    return new Analyzer(pluginConfig, scriptHost, schemaManager);
   }
 
   private _readTsconfig(project: string) {
@@ -67,6 +102,7 @@ export class AnalyzerFactory {
     if (!tsconfig) {
       throw new Error(`Failed to parse: ${configPath}`);
     }
+    const prjRootPath = path.dirname(configPath);
     const plugins = tsconfig.options.plugins;
     if (!plugins || !Array.isArray(plugins)) {
       throw new Error(
@@ -99,6 +135,7 @@ export class AnalyzerFactory {
     return {
       tsconfig,
       pluginConfig,
+      prjRootPath,
     };
   }
 }

@@ -69,7 +69,10 @@ export class Extractor {
     });
   }
 
-  pickupErrors(extractResults: ExtractResult[]) {
+  pickupErrors(
+    extractResults: ExtractResult[],
+    { ignoreGraphQLError }: { ignoreGraphQLError: boolean } = { ignoreGraphQLError: false },
+  ) {
     const errors: ErrorWithLocation[] = [];
     extractResults.forEach(r => {
       if (r.resolveTemplateErrorMessage) {
@@ -81,7 +84,7 @@ export class Extractor {
             end: r.templateNode.getEnd(),
           }),
         );
-      } else if (r.graphqlError) {
+      } else if (!ignoreGraphQLError && r.graphqlError) {
         const innerLoc = r.graphqlError.locations && r.graphqlError.locations[0];
         if (!innerLoc) {
           errors.push(
