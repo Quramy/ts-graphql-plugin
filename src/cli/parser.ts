@@ -196,7 +196,10 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
       }
       line += `--${name}`;
       if (value.description) {
-        line += pad(' ', 52 - line.length) + value.description;
+        line += pad(' ', 42 - line.length) + value.description;
+      }
+      if ('defaultValue' in value) {
+        line += ` [default: ${value.defaultValue + ''}]`;
       }
       lines.push(line);
     });
@@ -219,7 +222,10 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
       }
       line += `--${name}`;
       if (value.description) {
-        line += pad(' ', 52 - line.length) + value.description;
+        line += pad(' ', 42 - line.length) + value.description;
+      }
+      if ('defaultValue' in value) {
+        line += `  [default: ${value.defaultValue + ''}]`;
       }
       lines.push(line);
     });

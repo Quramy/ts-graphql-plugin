@@ -19,6 +19,7 @@ export const cliDefinition = {
       type: 'string',
     },
     fromManifest: {
+      alias: 'M',
       description: 'Path to manifest.json file.',
       type: 'string',
     },
