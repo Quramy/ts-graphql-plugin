@@ -54,7 +54,7 @@ $ npx ts-graphql-plugin <command> [options]
 
 If you install this plugin, a short alias `tsgql` is also available instead of `ts-graphql-plugin`.
 
-Available commands are `extract`, `validate` and `report'. If you want more detail, run`ts-graphql-plugin --help`or`ts-graphql-plugin <command> --help` in your console.
+Available commands are `extract`, `validate` and `report`. If you want more detail, run`ts-graphql-plugin --help`or`ts-graphql-plugin <command> --help` in your console.
 
 ### `extract` command
 
