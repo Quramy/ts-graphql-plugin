@@ -1,6 +1,4 @@
 __generated__/
-*.css.d.ts
-dist/
-built/
-example-project/
-tools/
+project-fixtures/
+lib/
+e2e/

@@ -8,6 +8,10 @@
     "language service"
   ],
   "main": "lib/index.js",
+  "bin": {
+    "tsgql": "lib/cli/cli.js",
+    "ts-graphql-plugin": "lib/cli/cli.js"
+  },
   "typings": "lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib e2e/*.log",
@@ -16,7 +20,7 @@
     "jest": "jest",
     "e2e": "node e2e/run.js && node e2e/http-req.test.js",
     "test": "yarn format:check && yarn lint && jest && yarn e2e",
-    "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\" \"typedef/**/*\"",
+    "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\"",
     "format": "yarn prettier --write",
     "format:check": "yarn prettier --check",
     "watch:compile": "tsc --watch -p .",

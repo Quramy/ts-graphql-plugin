@@ -15,8 +15,11 @@ type User {
 exports[`ExtensionManager should store parser errors with invalid extension 1`] = `
 Array [
   Object {
+    "fileContent": "extend type NoExisitingType {
+  name: String!
+}
+",
     "fileName": "/testing/resources/invalid_extension.graphql",
-    "locations": undefined,
     "message": "Cannot extend type \\"NoExisitingType\\" because it is not defined.",
   },
 ]
@@ -25,11 +28,13 @@ Array [
 exports[`ExtensionManager should store parser errors with invalid syntax file 1`] = `
 Array [
   Object {
+    "fileContent": "directive @hoge() on FIEELD
+",
     "fileName": "/testing/resources/invalid_syntax.graphql",
     "locations": Array [
       Object {
-        "column": 17,
-        "line": 1,
+        "character": 16,
+        "line": 0,
       },
     ],
     "message": "Syntax Error: Expected Name, found )",

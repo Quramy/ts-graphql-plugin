@@ -60,7 +60,7 @@ function createDiagnosticFromSchemaErrorInfo(
   if (errorInfo.fileName) {
     messageText += `Check ${errorInfo.fileName}`;
     if (errorInfo.locations && errorInfo.locations[0]) {
-      messageText += `[${errorInfo.locations[0].line}:${errorInfo.locations[0].column}]`;
+      messageText += `[${errorInfo.locations[0].line + 1}:${errorInfo.locations[0].character + 1}]`;
     }
   }
   return {

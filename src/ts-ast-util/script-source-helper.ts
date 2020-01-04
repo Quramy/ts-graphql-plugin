@@ -13,11 +13,11 @@ export function createScriptSourceHelper({
   const getSourceFile = (fileName: string) => {
     const program = languageService.getProgram();
     if (!program) {
-      throw new Error();
+      throw new Error('language service host does not have program!');
     }
     const s = program.getSourceFile(fileName);
     if (!s) {
-      throw new Error('no source file');
+      throw new Error('No source file: ' + fileName);
     }
     return s;
   };

@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Extractor should convert results to manifest JSON 1`] = `
+Object {
+  "documents": Array [
+    Object {
+      "body": "query MyQuery {
+  hello
+}
+",
+      "documentEnd": Object {
+        "character": 8,
+        "line": 6,
+      },
+      "documentStart": Object {
+        "character": 26,
+        "line": 2,
+      },
+      "fileName": "main.ts",
+      "operationName": "MyQuery",
+      "tag": "",
+      "templateLiteralNodeEnd": Object {
+        "character": 9,
+        "line": 6,
+      },
+      "templateLiteralNodeStart": Object {
+        "character": 25,
+        "line": 2,
+      },
+      "type": "query",
+    },
+    Object {
+      "body": "mutation Greeting {
+  greeting {
+    reply
+  }
+}
+",
+      "documentEnd": Object {
+        "character": 8,
+        "line": 13,
+      },
+      "documentStart": Object {
+        "character": 29,
+        "line": 7,
+      },
+      "fileName": "main.ts",
+      "operationName": "Greeting",
+      "tag": "",
+      "templateLiteralNodeEnd": Object {
+        "character": 9,
+        "line": 13,
+      },
+      "templateLiteralNodeStart": Object {
+        "character": 28,
+        "line": 7,
+      },
+      "type": "mutation",
+    },
+  ],
+}
+`;
+
+exports[`Extractor should extract GraphQL documents 1`] = `
+Array [
+  "query MyQuery {
+  hello
+}
+",
+  "mutation Greeting {
+  greeting {
+    reply
+  }
+}
+",
+]
+`;

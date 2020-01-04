@@ -38,6 +38,10 @@ export class FileSchemaManager extends SchemaManager {
     }
   }
 
+  async waitBaseSchema() {
+    return this.getBaseSchema();
+  }
+
   getAbsoluteSchemaPath(projectRootPath: string, schemaPath: string) {
     if (path.isAbsolute(schemaPath)) return schemaPath;
     return path.resolve(projectRootPath, schemaPath);
