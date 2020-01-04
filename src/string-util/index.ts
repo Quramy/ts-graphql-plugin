@@ -9,6 +9,7 @@ export function pad(letter: string, length: number) {
 const resetCode = '\u001b[0m';
 const colorCode = {
   thin: '\u001b[2m',
+  invert: '\u001b[7m',
   black: '\u001b[30m',
   red: '\u001b[31m',
   green: '\u001b[32m',
