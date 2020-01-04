@@ -15,7 +15,7 @@ export const cliDefinition = {
     outFile: {
       alias: 'o',
       description: 'Output Markdown file name.',
-      defaultValue: 'GRPAPHQL_OPERATIONS.md',
+      defaultValue: 'GRAPHQL_OPERATIONS.md',
       type: 'string',
     },
     fromManifest: {
@@ -47,9 +47,13 @@ export async function reportCommand({ options }: CommandOptions<typeof cliDefini
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
   const manifest = fromManifest ? JSON.parse(ts.sys.readFile(fromManifest, 'utf8') || '') : undefined;
   let outFileName = path.isAbsolute(outFile) ? outFile : path.resolve(process.cwd(), outFile);
-  outFileName = ts.sys.directoryExists(outFileName) ? path.join(outFileName, 'GRPAPHQL_OPERATIONS.md') : outFileName;
+  outFileName = ts.sys.directoryExists(outFileName) ? path.join(outFileName, 'GRAPHQL_OPERATIONS.md') : outFileName;
   const [errors, markdown] = await analyzer.report(outFileName, manifest, ignoreFragments);
   errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+  if (errors.length) {
+    logger.error(color.magenta('Found some errors extracting operations.\n'));
+    errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
+  }
   if (!markdown) {
     logger.error('No GraphQL operations.');
     return false;
