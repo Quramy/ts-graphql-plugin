@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MarkdownReporter should convert from manifest to markdown content 1`] = `
+"# Extracted GraphQL Operations
+## Queries
+
+### MyQuery
+
+\`\`\`graphql
+fragment MyFragment on Query {
+  hello
+}
+
+query MyQuery {
+  ...MyFragment
+}
+\`\`\`
+
+From [src/main.ts:8:27](../src/main.ts#L8-L13)
+    
+## Mutations
+
+### Greeting
+
+\`\`\`graphql
+mutation Greeting {
+  greeting {
+    reply
+  }
+}
+\`\`\`
+
+From [src/main.ts:14:30](../src/main.ts#L14-L20)
+    
+---
+Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)"
+`;
+
+exports[`MarkdownReporter should convert from manifest to markdown content with ignoreFragments: false 1`] = `
+"# Extracted GraphQL Operations
+## Queries
+
+### MyQuery
+
+\`\`\`graphql
+fragment MyFragment on Query {
+  hello
+}
+
+query MyQuery {
+  ...MyFragment
+}
+\`\`\`
+
+From [src/main.ts:8:27](../src/main.ts#L8-L13)
+    
+## Mutations
+
+### Greeting
+
+\`\`\`graphql
+mutation Greeting {
+  greeting {
+    reply
+  }
+}
+\`\`\`
+
+From [src/main.ts:14:30](../src/main.ts#L14-L20)
+    
+## Fragments
+
+### Fragment 1
+
+\`\`\`graphql
+fragment MyFragment on Query {
+  hello
+}
+\`\`\`
+
+From [src/main.ts:3:30](../src/main.ts#L3-L7)
+    
+---
+Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)"
+`;

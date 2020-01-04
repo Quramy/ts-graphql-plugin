@@ -83,7 +83,7 @@ export class AnalyzerFactory {
     tsconfig.fileNames.forEach(fileName => scriptHost.readFile(fileName));
     const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
     const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
-    return new Analyzer(pluginConfig, scriptHost, schemaManager);
+    return new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager);
   }
 
   private _readTsconfig(project: string) {

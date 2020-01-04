@@ -122,6 +122,7 @@ export class Extractor {
       .map(r => {
         const dnode = r.documentNode!;
         let type: OperationType | undefined;
+        let operationName: string | undefined;
         visit(dnode, {
           FragmentDefinition() {
             if (!type) {
@@ -134,11 +135,17 @@ export class Extractor {
             } else {
               type = 'complex';
             }
+            if (!operationName) {
+              operationName = node.name ? node.name.value : '(anonymous query)';
+            } else {
+              operationName = '(multiple operations)';
+            }
           },
         });
         return {
           fileName: r.fileName,
           type: type || 'other',
+          operationName,
           body: print(r.documentNode!),
           tag: tagName,
           templateLiteralNodeStart: this._helper.getLineAndChar(r.fileName, r.templateNode.getStart()),

@@ -17,6 +17,7 @@ Object {
         "line": 2,
       },
       "fileName": "main.ts",
+      "operationName": "MyQuery",
       "tag": "",
       "templateLiteralNodeEnd": Object {
         "character": 9,
@@ -44,6 +45,7 @@ Object {
         "line": 7,
       },
       "fileName": "main.ts",
+      "operationName": "Greeting",
       "tag": "",
       "templateLiteralNodeEnd": Object {
         "character": 9,

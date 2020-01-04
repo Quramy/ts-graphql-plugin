@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
 import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
@@ -7,6 +8,8 @@ import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-ma
 import { ErrorWithLocation } from '../errors';
 import { location2pos } from '../string-util';
 import { validate } from './validator';
+import { ManifestOutput } from './types';
+import { MarkdownReporter } from './markdown-reporter';
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   if (errorInfo.locations && errorInfo.locations[0]) {
@@ -33,6 +36,7 @@ export class Analyzer {
 
   constructor(
     private readonly _pluginConfig: TsGraphQLPluginConfigOptions,
+    private readonly _prjRootPath: string,
     private readonly _languageServiceHost: ts.LanguageServiceHost,
     private readonly _schemaManager: SchemaManager,
   ) {
@@ -64,5 +68,20 @@ export class Analyzer {
     const results = this._extractor.extract(this._languageServiceHost.getScriptFileNames(), this._pluginConfig.tag);
     const errors = this._extractor.pickupErrors(results, { ignoreGraphQLError: true });
     return [...errors, ...validate(results, schema)];
+  }
+
+  report(outputFileName: string, manifest?: ManifestOutput, ignoreFragments = true) {
+    const reporter = new MarkdownReporter();
+    const reportOptions = {
+      baseDir: this._prjRootPath,
+      ignoreFragments,
+      outputDir: path.dirname(outputFileName),
+    };
+    if (manifest) {
+      return [[] as ErrorWithLocation[], reporter.toMarkdownConntent(manifest, reportOptions)] as const;
+    } else {
+      const [errors, extractedManifest] = this.extract();
+      return [errors, reporter.toMarkdownConntent(extractedManifest, reportOptions)] as const;
+    }
   }
 }

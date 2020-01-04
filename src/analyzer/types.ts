@@ -3,6 +3,7 @@ export type OperationType = 'query' | 'mutation' | 'subscription' | 'fragment' |
 export interface ManifestDocumentEntry {
   fileName: string;
   type: OperationType;
+  operationName?: string;
   body: string;
   tag?: string;
   documentStart: { line: number; character: number };

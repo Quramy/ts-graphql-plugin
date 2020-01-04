@@ -3,6 +3,7 @@
 import { createParser } from './parser';
 import { cliDefinition as extractOptions, extractCommand } from './commands/extract';
 import { cliDefinition as validateOptions, validateCommand } from './commands/validate';
+import { cliDefinition as reportOptions, reportCommand } from './commands/report';
 import { ConsoleLogger } from './logger';
 
 async function main() {
@@ -22,6 +23,7 @@ async function main() {
     commands: {
       extract: extractOptions,
       validate: validateOptions,
+      report: reportOptions,
     },
   });
 
@@ -53,6 +55,8 @@ async function main() {
       result = await extractCommand(args.command.extract);
     } else if (args.command.validate) {
       result = await validateCommand(args.command.validate);
+    } else if (args.command.report) {
+      result = await reportCommand(args.command.report);
     }
     process.exit(result ? 0 : 1);
   } catch (e) {

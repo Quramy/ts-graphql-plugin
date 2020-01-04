@@ -54,7 +54,7 @@ $ npx ts-graphql-plugin <command> [options]
 
 If you install this plugin, a short alias `tsgql` is also available instead of `ts-graphql-plugin`.
 
-Available commands are `extract` and `validate`. If you want more detail, run `ts-graphql-plugin --help` or `ts-graphql-plugin <command> --help` in your console.
+Available commands are `extract`, `validate` and `report'. If you want more detail, run`ts-graphql-plugin --help`or`ts-graphql-plugin <command> --help` in your console.
 
 ### `extract` command
 
@@ -63,6 +63,10 @@ Extracts GraphQL operations and fragments from ts files and writes them to `mani
 ### `validate` command
 
 Validates your GraphQL operations and fragments in your ts files and report syntax or semantic errors.
+
+### `report` command
+
+Extracts GraphQL operations and fragments from ts files and report them to a Markdown file.
 
 ## Plugin options
 
