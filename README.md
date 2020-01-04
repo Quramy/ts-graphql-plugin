@@ -9,13 +9,14 @@ This plugin parses and analyzes template strings in .ts and provides functions l
 
 ## Features
 
-This plugin extends TypeScript Language Service and provides the following features:
+- As TypeScript Language Service extension:
+  - Completion suggestion
+  - Get GraphQL diagnostics
+  - Display GraphQL quick info within tooltip
+- As CLI
+  - Extract or validate GraphQL operations in your TypeScript sources
 
-- Completion suggestion
-- Get GraphQL diagnostics
-- Display GraphQL quick info within tooltip
-
-## Usage
+## Getting started
 
 First, confirm that your project has typescript(v2.3.x or later) and graphql.
 
@@ -45,9 +46,27 @@ And configure `plugins` section in your tsconfig.json, for example:
 
 It's ready to go. Launch your TypeScript IDE.
 
-### Plugin options
+## CLI Usage
 
-#### `schema`
+```sh
+$ npx ts-graphql-plugin <command> [options]
+```
+
+If you install this plugin, a short alias `tsgql` is also available instead of `ts-graphql-plugin`.
+
+Available commands are `extract` and `validate`. If you want more detail, run `ts-graphql-plugin --help` or `ts-graphql-plugin <command> --help` in your console.
+
+### `extract` command
+
+Extracts GraphQL operations and fragments from ts files and writes them to `manifest.json`.
+
+### `validate` command
+
+Validates your GraphQL operations and fragments in your ts files and report syntax or semantic errors.
+
+## Plugin options
+
+### `schema`
 
 It's a required parameter and should point your GraphQL schema SDL file such as :
 
@@ -121,7 +140,7 @@ type SchemaConfig =
     };
 ```
 
-#### `tag`
+### `tag`
 
 It's optional. When it's set, this plugin works only if the target template string is tagged by a function whose name is equal to this parameter.
 
@@ -140,7 +159,7 @@ const str3 = otherTagFn`foooo`; // don't work
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
 
-#### `localSchemaExtensions`
+### `localSchemaExtensions`
 
 It's optional. If you want extend server-side schema, derived from `schema` option, you can set path of SDL file of your local extension.
 
