@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createParser } from './parser';
+import { cliDefinition as typegenOptions, typegenCommand } from './commands/typegen';
 import { cliDefinition as extractOptions, extractCommand } from './commands/extract';
 import { cliDefinition as validateOptions, validateCommand } from './commands/validate';
 import { cliDefinition as reportOptions, reportCommand } from './commands/report';
@@ -21,6 +22,7 @@ async function main() {
       },
     },
     commands: {
+      typegen: typegenOptions,
       extract: extractOptions,
       validate: validateOptions,
       report: reportOptions,
@@ -51,7 +53,9 @@ async function main() {
 
   let result: boolean = false;
   try {
-    if (args.command.extract) {
+    if (args.command.typegen) {
+      result = await typegenCommand(args.command.typegen);
+    } else if (args.command.extract) {
       result = await extractCommand(args.command.extract);
     } else if (args.command.validate) {
       result = await validateCommand(args.command.validate);

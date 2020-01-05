@@ -2,19 +2,13 @@ import { CommandOptions } from '../parser';
 import { ConsoleLogger } from '../logger';
 
 export const cliDefinition = {
-  description: 'Extract GraphQL documents from TypeScript sources.',
+  description: 'Generate TypeScript types from GraphQL operations or fragments in your .ts source files.',
   options: {
     project: {
       alias: 'p',
       description:
         "Analyze the project given the path to its configuration file, or to a folder with a 'tsconfig.json'.",
       defaultValue: '.',
-      type: 'string',
-    },
-    outFile: {
-      alias: 'o',
-      description: 'Output file name of manifest.',
-      defaultValue: 'manifest.json',
       type: 'string',
     },
     verbose: {
@@ -24,7 +18,7 @@ export const cliDefinition = {
   },
 } as const;
 
-export async function extractCommand({ options }: CommandOptions<typeof cliDefinition>) {
+export async function typegenCommand({ options }: CommandOptions<typeof cliDefinition>) {
   const ts = require('typescript') as typeof import('typescript');
   const {
     AnalyzerFactory,
@@ -33,17 +27,21 @@ export async function extractCommand({ options }: CommandOptions<typeof cliDefin
   const { color } = require('../../string-util') as typeof import('../../string-util');
 
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');
+  const { project } = options;
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
-
-  const { project, outFile } = options;
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
-  const [errors, manifest] = analyzer.extract();
-
+  const { errors, outputSourceFiles } = await analyzer.typegen();
+  errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
   if (errors.length) {
     logger.error(color.magenta('Found some errors extracting operations.\n'));
     errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
   }
-  ts.sys.writeFile(outFile, JSON.stringify(manifest, null, 2));
-  logger.info(`Write manifest file to '${color.green(outFile)}'.`);
+  if (!outputSourceFiles || outputSourceFiles.length === 0) {
+    logger.error('No type files to generate.');
+    return false;
+  }
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  outputSourceFiles.forEach(source => ts.sys.writeFile(source.fileName, printer.printFile(source)));
+  logger.info(`Write ${color.green(outputSourceFiles.length + ' type files')}.`);
   return true;
 }

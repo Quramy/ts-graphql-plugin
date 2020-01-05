@@ -6,10 +6,11 @@ import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ErrorWithLocation } from '../errors';
-import { location2pos } from '../string-util';
+import { location2pos, dasherize } from '../string-util';
 import { validate } from './validator';
 import { ManifestOutput } from './types';
 import { MarkdownReporter } from './markdown-reporter';
+import { TypeGenVisitor } from '../typegen/type-gen-visitor';
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   if (errorInfo.locations && errorInfo.locations[0]) {
@@ -39,13 +40,14 @@ export class Analyzer {
     private readonly _prjRootPath: string,
     private readonly _languageServiceHost: ts.LanguageServiceHost,
     private readonly _schemaManager: SchemaManager,
+    private readonly _debug: (msg: string) => void,
   ) {
     const langService = ts.createLanguageService(this._languageServiceHost);
     this._scriptSourceHelper = createScriptSourceHelper({
       languageService: langService,
       languageServiceHost: this._languageServiceHost,
     });
-    this._extractor = new Extractor({ scriptSourceHelper: this._scriptSourceHelper });
+    this._extractor = new Extractor({ scriptSourceHelper: this._scriptSourceHelper, debug: this._debug });
   }
 
   extract() {
@@ -58,7 +60,7 @@ export class Analyzer {
   async validate() {
     const { schema, errors: schemaBuildErrors } = await this._schemaManager.waitSchema();
     if (schemaBuildErrors) {
-      return schemaBuildErrors.map(info => convertSchemaBuildErrorsToErrorWithLocation(info));
+      return { errors: schemaBuildErrors.map(info => convertSchemaBuildErrorsToErrorWithLocation(info)) };
     }
     if (!schema) {
       throw new Error(
@@ -67,7 +69,10 @@ export class Analyzer {
     }
     const results = this._extractor.extract(this._languageServiceHost.getScriptFileNames(), this._pluginConfig.tag);
     const errors = this._extractor.pickupErrors(results, { ignoreGraphQLError: true });
-    return [...errors, ...validate(results, schema)];
+    if (errors.length) {
+      this._debug(`Found ${errors.length} validation errors.`);
+    }
+    return { errors: [...errors, ...validate(results, schema)], extractedResults: results, schema };
   }
 
   report(outputFileName: string, manifest?: ManifestOutput, ignoreFragments = true) {
@@ -83,5 +88,43 @@ export class Analyzer {
       const [errors, extractedManifest] = this.extract();
       return [errors, reporter.toMarkdownConntent(extractedManifest, reportOptions)] as const;
     }
+  }
+
+  async typegen() {
+    const { errors, schema, extractedResults } = await this.validate();
+    if (!schema || !extractedResults) return { errors };
+    const visitor = new TypeGenVisitor();
+    const outputSourceFiles: ts.SourceFile[] = [];
+    extractedResults.forEach(r => {
+      if (r.documentNode) {
+        const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
+        if (type === 'complex') {
+          errors.push(
+            new ErrorWithLocation('This document node has complex operations.', {
+              fileName: r.fileName,
+              content: r.templateNode.getText(),
+              start: r.templateNode.getStart(),
+              end: r.templateNode.getEnd(),
+            }),
+          );
+          return;
+        }
+        const operationOrFragmentName = type === 'fragment' ? fragmentName : operationName;
+        if (!operationOrFragmentName) return;
+        const outputFileName = path.resolve(
+          path.dirname(r.fileName),
+          '__generated__',
+          dasherize(operationOrFragmentName) + '.ts',
+        );
+        this._debug(
+          `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
+            this._prjRootPath,
+            r.fileName,
+          )}'.`,
+        );
+        outputSourceFiles.push(visitor.visit(r.documentNode, schema, { outputFileName }));
+      }
+    });
+    return { errors, outputSourceFiles };
   }
 }

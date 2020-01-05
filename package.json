@@ -68,6 +68,11 @@
     }
   },
   "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
     "transform": {
       "^.+\\.ts$": "ts-jest"
     },

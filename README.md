@@ -2,7 +2,7 @@
 
 [![github actions](https://github.com/Quramy/ts-graphql-plugin/workflows/build/badge.svg)](https://github.com/Quramy/ts-graphql-plugin/actions) [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin) ![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/ts-graphql-plugin.svg)](https://greenkeeper.io/) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
 
-TypeScript Language Service Plugin to help GraphQL client development(e.g. [Apollo](https://github.com/apollographql/apollo-client)).
+TypeScript Language Service Plugin to help GraphQL client development.
 This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql) to your editor or IDE.
 
 ![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.gif)
@@ -14,6 +14,7 @@ This plugin parses and analyzes template strings in .ts and provides functions l
   - Get GraphQL diagnostics
   - Display GraphQL quick info within tooltip
 - As CLI
+  - Generate ts type files from your GraphQL operations in your TypeScript sources
   - Extract or validate GraphQL operations in your TypeScript sources
 
 ## Getting started
@@ -54,7 +55,11 @@ $ npx ts-graphql-plugin <command> [options]
 
 If you install this plugin, a short alias `tsgql` is also available instead of `ts-graphql-plugin`.
 
-Available commands are `extract`, `validate` and `report`. If you want more detail, run`ts-graphql-plugin --help`or`ts-graphql-plugin <command> --help` in your console.
+Available commands are `typegen`, `extract`, `validate` and `report`. If you want more detail, run`ts-graphql-plugin --help`or`ts-graphql-plugin <command> --help` in your console.
+
+### `typegen` command
+
+Generate TypeScript types from GraphQL operations or fragments in your .ts source files.
 
 ### `extract` command
 

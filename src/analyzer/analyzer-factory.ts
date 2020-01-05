@@ -83,7 +83,7 @@ export class AnalyzerFactory {
     tsconfig.fileNames.forEach(fileName => scriptHost.readFile(fileName));
     const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
     const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
-    return new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager);
+    return new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager, debug);
   }
 
   private _readTsconfig(project: string) {
@@ -111,7 +111,8 @@ export class AnalyzerFactory {
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "schema": "path-to-graphql-schemafile"
+        "schema": "shema.graphql",   /* Path to your GraphQL schema */
+        "tag": "gql"                 /* Template tag function name */
       }
     ]
   }`,
@@ -125,7 +126,8 @@ export class AnalyzerFactory {
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "schema": "path-to-graphql-schemafile"
+        "schema": "shema.graphql",   /* Path to your GraphQL schema */
+        "tag": "gql"                 /* Template tag function name */
       }
     ]
   }`,

@@ -28,7 +28,7 @@ export async function validateCommand({ options }: CommandOptions<typeof cliDefi
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(options.project, logger.debug.bind(logger));
-  const errors = await analyzer.validate();
+  const { errors } = await analyzer.validate();
   if (errors.length) {
     logger.error(`Found ${color.red(errors.length + '')} errors:`);
     errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
