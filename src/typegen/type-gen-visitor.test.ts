@@ -5,8 +5,8 @@ import { parse, buildSchema } from 'graphql';
 function generateAstAndPrint({ schemaSDL, documentContent }: { schemaSDL: string; documentContent: string }) {
   const schema = buildSchema(schemaSDL);
   const documentNode = parse(documentContent);
-  const source = new TypeGenVisitor().visit(documentNode, schema, { outputFileName: 'out.ts' });
-  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const source = new TypeGenVisitor({ schema }).visit(documentNode, { outputFileName: 'out.ts' });
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: true });
   return printer.printFile(source);
 }
 

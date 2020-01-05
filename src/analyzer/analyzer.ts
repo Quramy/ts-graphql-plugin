@@ -93,7 +93,7 @@ export class Analyzer {
   async typegen() {
     const { errors, schema, extractedResults } = await this.validate();
     if (!schema || !extractedResults) return { errors };
-    const visitor = new TypeGenVisitor();
+    const visitor = new TypeGenVisitor({ schema });
     const outputSourceFiles: ts.SourceFile[] = [];
     extractedResults.forEach(r => {
       if (r.documentNode) {
@@ -122,7 +122,7 @@ export class Analyzer {
             r.fileName,
           )}'.`,
         );
-        outputSourceFiles.push(visitor.visit(r.documentNode, schema, { outputFileName }));
+        outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
       }
     });
     return { errors, outputSourceFiles };
