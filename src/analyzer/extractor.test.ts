@@ -182,11 +182,7 @@ describe(Extractor, () => {
           content: `
             import gql from 'graphql-tag';
             const query = gql\`
-              fragment X on Query {
-                hello
-              }
               fragment MyFragment on Query {
-                ...X
                 hello
               }
             \`;
@@ -197,6 +193,58 @@ describe(Extractor, () => {
       const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
       expect(type).toBe('fragment');
       expect(fragmentName).toBe('MyFragment');
+    });
+
+    it('should detect fragment name to be exported', () => {
+      const extractor = createExtractor([
+        {
+          fileName: 'main.ts',
+          content: `
+            import gql from 'graphql-tag';
+            const query = gql\`
+              fragment MyFragment on Query {
+                ...X
+                hello
+              }
+              fragment X on Query {
+                hello
+              }
+            \`;
+          `,
+        },
+      ]);
+      const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
+      const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
+      expect(type).toBe('fragment');
+      expect(fragmentName).toBe('MyFragment');
+    });
+
+    it('should return the last fragments which are not referenced from others', () => {
+      const extractor = createExtractor([
+        {
+          fileName: 'main.ts',
+          content: `
+            import gql from 'graphql-tag';
+            const query = gql\`
+              fragment MyFragment1 on Query {
+                ...X
+                hello
+              }
+              fragment MyFragment2 on Query {
+                ...X
+                hello
+              }
+              fragment X on Query {
+                hello
+              }
+            \`;
+          `,
+        },
+      ]);
+      const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
+      const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
+      expect(type).toBe('fragment');
+      expect(fragmentName).toBe('MyFragment2');
     });
   });
 });

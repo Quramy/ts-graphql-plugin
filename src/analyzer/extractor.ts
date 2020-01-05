@@ -146,14 +146,18 @@ export class Extractor {
 
   getDominantDefiniton(result: ExtractSucceededResult) {
     let type: OperationType | undefined;
-    let fragmentName: string | undefined;
+    const definedFragmentNames: string[] = [];
+    const referencedFragmentNames: string[] = [];
     let operationName: string | undefined;
     visit(result.documentNode, {
       FragmentDefinition(node) {
         if (!type) {
           type = 'fragment';
         }
-        fragmentName = node.name.value;
+        definedFragmentNames.push(node.name.value);
+      },
+      FragmentSpread(node) {
+        referencedFragmentNames.push(node.name.value);
       },
       OperationDefinition(node) {
         if (!type || type === 'fragment') {
@@ -168,7 +172,10 @@ export class Extractor {
         }
       },
     });
-    return { type, operationName, fragmentName };
+    const noReferedFragmentNames = definedFragmentNames.filter(defName =>
+      referencedFragmentNames.every(n => defName !== n),
+    );
+    return { type, operationName, fragmentName: noReferedFragmentNames[noReferedFragmentNames.length - 1] };
   }
 
   toManifest(extractResults: ExtractResult[], tagName: string = ''): ManifestOutput {
