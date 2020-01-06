@@ -12,8 +12,8 @@ export class FileSchemaManager extends SchemaManager {
   private _schemaPath: string;
   private _watcher?: ts.FileWatcher;
 
-  constructor(_info: SchemaManagerHost, options: FileSchemaManagerOptions) {
-    super(_info);
+  constructor(protected _host: SchemaManagerHost, options: FileSchemaManagerOptions) {
+    super(_host);
     this._schemaPath = options.path;
   }
 

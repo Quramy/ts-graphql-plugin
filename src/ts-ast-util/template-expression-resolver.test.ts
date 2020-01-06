@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 
 import { findAllNodes } from '.';
 import { TemplateExpressionResolver } from '../ts-ast-util/template-expression-resolver';
-import { createTestingLanguageService } from './testing/lang-service-fixture';
+import { createTestingLanguageService } from './testing/testing-language-service';
 import { mark, Markers } from '../string-util/testing/position-marker';
 
 describe(TemplateExpressionResolver.prototype.resolve, () => {

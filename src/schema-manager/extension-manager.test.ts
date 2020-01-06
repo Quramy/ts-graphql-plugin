@@ -1,15 +1,19 @@
+import fs from 'fs';
+import path from 'path';
 import { buildSchema, printSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
-import { createMockSchemaManagerHost } from './testing/mock-schema-manager-host';
+import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
-function createManager(config: { localSchemaExtensions?: string[] }) {
-  const host = createMockSchemaManagerHost(
-    {
-      schema: '',
-      localSchemaExtensions: config.localSchemaExtensions,
-    },
-    __dirname,
-  );
+function createManager(config: { localSchemaExtensions: string[] }) {
+  const host = createTestingSchemaManagerHost({
+    schema: '',
+    localSchemaExtensions: config.localSchemaExtensions,
+    files: config.localSchemaExtensions.map(name => ({
+      fileName: path.join(__dirname, name),
+      content: fs.readFileSync(path.join(__dirname, name), 'utf-8'),
+    })),
+    prjRootPath: __dirname,
+  });
   return new ExtensionManager(host);
 }
 

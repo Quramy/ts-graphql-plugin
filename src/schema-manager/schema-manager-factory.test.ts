@@ -1,12 +1,12 @@
 import { SchemaManagerFactory } from './schema-manager-factory';
 import { HttpSchemaManager } from './http-schema-manager';
 import { FileSchemaManager } from './file-schema-manager';
-import { createMockSchemaManagerHost } from './testing/mock-schema-manager-host';
+import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
 describe('SchemaManagerFactory', () => {
   it('should return HttpSchemaManager from http url string', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: 'http://localhost',
       }),
     );
@@ -16,7 +16,7 @@ describe('SchemaManagerFactory', () => {
 
   it('should return HttpSchemaManager from https url string', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: 'https://localhost',
       }),
     );
@@ -26,7 +26,7 @@ describe('SchemaManagerFactory', () => {
 
   it('should return FileSchemaManager from file schema string', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: 'file:///tmp/s.json',
       }),
     );
@@ -36,7 +36,7 @@ describe('SchemaManagerFactory', () => {
 
   it('should return FileSchemaManager from no schema string', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: '/tmp/s.json',
       }),
     );
@@ -46,7 +46,7 @@ describe('SchemaManagerFactory', () => {
 
   it('should return HttpSchemaManager from http object', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: {
           http: {
             url: 'http://localhost',
@@ -60,7 +60,7 @@ describe('SchemaManagerFactory', () => {
 
   it('should return FileSchemaManager from file object', () => {
     const facotry = new SchemaManagerFactory(
-      createMockSchemaManagerHost({
+      createTestingSchemaManagerHost({
         schema: {
           file: {
             path: 'http://localhost',

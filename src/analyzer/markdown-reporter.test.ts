@@ -1,6 +1,6 @@
 import { Extractor } from './extractor';
 import { MarkdownReporter } from './markdown-reporter';
-import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/lang-service-fixture';
+import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
 import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
 
 function createExtractor(files: { fileName: string; content: string }[]) {
