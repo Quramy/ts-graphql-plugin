@@ -80,20 +80,20 @@ It's a required parameter and should point your GraphQL schema SDL file such as 
 
 ```graphql
 type Author {
-  id: Int!
+  id: ID!
   firstName: String
   lastName: String
   posts: [Post]
 }
 type Post {
-  id: Int!
+  id: ID!
   title: String
   author: Author
   votes: Int
 }
 type Query {
   posts: [Post]
-  author(id: Int!): Author
+  author(id: ID!): Author
 }
 ```
 
@@ -228,7 +228,7 @@ const fragment = gql`
   }
 `;
 
-const fragment = gql`
+const query = gql`
   ${fragment}
   query MyQuery {
     ...MyFragment
