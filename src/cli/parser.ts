@@ -76,6 +76,9 @@ type ParseResult<T extends ParseOptions> = {
   command?: {
     [P in keyof T['commands']]?: CommandOptions<T['commands'][P]>;
   };
+  errors?: {
+    unknownCommand?: string;
+  };
 };
 
 type RawOpt = { isShort: boolean; optName: string; optStrVal?: string };
@@ -162,15 +165,25 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
       return options;
     };
 
+    const baseOptions = getOptions(parseOptions) as any;
+
     if (!subCommandName) {
       return {
         _: args,
-        options: getOptions(parseOptions) as any,
+        options: baseOptions,
+      };
+    } else if (!parseOptions.commands[subCommandName]) {
+      return {
+        _: args,
+        options: baseOptions,
+        errors: {
+          unknownCommand: subCommandName,
+        },
       };
     } else {
       return {
         _: [],
-        options: getOptions(parseOptions) as any,
+        options: baseOptions,
         command: {
           [subCommandName]: {
             _: args,
@@ -234,9 +247,14 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
     console.log(lines.join('\n'));
   };
 
+  const availableCommandNames = () => {
+    return Object.keys(parseOptions.commands);
+  };
+
   return {
     parse,
     showHelp,
     showCommandHelp,
+    availableCommandNames,
   };
 }

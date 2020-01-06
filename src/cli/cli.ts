@@ -33,6 +33,17 @@ async function main() {
 
   const args = parser.parse();
 
+  if (args.errors) {
+    if (args.errors.unknownCommand) {
+      logger.error(
+        `Unknown command name: ${
+          args.errors.unknownCommand
+        }. Available commands are: ${parser.availableCommandNames().join(', ')} .`,
+      );
+    }
+    process.exit(1);
+  }
+
   if (!args.command) {
     if (args.options.help) {
       parser.showHelp();
