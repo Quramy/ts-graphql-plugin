@@ -7,6 +7,7 @@ function createExtractor(files: { fileName: string; content: string }[]) {
   const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({ files });
   const extractor = new Extractor({
     scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
+    debug: () => {},
   });
   return extractor;
 }

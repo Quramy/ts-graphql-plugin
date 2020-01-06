@@ -7,26 +7,51 @@ import { ErrorWithLocation } from '../errors';
 
 export type ExtractorOptions = {
   scriptSourceHelper: ScriptSourceHelper;
+  debug: (msg: string) => void;
 };
 
-export interface ExtractResult {
+export type ExtractTemplateResolveErrorResult = {
   fileName: string;
   templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
-  resolevedTemplateInfo?: ResolvedTemplateInfo;
   resolveTemplateErrorMessage?: string;
-  documentNode?: DocumentNode;
-  graphqlError?: GraphQLError;
-}
+  documentNode: undefined;
+  resolevedTemplateInfo: undefined;
+  graphqlError: undefined;
+};
+
+export type ExtractGraphQLErrorResult = {
+  fileName: string;
+  templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+  resolevedTemplateInfo: ResolvedTemplateInfo;
+  graphqlError: GraphQLError;
+  resolveTemplateErrorMessage: undefined;
+  documentNode: undefined;
+};
+
+export type ExtractSucceededResult = {
+  fileName: string;
+  templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+  documentNode: DocumentNode;
+  resolevedTemplateInfo: ResolvedTemplateInfo;
+  graphqlError: undefined;
+  resolveTemplateErrorMessage: undefined;
+};
+
+export type ExtractResult = ExtractTemplateResolveErrorResult | ExtractGraphQLErrorResult | ExtractSucceededResult;
 
 export class Extractor {
   private readonly _helper: ScriptSourceHelper;
+  private readonly _debug: (msg: string) => void;
 
-  constructor({ scriptSourceHelper }: ExtractorOptions) {
+  constructor({ debug, scriptSourceHelper }: ExtractorOptions) {
     this._helper = scriptSourceHelper;
+    this._debug = debug;
   }
 
   extract(files: string[], tagName?: string): ExtractResult[] {
     const results: ExtractResult[] = [];
+    this._debug('Extract template literals from: ');
+    this._debug(files.map(f => ' ' + f).join(',\n'));
     files.forEach(fileName => {
       const nodes = this._helper
         .getAllNodes(fileName, node => ts.isTemplateExpression(node) || ts.isNoSubstitutionTemplateLiteral(node))
@@ -42,13 +67,16 @@ export class Extractor {
             templateNode: node,
             resolveTemplateErrorMessage:
               "Failed to extract GraphQL document from template literal because it's interpolation is too complex.",
+            resolevedTemplateInfo: undefined,
+            graphqlError: undefined,
+            documentNode: undefined,
           });
         } else {
           results.push({
             fileName,
             templateNode: node,
             resolevedTemplateInfo,
-          });
+          } as any);
         }
       });
     });
@@ -116,32 +144,46 @@ export class Extractor {
     return errors;
   }
 
+  getDominantDefiniton(result: ExtractSucceededResult) {
+    let type: OperationType | undefined;
+    const definedFragmentNames: string[] = [];
+    const referencedFragmentNames: string[] = [];
+    let operationName: string | undefined;
+    visit(result.documentNode, {
+      FragmentDefinition(node) {
+        if (!type) {
+          type = 'fragment';
+        }
+        definedFragmentNames.push(node.name.value);
+      },
+      FragmentSpread(node) {
+        referencedFragmentNames.push(node.name.value);
+      },
+      OperationDefinition(node) {
+        if (!type || type === 'fragment') {
+          type = node.operation;
+        } else {
+          type = 'complex';
+        }
+        if (!operationName) {
+          operationName = node.name ? node.name.value : 'ANONYMOUS_QUERY';
+        } else {
+          operationName = 'MULTIPLE_OPERATIONS';
+        }
+      },
+    });
+    const noReferedFragmentNames = definedFragmentNames.filter(defName =>
+      referencedFragmentNames.every(n => defName !== n),
+    );
+    return { type, operationName, fragmentName: noReferedFragmentNames[noReferedFragmentNames.length - 1] };
+  }
+
   toManifest(extractResults: ExtractResult[], tagName: string = ''): ManifestOutput {
     const documents = extractResults
       .filter(r => !!r.documentNode)
-      .map(r => {
-        const dnode = r.documentNode!;
-        let type: OperationType | undefined;
-        let operationName: string | undefined;
-        visit(dnode, {
-          FragmentDefinition() {
-            if (!type) {
-              type = 'fragment';
-            }
-          },
-          OperationDefinition(node) {
-            if (!type || type === 'fragment') {
-              type = node.operation;
-            } else {
-              type = 'complex';
-            }
-            if (!operationName) {
-              operationName = node.name ? node.name.value : '(anonymous query)';
-            } else {
-              operationName = '(multiple operations)';
-            }
-          },
-        });
+      .map(result => {
+        const r = result as ExtractSucceededResult;
+        const { type, operationName } = this.getDominantDefiniton(r);
         return {
           fileName: r.fileName,
           type: type || 'other',
