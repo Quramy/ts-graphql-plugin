@@ -2,8 +2,7 @@
 
 [![github actions](https://github.com/Quramy/ts-graphql-plugin/workflows/build/badge.svg)](https://github.com/Quramy/ts-graphql-plugin/actions) [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin) ![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/ts-graphql-plugin.svg)](https://greenkeeper.io/) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
 
-TypeScript Language Service Plugin to help GraphQL client development.
-This plugin parses and analyzes template strings in .ts and provides functions like [GraphiQL](https://github.com/graphql/graphiql) to your editor or IDE.
+Provides functions to help TypeScript GraphQL client development including auto completion, query validation, type generation and so on.
 
 ![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.gif)
 
@@ -59,7 +58,7 @@ Available commands are `typegen`, `extract`, `validate` and `report`. If you wan
 
 ### `typegen` command
 
-Generate TypeScript types from GraphQL operations or fragments in your .ts source files.
+Generate TypeScript types from GraphQL operations or fragments in your .ts source files. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/master/project-fixtures/react-apollo-prj/src/__generated__/git-hub-query.ts).
 
 ### `extract` command
 
@@ -200,6 +199,55 @@ extend type Query {
     ]
 ```
 
+## Template strings
+
+This tool analyzes template string literals in .ts files such as:
+
+```ts
+const query = gql`
+  query MyQuery = {
+    viewer {
+      id
+      name
+    }
+  }
+`;
+```
+
+_NOTE_
+
+This tool cannot interpret queries containing too complex TypeScript expressions because it statically explores GraphQL queries.
+
+```ts
+/* It's ok */
+
+const fragment = gql`
+  fragment MyFragment on User {
+    id
+    name
+  }
+`;
+
+const fragment = gql`
+  ${fragment}
+  query MyQuery {
+    ...MyFragment
+  }
+`;
+```
+
+```ts
+/* Bad */
+
+const fragment = gql`
+  query MyQuery {
+    ${someComplexFunction()}
+  }
+`;
+```
+
+Keep your queries static (see also https://blog.apollographql.com/5-benefits-of-static-graphql-queries-b7fa90b0b69a ).
+
 ## Available editors
 
 I've checked the operation with the following editors:
@@ -212,10 +260,6 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Emacs
 - Sublime text
 - Eclipse
-
-## How it works
-
-This plugin relies on [graphql-language-service](https://github.com/graphql/graphql-language-service) and adapts it for [TypeScript Language Service](https://github.com/Microsoft/TypeScript/wiki/Architectural-Overview#layer-overview).
 
 ## License
 
