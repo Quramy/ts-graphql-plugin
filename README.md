@@ -231,7 +231,9 @@ const fragment = gql`
 const query = gql`
   ${fragment}
   query MyQuery {
-    ...MyFragment
+    viewer {
+      ...MyFragment
+    }
   }
 `;
 ```
@@ -239,7 +241,7 @@ const query = gql`
 ```ts
 /* Bad */
 
-const fragment = gql`
+const query = gql`
   query MyQuery {
     ${someComplexFunction()}
   }
