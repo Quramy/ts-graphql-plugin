@@ -19,7 +19,7 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "jest": "jest",
     "jest:ci": "jest --coverage",
-    "e2e": "node e2e/run.js && node e2e/http-req.test.js",
+    "e2e": "node e2e/run.js",
     "test": "yarn format:check && yarn lint && yarn jest:ci && yarn e2e",
     "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\"",
     "format": "yarn prettier --write",
