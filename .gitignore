@@ -6,3 +6,4 @@ types/
 *.swo
 .DS_Store
 manifest.json
+coverage/
