@@ -80,7 +80,7 @@ export class HttpSchemaManager extends SchemaManager {
 
   async waitBaseSchema() {
     try {
-      return HttpSchemaManager.request(this._options);
+      return await HttpSchemaManager.request(this._options);
     } catch (error) {
       return null;
     }
@@ -93,7 +93,6 @@ export class HttpSchemaManager extends SchemaManager {
           this.log(`Fetch schema data from ${this._options.url}.`);
           if (this._shouldUpdate(data)) {
             this._schema = data;
-            this.log(`Updated with: ${JSON.stringify(data)}`);
             this.emitChange();
           }
           setTimeout(request, interval);
