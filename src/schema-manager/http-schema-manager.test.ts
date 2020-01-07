@@ -51,7 +51,7 @@ describe(HttpSchemaManager, () => {
   it('should return null if request fail', async () => {
     const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
     const manager = new HttpSchemaManager(schemaManagerHost, {
-      method: 'GET',
+      method: 'GET' as any,
       url: 'http://localhost:4001/invalid-path',
     });
     const schema = await manager.waitBaseSchema();
