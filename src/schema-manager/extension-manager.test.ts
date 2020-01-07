@@ -4,7 +4,7 @@ import { buildSchema, printSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
-function createManager(config: { localSchemaExtensions: string[] }) {
+function createManagerWithHost(config: { localSchemaExtensions: string[] }) {
   const host = createTestingSchemaManagerHost({
     schema: '',
     localSchemaExtensions: config.localSchemaExtensions,
@@ -14,7 +14,11 @@ function createManager(config: { localSchemaExtensions: string[] }) {
     })),
     prjRootPath: __dirname,
   });
-  return new ExtensionManager(host);
+  return { extensionManager: new ExtensionManager(host), host };
+}
+
+function createManager(config: { localSchemaExtensions: string[] }) {
+  return createManagerWithHost(config).extensionManager;
 }
 
 const baseSdl = `
@@ -56,5 +60,14 @@ describe(ExtensionManager, () => {
       .getSchemaErrors()!
       .map(e => ({ ...e, fileName: e.fileName!.replace(__dirname, '') }));
     expect(errors).toMatchSnapshot();
+  });
+
+  it('should execute call back when files change', async () => {
+    const { extensionManager, host } = createManagerWithHost({
+      localSchemaExtensions: ['./testing/resources/normal.graphql'],
+    });
+    const called = new Promise(res => extensionManager.startWatch(() => res()));
+    host.updateFile(path.join(__dirname, 'testing/resources/normal.graphql'), '');
+    await called;
   });
 });

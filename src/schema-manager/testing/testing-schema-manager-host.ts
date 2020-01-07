@@ -48,6 +48,7 @@ class TestingSchemaManagerHost implements SchemaManagerHost {
 
   updateFile(path: string, content: string) {
     this._files = this._files.map(f => (f.fileName === path ? { ...f, content } : f));
+    this._watchers.filter(w => w.path === path).forEach(w => w.cb(w.path));
   }
 }
 
