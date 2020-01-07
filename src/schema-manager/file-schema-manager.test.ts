@@ -40,6 +40,11 @@ describe(FileSchemaManager, () => {
     expect(await manager.waitBaseSchema()).toBeInstanceOf(GraphQLSchema);
   });
 
+  it('should return null as getBaseSchema() when invalid JSON', async () => {
+    const { manager } = createManagerWithHost('schema.json', '{ ');
+    expect(await manager.waitBaseSchema()).toBeNull();
+  });
+
   it('should update when schema changes', async () => {
     const sdl = `
       type Query {
