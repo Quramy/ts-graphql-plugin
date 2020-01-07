@@ -48,21 +48,15 @@ export class FileSchemaManager extends SchemaManager {
   }
 
   startWatch(interval: number = 100) {
-    try {
-      const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._host.getProjectRootPath(), this._schemaPath);
-      this._watcher = this._host.watchFile(
-        resolvedSchmaPath,
-        () => {
-          this.log('Change schema file.');
-          this.emitChange();
-        },
-        interval,
-      );
-    } catch (e) {
-      this.log('Fail to read schema file...');
-      this.log(e.message);
-      return;
-    }
+    const resolvedSchmaPath = this.getAbsoluteSchemaPath(this._host.getProjectRootPath(), this._schemaPath);
+    this._watcher = this._host.watchFile(
+      resolvedSchmaPath,
+      () => {
+        this.log('Change schema file.');
+        this.emitChange();
+      },
+      interval,
+    );
   }
 
   closeWatch() {
