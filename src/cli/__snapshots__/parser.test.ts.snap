@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CLI parser result should show command help 1`] = `
+"Usage: tsgql typegen [options]
+
+Description: Generate type files.
+
+Options:
+ -p, --project                            Path to tsconfig.json."
+`;
+
+exports[`CLI parser result should show global help 1`] = `
+"Usage: tsgql <command> [options]
+
+available commands are:
+    typegen
+
+Options:
+ --v, --version                           Print version"
+`;
