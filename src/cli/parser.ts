@@ -1,5 +1,6 @@
 import path from 'path';
 import { pad } from '../string-util';
+import { Logger } from './logger';
 
 type BooleanOptionEntry = {
   alias?: string;
@@ -40,13 +41,13 @@ export type CommandCliSetting = OptionsHolder & {
 };
 
 type ParseOptions = {
-  examples?: string;
   options: {
     [name: string]: CommandLineOptionEntry;
   };
   commands: {
     [name: string]: CommandCliSetting;
   };
+  logger: Logger;
 };
 
 type Dispatch<T extends CommandLineOptionEntry> = T extends BooleanOptionEntry
@@ -79,6 +80,9 @@ type ParseResult<T extends ParseOptions> = {
   errors?: {
     unknownCommand?: string;
   };
+  availableCommandNames: () => string[];
+  showHelp: () => void;
+  showCommandHelp: (commandName: string) => void;
 };
 
 type RawOpt = { isShort: boolean; optName: string; optStrVal?: string };
@@ -136,8 +140,64 @@ function parseRaw(argv: string[]) {
     rawOptions,
   };
 }
-export function createParser<T extends ParseOptions>(parseOptions: T, rawArguments = process.argv) {
-  const parse: () => ParseResult<T> = () => {
+export function createParser<T extends ParseOptions>(parseOptions: T) {
+  const { logger } = parseOptions;
+
+  const parse: (rawArguments?: string[]) => ParseResult<T> = (rawArguments = process.argv) => {
+    const showHelp = () => {
+      const lines: string[] = [];
+      lines.push(`Usage: ${path.basename(rawArguments[1])} <command> [options]`);
+      lines.push('');
+      lines.push('available commands are:');
+      lines.push(`    ${Object.keys(parseOptions.commands).join(', ')}`);
+      lines.push('');
+      lines.push('Options:');
+      let line = '';
+      Object.entries(parseOptions.options).forEach(([name, value]) => {
+        line = ' ';
+        if (value.alias) {
+          line += `-${value.alias}, `;
+        }
+        line += `--${name}`;
+        if (value.description) {
+          line += pad(' ', 42 - line.length) + value.description;
+        }
+        if ('defaultValue' in value) {
+          line += ` [default: ${value.defaultValue + ''}]`;
+        }
+        lines.push(line);
+      });
+      logger.info(lines.join('\n'));
+    };
+
+    const showCommandHelp = (commandName: string) => {
+      const lines: string[] = [];
+      lines.push(`Usage: ${path.basename(rawArguments[1])} ${commandName} [options]`);
+      lines.push('');
+      lines.push(`Description: ${parseOptions.commands[commandName as string].description}`);
+      lines.push('');
+      lines.push('Options:');
+      let line = '';
+      Object.entries(parseOptions.commands[commandName as string].options).forEach(([name, value]) => {
+        line = ' ';
+        if (value.alias) {
+          line += `-${value.alias}, `;
+        }
+        line += `--${name}`;
+        if (value.description) {
+          line += pad(' ', 42 - line.length) + value.description;
+        }
+        if ('defaultValue' in value) {
+          line += `  [default: ${value.defaultValue + ''}]`;
+        }
+        lines.push(line);
+      });
+      logger.info(lines.join('\n'));
+    };
+
+    const availableCommandNames = () => {
+      return Object.keys(parseOptions.commands);
+    };
     const argv = rawArguments.slice(2);
 
     const { args, subCommandName, rawOptions } = parseRaw(argv);
@@ -160,6 +220,12 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
           options[k] = value;
         } else if ('defaultValue' in v) {
           options[k] = v.defaultValue;
+        } else if (v.type === 'boolean') {
+          options[k] = false;
+        } else if (v.type === 'string') {
+          options[k] = '';
+        } else if (v.type === 'int') {
+          options[k] = 0;
         }
       });
       return options;
@@ -167,10 +233,17 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
 
     const baseOptions = getOptions(parseOptions) as any;
 
+    const funcs = {
+      showHelp,
+      showCommandHelp,
+      availableCommandNames,
+    };
+
     if (!subCommandName) {
       return {
         _: args,
         options: baseOptions,
+        ...funcs,
       };
     } else if (!parseOptions.commands[subCommandName]) {
       return {
@@ -179,6 +252,7 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
         errors: {
           unknownCommand: subCommandName,
         },
+        ...funcs,
       };
     } else {
       return {
@@ -190,71 +264,12 @@ export function createParser<T extends ParseOptions>(parseOptions: T, rawArgumen
             options: getOptions(parseOptions.commands[subCommandName]),
           },
         } as any,
+        ...funcs,
       };
     }
   };
 
-  const showHelp = () => {
-    const lines: string[] = [];
-    lines.push(`Usage: ${path.basename(rawArguments[1])} <command> [options]`);
-    lines.push('');
-    lines.push('available commands are:');
-    lines.push(`    ${Object.keys(parseOptions.commands).join(', ')}`);
-    lines.push('');
-    lines.push('Options:');
-    let line = '';
-    Object.entries(parseOptions.options).forEach(([name, value]) => {
-      line = ' ';
-      if (value.alias) {
-        line += `-${value.alias}, `;
-      }
-      line += `--${name}`;
-      if (value.description) {
-        line += pad(' ', 42 - line.length) + value.description;
-      }
-      if ('defaultValue' in value) {
-        line += ` [default: ${value.defaultValue + ''}]`;
-      }
-      lines.push(line);
-    });
-    /* eslint-disable-next-line no-console */
-    console.log(lines.join('\n'));
-  };
-
-  const showCommandHelp = (commandName: string) => {
-    const lines: string[] = [];
-    lines.push(`Usage: ${path.basename(rawArguments[1])} ${commandName} [options]`);
-    lines.push('');
-    lines.push(`Description: ${parseOptions.commands[commandName as string].description}`);
-    lines.push('');
-    lines.push('Options:');
-    let line = '';
-    Object.entries(parseOptions.commands[commandName as string].options).forEach(([name, value]) => {
-      line = ' ';
-      if (value.alias) {
-        line += `-${value.alias}, `;
-      }
-      line += `--${name}`;
-      if (value.description) {
-        line += pad(' ', 42 - line.length) + value.description;
-      }
-      if ('defaultValue' in value) {
-        line += `  [default: ${value.defaultValue + ''}]`;
-      }
-      lines.push(line);
-    });
-    /* eslint-disable-next-line no-console */
-    console.log(lines.join('\n'));
-  };
-
-  const availableCommandNames = () => {
-    return Object.keys(parseOptions.commands);
-  };
-
   return {
     parse,
-    showHelp,
-    showCommandHelp,
-    availableCommandNames,
   };
 }
