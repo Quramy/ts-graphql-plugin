@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [12.x]
 
     steps:
       - uses: actions/checkout@v1
@@ -26,15 +26,23 @@ jobs:
           CI: true
       - uses: codecov/codecov-action@v1
         with:
+          name: jest
           token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ts-graphql-plugin
           file: ./coverage/lcov.info
+      - uses: codecov/codecov-action@v1
+        with:
+          name: e2e
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: ts-graphql-plugin
+          file: ./e2e_coverage/lcov.info
 
   publish:
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [10.x]
+        node-version: [12.x]
 
     needs: [build]
 

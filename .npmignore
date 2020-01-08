@@ -2,10 +2,13 @@ src/
 e2e/
 *.test.*
 tsconfig.json
-wercker.yml
 .eslintrc
 .eslintrc.yml
 .prettierignore
 .prettierrc.yml
+.codecov.yml
 __snapshots__/
 project-fixtures/
+coverage/
+e2e_coverage/
+.github/
