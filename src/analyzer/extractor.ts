@@ -99,19 +99,7 @@ export class Extractor {
           (acc, fragmentInfo) => this._helper.updateTemplateLiteralInfo(acc, fragmentInfo),
           result.resolevedTemplateInfo,
         );
-        const duplicatedFragmentUsedMap = duplicatedInfo.reduce(
-          (acc, fragmentInfo) => ({ ...acc, [fragmentInfo.name]: false }),
-          {} as { [name: string]: boolean },
-        );
-        const documentNode = visit(rawDocumentNode, {
-          FragmentDefinition: node => {
-            if (duplicatedFragmentUsedMap[node.name.value] === false) {
-              duplicatedFragmentUsedMap[node.name.value] = true;
-            } else if (duplicatedFragmentUsedMap[node.name.value]) {
-              return null;
-            }
-          },
-        });
+        const documentNode = parse(updatedResolvedInfo.combinedText);
         return {
           ...result,
           documentNode,
