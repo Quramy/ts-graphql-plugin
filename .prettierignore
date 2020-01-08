@@ -1,6 +1,5 @@
 dist/
 lib/
-e2e/
 project-fixtures/
 __snapshots__/
 **/testing/resources/*.graphql

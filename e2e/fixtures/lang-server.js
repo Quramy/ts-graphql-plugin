@@ -7,7 +7,7 @@ class TSServer {
     this._responseEventEmitter = new EventEmitter();
     this._responseCommandEmitter = new EventEmitter();
     const tsserverPath = require.resolve('typescript/lib/tsserver');
-    const server = fork(tsserverPath, { 
+    const server = fork(tsserverPath, {
       cwd: path.join(__dirname, '../../project-fixtures/simple-prj'),
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     });
@@ -17,7 +17,7 @@ class TSServer {
     });
     server.stdout.setEncoding('utf-8');
     server.stdout.on('data', data => {
-      const [,, res] = data.split('\n');
+      const [, , res] = data.split('\n');
       const obj = JSON.parse(res);
       if (obj.type === 'event') {
         this._responseEventEmitter.emit(obj.event, obj);
