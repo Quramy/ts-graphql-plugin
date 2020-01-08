@@ -5,3 +5,4 @@ project-fixtures/
 __snapshots__/
 **/testing/resources/*.graphql
 coverage/
+e2e_coverage/

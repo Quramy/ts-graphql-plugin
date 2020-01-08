@@ -7,3 +7,4 @@ types/
 .DS_Store
 manifest.json
 coverage/
+e2e_coverage/
