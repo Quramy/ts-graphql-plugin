@@ -7,8 +7,8 @@ tsconfig.json
 .prettierignore
 .prettierrc.yml
 .codecov.yml
+.github/
 __snapshots__/
 project-fixtures/
 coverage/
 e2e_coverage/
-.github/

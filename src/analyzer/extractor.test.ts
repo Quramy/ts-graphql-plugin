@@ -3,9 +3,10 @@ import { Extractor, ExtractSucceededResult } from './extractor';
 import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
 import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
 
-function createExtractor(files: { fileName: string; content: string }[]) {
+function createExtractor(files: { fileName: string; content: string }[], removeDuplicatedFragments = false) {
   const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({ files });
   const extractor = new Extractor({
+    removeDuplicatedFragments,
     scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
     debug: () => {},
   });
@@ -34,6 +35,60 @@ describe(Extractor, () => {
       `,
       },
     ]);
+    const result = extractor.extract(['main.ts'], 'gql');
+    expect(result.map(r => print(r.documentNode!))).toMatchSnapshot();
+  });
+
+  it('should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: true', () => {
+    const extractor = createExtractor(
+      [
+        {
+          fileName: 'main.ts',
+          content: `
+        import gql from 'graphql-tag';
+        const query = gql\`
+          fragment A on Query {
+            hello
+          }
+          fragment A on Query {
+            hello
+          }
+          query MyQuery {
+            ...A
+          }
+        \`;
+      `,
+        },
+      ],
+      true,
+    );
+    const result = extractor.extract(['main.ts'], 'gql');
+    expect(result.map(r => print(r.documentNode!))).toMatchSnapshot();
+  });
+
+  it('should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: false', () => {
+    const extractor = createExtractor(
+      [
+        {
+          fileName: 'main.ts',
+          content: `
+        import gql from 'graphql-tag';
+        const query = gql\`
+          fragment A on Query {
+            hello
+          }
+          fragment A on Query {
+            hello
+          }
+          query MyQuery {
+            ...A
+          }
+        \`;
+      `,
+        },
+      ],
+      false,
+    );
     const result = extractor.extract(['main.ts'], 'gql');
     expect(result.map(r => print(r.documentNode!))).toMatchSnapshot();
   });

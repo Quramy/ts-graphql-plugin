@@ -8,6 +8,7 @@ import { cliDefinition as reportOptions, reportCommand } from './commands/report
 import { ConsoleLogger } from './logger';
 
 async function main() {
+  const logger = new ConsoleLogger();
   const parser = createParser({
     options: {
       help: {
@@ -27,51 +28,50 @@ async function main() {
       validate: validateOptions,
       report: reportOptions,
     },
+    logger,
   });
 
-  const logger = new ConsoleLogger();
+  const cli = parser.parse();
 
-  const args = parser.parse();
-
-  if (args.errors) {
-    if (args.errors.unknownCommand) {
+  if (cli.errors) {
+    if (cli.errors.unknownCommand) {
       logger.error(
-        `Unknown command name: ${
-          args.errors.unknownCommand
-        }. Available commands are: ${parser.availableCommandNames().join(', ')} .`,
+        `Unknown command name: ${cli.errors.unknownCommand}. Available commands are: ${cli
+          .availableCommandNames()
+          .join(', ')} .`,
       );
     }
     process.exit(1);
   }
 
-  if (!args.command) {
-    if (args.options.help) {
-      parser.showHelp();
+  if (!cli.command) {
+    if (cli.options.help) {
+      cli.showHelp();
       process.exit(0);
     }
-    if (args.options.version) {
+    if (cli.options.version) {
       logger.info(require('../../package.json').version);
       process.exit(0);
     }
-    parser.showHelp();
+    cli.showHelp();
     process.exit(1);
   } else {
-    if (args.options.help) {
-      parser.showCommandHelp(Object.keys(args.command)[0]);
+    if (cli.options.help) {
+      cli.showCommandHelp(Object.keys(cli.command)[0]);
       process.exit(0);
     }
   }
 
   let result: boolean = false;
   try {
-    if (args.command.typegen) {
-      result = await typegenCommand(args.command.typegen);
-    } else if (args.command.extract) {
-      result = await extractCommand(args.command.extract);
-    } else if (args.command.validate) {
-      result = await validateCommand(args.command.validate);
-    } else if (args.command.report) {
-      result = await reportCommand(args.command.report);
+    if (cli.command.typegen) {
+      result = await typegenCommand(cli.command.typegen);
+    } else if (cli.command.extract) {
+      result = await extractCommand(cli.command.extract);
+    } else if (cli.command.validate) {
+      result = await validateCommand(cli.command.validate);
+    } else if (cli.command.report) {
+      result = await reportCommand(cli.command.report);
     }
     process.exit(result ? 0 : 1);
   } catch (e) {

@@ -4,8 +4,10 @@ import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
 import { ErrorWithLocation } from '../errors';
+import { detectDuplicatedFragments } from '../gql-ast-util';
 
 export type ExtractorOptions = {
+  removeDuplicatedFragments: boolean;
   scriptSourceHelper: ScriptSourceHelper;
   debug: (msg: string) => void;
 };
@@ -40,10 +42,12 @@ export type ExtractSucceededResult = {
 export type ExtractResult = ExtractTemplateResolveErrorResult | ExtractGraphQLErrorResult | ExtractSucceededResult;
 
 export class Extractor {
+  private readonly _removeDuplicatedFragments: boolean;
   private readonly _helper: ScriptSourceHelper;
   private readonly _debug: (msg: string) => void;
 
-  constructor({ debug, scriptSourceHelper }: ExtractorOptions) {
+  constructor({ debug, removeDuplicatedFragments, scriptSourceHelper }: ExtractorOptions) {
+    this._removeDuplicatedFragments = removeDuplicatedFragments;
     this._helper = scriptSourceHelper;
     this._debug = debug;
   }
@@ -83,10 +87,23 @@ export class Extractor {
     return results.map(result => {
       if (!result.resolevedTemplateInfo) return result;
       try {
-        const documentNode = parse(result.resolevedTemplateInfo.combinedText);
+        const rawDocumentNode = parse(result.resolevedTemplateInfo.combinedText);
+        if (!this._removeDuplicatedFragments) {
+          return {
+            ...result,
+            documentNode: rawDocumentNode,
+          };
+        }
+        const duplicatedInfo = detectDuplicatedFragments(rawDocumentNode);
+        const updatedResolvedInfo = duplicatedInfo.reduce(
+          (acc, fragmentInfo) => this._helper.updateTemplateLiteralInfo(acc, fragmentInfo),
+          result.resolevedTemplateInfo,
+        );
+        const documentNode = parse(updatedResolvedInfo.combinedText);
         return {
           ...result,
           documentNode,
+          resolevedTemplateInfo: updatedResolvedInfo,
         };
       } catch (error) {
         return {

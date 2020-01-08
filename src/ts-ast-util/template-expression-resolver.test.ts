@@ -426,3 +426,61 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     });
   });
 });
+
+describe(TemplateExpressionResolver.prototype.update, () => {
+  it('should return updated info arleady resolved with text replacement', () => {
+    const markers = {} as Markers;
+    const langService = createTestingLanguageService({
+      files: [
+        {
+          fileName: 'main.ts',
+          // prettier-ignore
+          content: mark('\n' +
+            '    const str = `'       + '\n' +
+            '         aaaaaaa'        + '\n' +
+            '         aaaaaaa'        + '\n' +
+            '%%%      ^     ^    %%%' + '\n' +
+            '%%%      a1    a2   %%%' + '\n' +
+            '         bbbbbbb'        + '\n' +
+            '    `;'                  + '\n' +
+            '    ', markers)
+        },
+      ],
+    });
+    const source = langService.getProgram()!.getSourceFile('main.ts');
+    if (!source) return fail();
+    const nodes = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
+    const resolver = new TemplateExpressionResolver(langService, () => '');
+    const originalInfo = resolver.resolve('main.ts', nodes[0] as ts.NoSubstitutionTemplateLiteral);
+    if (!originalInfo) return fail();
+    const actual = resolver.update(
+      originalInfo,
+      {
+        start: originalInfo.getInnerPosition(markers.a1.pos).pos,
+        end: originalInfo.getInnerPosition(markers.a2.pos + 1).pos,
+      },
+      'xxxxx',
+    );
+    const expectedStr = mark(
+      `
+         aaaaaaa
+         xxxxx
+     %%% ^   ^    %%%
+     %%% b1  b2   %%%
+         bbbbbbb
+    `,
+      markers,
+    );
+    expect(actual.combinedText).toBe(expectedStr);
+    expect(actual.getInnerPosition(markers.a1.pos - 1).pos).toBe(markers.b1.pos - 1);
+    expect(actual.getInnerPosition(markers.a1.pos).pos).toBe(markers.b1.pos);
+    expect(actual.getInnerPosition(markers.a1.pos + 1).pos).toBe(markers.b1.pos);
+    expect(actual.getInnerPosition(markers.a2.pos).pos).toBe(markers.b1.pos);
+    expect(actual.getInnerPosition(markers.a2.pos + 1).pos).toBe(markers.b2.pos + 1);
+    expect(actual.getSourcePosition(markers.b1.pos - 1).pos).toBe(markers.a1.pos - 1);
+    expect(actual.getSourcePosition(markers.b1.pos).pos).toBe(markers.a1.pos);
+    expect(actual.getSourcePosition(markers.b1.pos + 1).pos).toBe(markers.a1.pos);
+    expect(actual.getSourcePosition(markers.b2.pos).pos).toBe(markers.a1.pos);
+    expect(actual.getSourcePosition(markers.b2.pos + 1).pos).toBe(markers.a2.pos + 1);
+  });
+});

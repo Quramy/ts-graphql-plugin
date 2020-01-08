@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`detectDuplicatedFragments should detect duplicated fragments info 1`] = `
+Array [
+  Object {
+    "end": 149,
+    "name": "Hoge",
+    "start": 106,
+  },
+]
+`;
