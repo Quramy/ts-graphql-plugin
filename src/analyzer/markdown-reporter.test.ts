@@ -6,6 +6,7 @@ import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
 function createExtractor(files: { fileName: string; content: string }[]) {
   const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({ files });
   const extractor = new Extractor({
+    removeDuplicatedFragments: true,
     scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
     debug: () => {},
   });

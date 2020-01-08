@@ -16,6 +16,7 @@ function createTestingAnalyzer({ files: sourceFiles, sdl }: CreateTestingAnalyze
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
     localSchemaExtensions: [],
+    removeDuplicatedFragments: true,
     tag: 'gql',
   };
   const schemaManagerHost = createTestingSchemaManagerHost({

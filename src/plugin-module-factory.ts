@@ -1,4 +1,5 @@
 import ts from 'typescript/lib/tsserverlibrary';
+import { TsGraphQLPluginConfigOptions } from './types';
 import { GraphQLLanguageServiceAdapter } from './graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
@@ -10,12 +11,15 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   logger('config: ' + JSON.stringify(info.config));
   const schemaManager = new SchemaManagerFactory(createSchemaManagerHostFromPluginInfo(info)).create();
   const { schema, errors: schemaErrors } = schemaManager.getSchema();
-  const tag = info.config.tag;
+  const config = info.config as TsGraphQLPluginConfigOptions;
+  const tag = config.tag;
+  const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
   const adapter = new GraphQLLanguageServiceAdapter(createScriptSourceHelper(info), {
     schema,
     schemaErrors,
     logger,
     tag,
+    removeDuplicatedFragments,
   });
 
   const proxy = new LanguageServiceProxyBuilder(info)

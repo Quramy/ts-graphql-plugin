@@ -75,3 +75,33 @@ Array [
 ",
 ]
 `;
+
+exports[`Extractor should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: false 1`] = `
+Array [
+  "fragment A on Query {
+  hello
+}
+
+fragment A on Query {
+  hello
+}
+
+query MyQuery {
+  ...A
+}
+",
+]
+`;
+
+exports[`Extractor should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: true 1`] = `
+Array [
+  "fragment A on Query {
+  hello
+}
+
+query MyQuery {
+  ...A
+}
+",
+]
+`;
