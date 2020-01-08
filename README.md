@@ -203,6 +203,31 @@ extend type Query {
     ]
 ```
 
+### `removeDuplicatedFragments`
+
+It's optional and default: `true`. By default, this plugin ignores duplicated fragment definitions such as:
+
+```ts
+const fragment = gql`
+  fragment A on Query {
+    id
+  }
+`;
+
+const query = gql`
+  ${fragment}
+  query MyQuery {
+    ...A
+  }
+  ${fragment}
+  # duplicated fragment definiton
+`;
+```
+
+This option affects all editor supporting functions and result of CLI commands.
+
+If you set this option `false`, this plugin passes through query document without removing duplication.
+
 ## Template strings
 
 This tool analyzes template string literals in .ts files such as:
