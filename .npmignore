@@ -9,3 +9,4 @@ wercker.yml
 .prettierrc.yml
 __snapshots__/
 project-fixtures/
+coverage/
