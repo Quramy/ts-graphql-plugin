@@ -47,7 +47,11 @@ export class Analyzer {
       languageService: langService,
       languageServiceHost: this._languageServiceHost,
     });
-    this._extractor = new Extractor({ scriptSourceHelper: this._scriptSourceHelper, debug: this._debug });
+    this._extractor = new Extractor({
+      removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
+      scriptSourceHelper: this._scriptSourceHelper,
+      debug: this._debug,
+    });
   }
 
   extract() {

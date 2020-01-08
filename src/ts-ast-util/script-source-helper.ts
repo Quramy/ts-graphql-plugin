@@ -36,10 +36,12 @@ export function createScriptSourceHelper({
     languageServiceHost.getScriptVersion(fileName),
   );
   const resolveTemplateLiteral = resolver.resolve.bind(resolver);
+  const updateTemplateLiteralInfo = resolver.update.bind(resolver);
   return {
     getNode,
     getAllNodes,
     getLineAndChar,
     resolveTemplateLiteral,
+    updateTemplateLiteralInfo,
   };
 }

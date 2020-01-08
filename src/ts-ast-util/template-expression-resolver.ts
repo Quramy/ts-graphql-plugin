@@ -238,6 +238,55 @@ export class TemplateExpressionResolver {
     );
   }
 
+  update(
+    target: ResolvedTemplateInfo,
+    innerPositionRangeToChange: { start: number; end: number },
+    text: string = '',
+  ): ResolvedTemplateInfo {
+    const {
+      combinedText: originalText,
+      getInnerPosition: originalGetInnerPosition,
+      getSourcePosition: originalGetSourcePosition,
+    } = target;
+    const headText = originalText.slice(0, innerPositionRangeToChange.start);
+    const tailText = originalText.slice(innerPositionRangeToChange.end, originalText.length);
+    const combinedText = headText + text + tailText;
+    const getInnerPosition: ComputePosition = (pos: number) => {
+      const x = originalGetInnerPosition(pos);
+      if (x.pos < innerPositionRangeToChange.start) {
+        return x;
+      } else if (innerPositionRangeToChange.start <= x.pos && x.pos < innerPositionRangeToChange.end) {
+        return {
+          ...x,
+          pos: innerPositionRangeToChange.start,
+        };
+      } else {
+        return {
+          ...x,
+          pos: x.pos - (innerPositionRangeToChange.end - innerPositionRangeToChange.start) + text.length,
+        };
+      }
+    };
+    const getSourcePosition: ComputePosition = (pos: number) => {
+      if (pos < innerPositionRangeToChange.start) {
+        return originalGetSourcePosition(pos);
+      } else if (innerPositionRangeToChange.start <= pos && pos < innerPositionRangeToChange.start + text.length) {
+        return originalGetSourcePosition(innerPositionRangeToChange.start);
+      } else {
+        return originalGetSourcePosition(
+          pos + (innerPositionRangeToChange.end - innerPositionRangeToChange.start) - text.length,
+        );
+      }
+    };
+    return {
+      combinedText,
+      getInnerPosition,
+      getSourcePosition,
+      convertInnerLocation2InnerPosition: location2pos.bind(null, combinedText),
+      convertInnerPosition2InnerLocation: pos2location.bind(null, combinedText),
+    };
+  }
+
   private _getValueAsString(
     fileName: string,
     node: ts.Node,

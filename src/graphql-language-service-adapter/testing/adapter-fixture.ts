@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { findAllNodes, findNode, createResultForNoSubstitution, ScriptSourceHelper } from '../../ts-ast-util';
 import { GraphQLSchema } from 'graphql';
 import { GraphQLLanguageServiceAdapter } from '..';
+import { TemplateExpressionResolver } from '../../ts-ast-util/template-expression-resolver';
 export class AdapterFixture {
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;
@@ -34,9 +35,11 @@ export class AdapterFixture {
       getAllNodes,
       getLineAndChar,
       resolveTemplateLiteral,
+      updateTemplateLiteralInfo: TemplateExpressionResolver.prototype.update,
     };
     this.adapter = new GraphQLLanguageServiceAdapter(helper, {
       schema: schema || null,
+      removeDuplicatedFragments: true,
     });
   }
 

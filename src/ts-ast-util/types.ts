@@ -8,4 +8,9 @@ export interface ScriptSourceHelper {
     fileName: string,
     node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
   ) => ResolvedTemplateInfo | undefined;
+  updateTemplateLiteralInfo: (
+    target: ResolvedTemplateInfo,
+    range: { start: number; end: number },
+    text?: string,
+  ) => ResolvedTemplateInfo;
 }

@@ -1,17 +1,19 @@
 import ts from 'typescript';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, parse } from 'graphql';
 import { CompletionItem, Diagnostic, Position } from 'graphql-language-service-types';
 import { getAutocompleteSuggestions, getDiagnostics, getHoverInformation } from 'graphql-language-service-interface';
 
 import { isTagged, TagCondition } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
+import { detectDuplicatedFragments } from '../gql-ast-util';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
   schemaErrors?: SchemaBuildErrorInfo[] | null;
   logger?: (msg: string) => void;
   tag?: string;
+  removeDuplicatedFragments: boolean;
 }
 
 type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
@@ -93,12 +95,14 @@ export class GraphQLLanguageServiceAdapter {
   private _schemaErrors?: SchemaBuildErrorInfo[] | null;
   private _schema?: GraphQLSchema | null;
   private _tagCondition?: TagCondition;
+  private _removeDuplicatedFragments: boolean;
 
-  constructor(private _helper: ScriptSourceHelper, opt: GraphQLLanguageServiceAdapterCreateOptions = {}) {
+  constructor(private _helper: ScriptSourceHelper, opt: GraphQLLanguageServiceAdapterCreateOptions) {
     if (opt.logger) this._logger = opt.logger;
     if (opt.schemaErrors) this.updateSchema(opt.schemaErrors, null);
     if (opt.schema) this.updateSchema(null, opt.schema);
     if (opt.tag) this._tagCondition = opt.tag;
+    this._removeDuplicatedFragments = opt.removeDuplicatedFragments;
   }
 
   updateSchema(errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) {
@@ -120,7 +124,7 @@ export class GraphQLLanguageServiceAdapter {
     if (!this._schema) return delegate(fileName, position, options);
     const node = this._findTemplateNode(fileName, position);
     if (!node) return delegate(fileName, position, options);
-    const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
+    const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, node);
     if (!resolvedTemplateInfo) {
       return delegate(fileName, position, options);
     }
@@ -166,7 +170,7 @@ export class GraphQLLanguageServiceAdapter {
       });
     } else if (this._schema) {
       const diagnosticsAndResolvedInfoList = nodes.map(n => {
-        const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, n);
+        const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, n);
         if (!resolvedTemplateInfo) return;
         return {
           resolvedTemplateInfo,
@@ -224,7 +228,7 @@ export class GraphQLLanguageServiceAdapter {
     if (!this._schema) return delegate(fileName, position);
     const node = this._findTemplateNode(fileName, position);
     if (!node) return delegate(fileName, position);
-    const resolvedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
+    const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, node);
     if (!resolvedTemplateInfo) return delegate(fileName, position);
     const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedTemplateInfo;
     const cursor = new SimplePosition(convertInnerPosition2InnerLocation(getInnerPosition(position).pos + 1));
@@ -258,6 +262,23 @@ export class GraphQLLanguageServiceAdapter {
       return;
     }
     return node;
+  }
+
+  private _resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
+    const originalInfo = this._helper.resolveTemplateLiteral(fileName, node);
+    if (!originalInfo) return;
+    if (!this._removeDuplicatedFragments) return originalInfo;
+    try {
+      const documentNode = parse(originalInfo.combinedText);
+      const duplicatedFragmentInfoList = detectDuplicatedFragments(documentNode);
+      const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
+        return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
+      }, originalInfo);
+      return info;
+    } catch (error) {
+      return originalInfo;
+    }
+    return originalInfo;
   }
 
   private _logger: (msg: string) => void = () => {};
