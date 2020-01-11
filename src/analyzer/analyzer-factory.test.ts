@@ -21,5 +21,21 @@ describe(AnalyzerFactory, () => {
     it('should throw an error when not exsisting config path', () => {
       expect(() => new AnalyzerFactory().createAnalyzerFromProjectPath('NOT_EXISTING_PRJ')).toThrowError();
     });
+
+    it('should throw an error when config has no plugins field', () => {
+      expect(() =>
+        new AnalyzerFactory().createAnalyzerFromProjectPath(
+          path.resolve(__dirname, '../../project-fixtures/simple-prj/tsconfig.noplugin.json'),
+        ),
+      ).toThrowError();
+    });
+
+    it('should throw an error when config.plugins has no ts-graphql-plugin object', () => {
+      expect(() =>
+        new AnalyzerFactory().createAnalyzerFromProjectPath(
+          path.resolve(__dirname, '../../project-fixtures/simple-prj/tsconfig.notsgqlplugin.json'),
+        ),
+      ).toThrowError();
+    });
   });
 });
