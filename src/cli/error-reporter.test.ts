@@ -68,7 +68,7 @@ describe(ErrorReporter, () => {
             query MyQuery {
           %%%     ^             %%%
           %%%     a1            %%%
-              id 
+              id
               name
           %%%     ^             %%%
           %%%     a2            %%%

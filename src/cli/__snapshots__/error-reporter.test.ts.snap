@@ -27,8 +27,8 @@ exports[`ErrorReporter indicateErrorWithLocation should output location of error
 2           const query = gql\`;
 3             query MyQuery {
                     ~~~~~~~~~
-4               id 
-  ~~~~~~~~~~~~~~~~~
+4               id
+  ~~~~~~~~~~~~~~~~
 5               name
   ~~~~~~~~~~~~~~~~~~
 6             }
