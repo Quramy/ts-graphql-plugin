@@ -4,14 +4,14 @@ import { Analyzer } from './analyzer';
 
 describe(AnalyzerFactory, () => {
   describe(AnalyzerFactory.prototype.createAnalyzerFromProjectPath, () => {
-    it('should create analyzer instance from exsting typescript project directory path', () => {
+    it('should create analyzer instance from existing typescript project directory path', () => {
       const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(
         path.resolve(__dirname, '../../project-fixtures/react-apollo-prj'),
       );
       expect(analyzer instanceof Analyzer).toBeTruthy();
     });
 
-    it('should create analyzer instance from exsting typescript project config file name', () => {
+    it('should create analyzer instance from existing typescript project config file name', () => {
       const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(
         path.resolve(__dirname, '../../project-fixtures/react-apollo-prj/tsconfig.json'),
       );
