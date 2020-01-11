@@ -27,7 +27,7 @@ describe(ErrorReporter, () => {
       expect(clearColor(message)).toMatchSnapshot();
     });
 
-    it('should output location of errors in human readable format with multiple lines', () => {
+    it('should output location of errors in human readable format with 2 lines', () => {
       let message: string = '';
       const reporter = new ErrorReporter('/prj', msg => (message = msg));
       const markers: Markers = {};
@@ -40,6 +40,35 @@ describe(ErrorReporter, () => {
             query MyQuery {
           %%%     ^             %%%
           %%%     a1            %%%
+              name
+          %%%     ^             %%%
+          %%%     a2            %%%
+            }
+          \`:
+        `,
+            markers,
+          ),
+          start: markers.a1.pos,
+          end: markers.a2.pos,
+        }),
+      );
+      expect(clearColor(message)).toMatchSnapshot();
+    });
+
+    it('should output location of errors in human readable format with 3 or more lines', () => {
+      let message: string = '';
+      const reporter = new ErrorReporter('/prj', msg => (message = msg));
+      const markers: Markers = {};
+      reporter.indicateErrorWithLocation(
+        new ErrorWithLocation('some error', {
+          fileName: '/prj/main.ts',
+          content: mark(
+            `
+          const query = gql\`;
+            query MyQuery {
+          %%%     ^             %%%
+          %%%     a1            %%%
+              id 
               name
           %%%     ^             %%%
           %%%     a2            %%%

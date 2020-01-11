@@ -9,7 +9,7 @@ exports[`ErrorReporter indicateErrorWithLocation should output location of error
 "
 `;
 
-exports[`ErrorReporter indicateErrorWithLocation should output location of errors in human readable format with multiple lines 1`] = `
+exports[`ErrorReporter indicateErrorWithLocation should output location of errors in human readable format with 2 lines 1`] = `
 "main.ts:3:19 - some error
 
 2           const query = gql\`;
@@ -18,5 +18,19 @@ exports[`ErrorReporter indicateErrorWithLocation should output location of error
 4               name
   ~~~~~~~~~~~~~~~~~~
 5             }
+"
+`;
+
+exports[`ErrorReporter indicateErrorWithLocation should output location of errors in human readable format with 3 or more lines 1`] = `
+"main.ts:3:19 - some error
+
+2           const query = gql\`;
+3             query MyQuery {
+                    ~~~~~~~~~
+4               id 
+  ~~~~~~~~~~~~~~~~~
+5               name
+  ~~~~~~~~~~~~~~~~~~
+6             }
 "
 `;
