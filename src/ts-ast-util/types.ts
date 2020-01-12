@@ -1,4 +1,4 @@
-import { ResolvedTemplateInfo } from '.';
+import { ResolvedTemplateInfo, ResolveResult } from '.';
 
 export interface ScriptSourceHelper {
   getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
@@ -7,7 +7,7 @@ export interface ScriptSourceHelper {
   resolveTemplateLiteral: (
     fileName: string,
     node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-  ) => ResolvedTemplateInfo | undefined;
+  ) => ResolveResult;
   updateTemplateLiteralInfo: (
     target: ResolvedTemplateInfo,
     range: { start: number; end: number },

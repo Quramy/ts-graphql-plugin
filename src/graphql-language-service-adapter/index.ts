@@ -124,11 +124,11 @@ export class GraphQLLanguageServiceAdapter {
     if (!this._schema) return delegate(fileName, position, options);
     const node = this._findTemplateNode(fileName, position);
     if (!node) return delegate(fileName, position, options);
-    const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, node);
-    if (!resolvedTemplateInfo) {
+    const { resolvedInfo } = this._resolveTemplateInfo(fileName, node);
+    if (!resolvedInfo) {
       return delegate(fileName, position, options);
     }
-    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedTemplateInfo;
+    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedInfo;
     // NOTE: The getAutocompleteSuggestions function does not return if missing '+1' shift
     const innerPositionToSearch = getInnerPosition(position).pos + 1;
     const innerLocation = convertInnerPosition2InnerLocation(innerPositionToSearch);
@@ -170,24 +170,28 @@ export class GraphQLLanguageServiceAdapter {
       });
     } else if (this._schema) {
       const diagnosticsAndResolvedInfoList = nodes.map(n => {
-        const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, n);
-        if (!resolvedTemplateInfo) return;
+        const { resolvedInfo, resolveErrors } = this._resolveTemplateInfo(fileName, n);
         return {
-          resolvedTemplateInfo,
-          diagnostics: getDiagnostics(resolvedTemplateInfo.combinedText, this._schema),
+          resolveErrors,
+          resolvedTemplateInfo: resolvedInfo,
+          diagnostics: resolvedInfo ? getDiagnostics(resolvedInfo.combinedText, this._schema) : [],
         };
       });
       diagnosticsAndResolvedInfoList.forEach((info, i) => {
         const node = nodes[i];
-        if (!info) {
-          result.push({
-            code: 9999,
-            category: ts.DiagnosticCategory.Warning,
-            messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
-            file: node.getSourceFile(),
-            start: node.getStart(),
-            length: node.getEnd() - node.getStart(),
-          });
+        if (!info.resolvedTemplateInfo) {
+          info.resolveErrors
+            .filter(re => re.fileName === fileName)
+            .forEach(resolveError => {
+              result.push({
+                code: 9999,
+                category: ts.DiagnosticCategory.Warning,
+                messageText: 'This operation or fragment has too complex dynamic expression(s) to analize.',
+                file: node.getSourceFile(),
+                start: resolveError.start,
+                length: resolveError.end,
+              });
+            });
           return;
         }
         const {
@@ -228,9 +232,9 @@ export class GraphQLLanguageServiceAdapter {
     if (!this._schema) return delegate(fileName, position);
     const node = this._findTemplateNode(fileName, position);
     if (!node) return delegate(fileName, position);
-    const resolvedTemplateInfo = this._resolveTemplateInfo(fileName, node);
-    if (!resolvedTemplateInfo) return delegate(fileName, position);
-    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedTemplateInfo;
+    const { resolvedInfo } = this._resolveTemplateInfo(fileName, node);
+    if (!resolvedInfo) return delegate(fileName, position);
+    const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedInfo;
     const cursor = new SimplePosition(convertInnerPosition2InnerLocation(getInnerPosition(position).pos + 1));
     const result = getHoverInformation(this._schema, combinedText, cursor);
     if (typeof result !== 'string' || !result.length) return delegate(fileName, position);
@@ -265,20 +269,22 @@ export class GraphQLLanguageServiceAdapter {
   }
 
   private _resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
-    const originalInfo = this._helper.resolveTemplateLiteral(fileName, node);
-    if (!originalInfo) return;
-    if (!this._removeDuplicatedFragments) return originalInfo;
+    const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
+    if (!resolvedInfo) return { resolveErrors };
+    if (!this._removeDuplicatedFragments) return { resolveErrors, resolvedInfo };
     try {
-      const documentNode = parse(originalInfo.combinedText);
+      const documentNode = parse(resolvedInfo.combinedText);
       const duplicatedFragmentInfoList = detectDuplicatedFragments(documentNode);
       const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
         return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
-      }, originalInfo);
-      return info;
+      }, resolvedInfo);
+      return { resolvedInfo: info, resolveErrors };
     } catch (error) {
-      return originalInfo;
+      // Note:
+      // `parse` throws GraphQL syntax error when combinedText is invalid for GraphQL syntax.
+      // We don't need handle this error because getDiagnostics method in this class re-checks syntax with graphql-lang-service,
+      return { resolvedInfo, resolveErrors };
     }
-    return originalInfo;
   }
 
   private _logger: (msg: string) => void = () => {};

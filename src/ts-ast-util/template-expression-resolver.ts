@@ -26,6 +26,17 @@ export interface ResolvedTemplateInfo {
   convertInnerLocation2InnerPosition: (location: { line: number; character: number }) => number;
 }
 
+export interface ResolveErrorInfo {
+  fileName: string;
+  start: number;
+  end: number;
+}
+
+export interface ResolveResult {
+  resolvedInfo?: ResolvedTemplateInfo;
+  resolveErrors: ResolveErrorInfo[];
+}
+
 const last: ComputePosition = (pos: number) => {
   throw new Error('invalid range: ' + pos);
 };
@@ -163,25 +174,28 @@ export class TemplateExpressionResolver {
   resolve(
     fileName: string,
     node: ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-  ): ResolvedTemplateInfo | undefined {
+  ): ResolveResult {
     const cacheValue = this._resultCache.get(node);
     if (cacheValue) {
       if (cacheValue.dependencyVersions.every(dep => this._getFileVersion(dep.fileName) === dep.version)) {
         this._resultCache.touch(node);
         this.logger('Use cache value: ' + cacheValue.result.combinedText);
-        return cacheValue.result;
+        return { resolvedInfo: cacheValue.result, resolveErrors: [] };
       } else {
         this._resultCache.del(node);
       }
     }
 
-    const setValueToCache = (result: ResolvedTemplateInfo, dependencies = [fileName]) => {
+    const setValueToCache = (resolvedInfo: ResolvedTemplateInfo, dependencies = [fileName]) => {
       const versions = [...new Set(dependencies)].map(fileName => ({
         fileName,
         version: this._getFileVersion(fileName),
       }));
-      this._resultCache.set(node, { result, dependencyVersions: versions });
-      return result;
+      this._resultCache.set(node, { result: resolvedInfo, dependencyVersions: versions });
+      return {
+        resolvedInfo,
+        resolveErrors: [],
+      };
     };
 
     if (ts.isNoSubstitutionTemplateLiteral(node)) {
@@ -195,7 +209,9 @@ export class TemplateExpressionResolver {
     } else if (ts.isNoSubstitutionTemplateLiteral(node.template)) {
       return setValueToCache(createResultForNoSubstitution(node.template, fileName));
     } else {
-      return;
+      return {
+        resolveErrors: [],
+      };
     }
     const head = template.head;
     const [getInnerPosForHead, getSourcePosForHead] = createComputePositionsForTemplateHead(head, fileName);
@@ -204,13 +220,21 @@ export class TemplateExpressionResolver {
     const texts = [head.text];
     const getInnerPositions = [getInnerPosForHead];
     const getSourcePositions = [getSourcePosForHead];
+    const resolveErrors: ResolveErrorInfo[] = [];
     for (const spanNode of template.templateSpans) {
       const { text: stringForSpan, dependencies: childDeps } = this._getValueAsString(
         fileName,
         spanNode.expression,
         dependencies,
       );
-      if (!stringForSpan) return;
+      if (!stringForSpan) {
+        resolveErrors.push({
+          fileName,
+          start: spanNode.expression.getStart(),
+          end: spanNode.expression.getEnd(),
+        });
+        continue;
+      }
       headLength += stringForSpan.length;
       texts.push(stringForSpan);
       const [getInnerPositionsForSpan, getSourcePositionForSpan] = createComputePositionsForTemplateSpan(
@@ -223,6 +247,12 @@ export class TemplateExpressionResolver {
       headLength += spanNode.literal.text.length;
       texts.push(spanNode.literal.text);
       dependencies = [...dependencies, ...childDeps];
+    }
+
+    if (resolveErrors.length > 0) {
+      return {
+        resolveErrors,
+      };
     }
 
     const combinedText = texts.join('');

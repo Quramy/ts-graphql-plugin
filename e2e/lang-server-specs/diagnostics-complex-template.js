@@ -7,7 +7,18 @@ function findResponse(responses, eventName) {
 
 const fileContent = `
 import gql from 'graphql-tag';
-const q = gql\`query { goodbye }\`;
+const fn = (msg: string) => msg;
+const f = gql\`
+  fragment MyFragment on Query {
+    hello
+  }
+\`;
+const q = gql\`
+  \${fn(f)}
+  query {
+    ...MyFragment
+  }
+\`;
 `;
 
 async function run(server) {
@@ -20,7 +31,10 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
     assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(semanticDiagEvent.body.diagnostics[0].text, 'Cannot query field "goodbye" on type "Query".');
+    assert.equal(
+      semanticDiagEvent.body.diagnostics[0].text,
+      'This operation or fragment has too complex dynamic expression(s) to analize.',
+    );
   });
 }
 

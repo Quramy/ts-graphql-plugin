@@ -105,3 +105,11 @@ query MyQuery {
 ",
 ]
 `;
+
+exports[`Extractor should store template resolve errors with too complex interpolation 1`] = `
+Object {
+  "end": 219,
+  "message": "Failed to extract GraphQL document from template literal because it's interpolation is too complex.",
+  "start": 207,
+}
+`;
