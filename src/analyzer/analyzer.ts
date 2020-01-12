@@ -74,7 +74,7 @@ export class Analyzer {
     const results = this._extractor.extract(this._languageServiceHost.getScriptFileNames(), this._pluginConfig.tag);
     const errors = this._extractor.pickupErrors(results, { ignoreGraphQLError: true });
     if (errors.length) {
-      this._debug(`Found ${errors.length} validation errors.`);
+      this._debug(`Found ${errors.length} extraction errors.`);
     }
     return { errors: [...errors, ...validate(results, schema)], extractedResults: results, schema };
   }
