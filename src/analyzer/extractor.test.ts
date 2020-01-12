@@ -93,6 +93,32 @@ describe(Extractor, () => {
     expect(result.map(r => print(r.documentNode!))).toMatchSnapshot();
   });
 
+  it('should store template resolve errors with too complex interpolation', () => {
+    const extractor = createExtractor([
+      {
+        fileName: 'main.ts',
+        content: `
+          import gql from 'graphql-tag';
+          const fragment = gql\`
+            fragment MyFragment on Query {
+              hello
+            }
+          \`;
+          const query = gql\`
+            \${fn(fragment)}
+            query MyQuery {
+              ...MyFragment
+            }
+          \`;
+        `,
+      },
+    ]);
+    const result = extractor.extract(['main.ts'], 'gql');
+    expect(result[0].resolevedTemplateInfo).toBeTruthy();
+    expect(result[1].resolevedTemplateInfo).toBeFalsy();
+    expect(result[1].resolveTemplateError).toMatchSnapshot();
+  });
+
   it('should store GraphQL syntax errors with invalid document', () => {
     const extractor = createExtractor([
       {

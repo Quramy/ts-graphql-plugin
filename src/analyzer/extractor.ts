@@ -3,7 +3,7 @@ import { parse, print, DocumentNode, GraphQLError } from 'graphql';
 import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
-import { ErrorWithLocation } from '../errors';
+import { ErrorWithLocation, ERRORS } from '../errors';
 import { detectDuplicatedFragments } from '../gql-ast-util';
 
 export type ExtractorOptions = {
@@ -15,7 +15,11 @@ export type ExtractorOptions = {
 export type ExtractTemplateResolveErrorResult = {
   fileName: string;
   templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
-  resolveTemplateErrorMessage?: string;
+  resolveTemplateError: {
+    message: string;
+    start: number;
+    end: number;
+  };
   documentNode: undefined;
   resolevedTemplateInfo: undefined;
   graphqlError: undefined;
@@ -25,6 +29,7 @@ export type ExtractGraphQLErrorResult = {
   fileName: string;
   templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
   resolevedTemplateInfo: ResolvedTemplateInfo;
+  resolveTemplateError: undefined;
   graphqlError: GraphQLError;
   resolveTemplateErrorMessage: undefined;
   documentNode: undefined;
@@ -35,6 +40,7 @@ export type ExtractSucceededResult = {
   templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
   documentNode: DocumentNode;
   resolevedTemplateInfo: ResolvedTemplateInfo;
+  resolveTemplateError: undefined;
   graphqlError: undefined;
   resolveTemplateErrorMessage: undefined;
 };
@@ -64,22 +70,29 @@ export class Extractor {
         | ts.NoSubstitutionTemplateLiteral
       )[];
       nodes.forEach(node => {
-        const resolevedTemplateInfo = this._helper.resolveTemplateLiteral(fileName, node);
-        if (!resolevedTemplateInfo) {
-          results.push({
-            fileName,
-            templateNode: node,
-            resolveTemplateErrorMessage:
-              "Failed to extract GraphQL document from template literal because it's interpolation is too complex.",
-            resolevedTemplateInfo: undefined,
-            graphqlError: undefined,
-            documentNode: undefined,
-          });
+        const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
+        if (!resolvedInfo) {
+          resolveErrors
+            .filter(re => re.fileName === fileName)
+            .forEach(resolveError => {
+              results.push({
+                fileName,
+                templateNode: node,
+                resolveTemplateError: {
+                  message: ERRORS.templateIsTooComplex.message,
+                  start: resolveError.start,
+                  end: resolveError.end,
+                },
+                resolevedTemplateInfo: undefined,
+                graphqlError: undefined,
+                documentNode: undefined,
+              });
+            });
         } else {
           results.push({
             fileName,
             templateNode: node,
-            resolevedTemplateInfo,
+            resolevedTemplateInfo: resolvedInfo,
           } as any);
         }
       });
@@ -120,13 +133,14 @@ export class Extractor {
   ) {
     const errors: ErrorWithLocation[] = [];
     extractResults.forEach(r => {
-      if (r.resolveTemplateErrorMessage) {
+      if (r.resolveTemplateError) {
         errors.push(
-          new ErrorWithLocation(r.resolveTemplateErrorMessage, {
+          new ErrorWithLocation(r.resolveTemplateError.message, {
             fileName: r.fileName,
+            severity: 'Warn',
             content: r.templateNode.getSourceFile().getFullText(),
-            start: r.templateNode.getStart(),
-            end: r.templateNode.getEnd(),
+            start: r.resolveTemplateError.start,
+            end: r.resolveTemplateError.end,
           }),
         );
       } else if (!ignoreGraphQLError && r.graphqlError) {

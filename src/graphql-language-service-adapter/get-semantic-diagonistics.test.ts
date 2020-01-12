@@ -65,6 +65,29 @@ describe('getSemanticDiagnostics', () => {
     expect(/Cannot query field "hoge"/.test(messageText)).toBeTruthy();
   });
 
+  it('should filter severity of GraphQL errors', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(
+      fixture.adapter,
+      delegateFn,
+      'input.ts',
+    );
+
+    // prettier-ignore
+    fixture.source = 'const ql = `query {' + '\n'
+                   + '  helloWorld,' + '\n'
+                   + ' }`';
+    const [actual1] = validateFn();
+    expect(actual1.category).toBe(ts.DiagnosticCategory.Warning);
+
+    // prettier-ignore
+    fixture.source = 'const ql = `query {' + '\n'
+                   + '  helo,' + '\n'
+                   + ' }`';
+    const [actual2] = validateFn();
+    expect(actual2.category).toBe(ts.DiagnosticCategory.Error);
+  });
+
   it('should return empty array for valid GraphQL template string', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn: () => ts.Diagnostic[] = fixture.adapter.getSemanticDiagnostics.bind(

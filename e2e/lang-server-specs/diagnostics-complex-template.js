@@ -1,13 +1,26 @@
 const assert = require('assert');
 const path = require('path');
 
+const { ERRORS } = require('../../lib/errors');
+
 function findResponse(responses, eventName) {
   return responses.find(response => response.event === eventName);
 }
 
 const fileContent = `
 import gql from 'graphql-tag';
-const q = gql\`query { goodbye }\`;
+const fn = (msg: string) => msg;
+const f = gql\`
+  fragment MyFragment on Query {
+    hello
+  }
+\`;
+const q = gql\`
+  \${fn(f)}
+  query {
+    ...MyFragment
+  }
+\`;
 `;
 
 async function run(server) {
@@ -20,7 +33,7 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
     assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(semanticDiagEvent.body.diagnostics[0].text, 'Cannot query field "goodbye" on type "Query".');
+    assert.equal(semanticDiagEvent.body.diagnostics[0].text, ERRORS.templateIsTooComplex.message);
   });
 }
 

@@ -23,6 +23,7 @@ export function validate(extractedResults: ExtractResult[], schema: GraphQLSchem
       errors.push(
         new ErrorWithLocation(diagnositc.message, {
           fileName: r.fileName,
+          severity: diagnositc.severity === 2 ? 'Warn' : 'Error',
           content: r.templateNode.getSourceFile().getText(),
           start: startPositionOfSource,
           end: endPositionOfSource,

@@ -29,12 +29,17 @@ export async function validateCommand({ options }: CommandOptions<typeof cliDefi
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(options.project, logger.debug.bind(logger));
   const { errors } = await analyzer.validate();
-  if (errors.length) {
-    logger.error(`Found ${color.red(errors.length + '')} errors:`);
-    errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
-    return false;
-  } else {
-    logger.info(color.green('No GraphQL validation errors.'));
-    return true;
+  const errorErrors = errors.filter(e => e.severity === 'Error');
+  const warnErrors = errors.filter(e => e.severity === 'Warn');
+  if (errorErrors.length) {
+    logger.error(`Found ${color.red(errorErrors.length + '')} errors:`);
+    errorErrors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
   }
+  if (warnErrors.length) {
+    logger.error(`Found ${color.yellow(warnErrors.length + '')} warnings:`);
+    warnErrors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+  }
+  if (errors.length) return false;
+  logger.info(color.green('No GraphQL validation errors.'));
+  return true;
 }

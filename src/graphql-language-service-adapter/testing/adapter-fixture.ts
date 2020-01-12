@@ -27,7 +27,10 @@ export class AdapterFixture {
       if (ts.isTemplateExpression(node)) {
         throw new Error('not implemented');
       } else {
-        return createResultForNoSubstitution(node, scriptFileName);
+        return {
+          resolvedInfo: createResultForNoSubstitution(node, scriptFileName),
+          resolveErrors: [],
+        };
       }
     };
     const helper: ScriptSourceHelper = {

@@ -19,7 +19,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral);
+    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral).resolvedInfo!;
     if (!actual) return fail();
     expect(actual.combinedText).toBe('');
     expect(() => actual.getInnerPosition(0)).toThrowError();
@@ -48,7 +48,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral);
+    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral).resolvedInfo!;
     if (!actual) return fail();
 
     expect(actual.combinedText).toBe(
@@ -91,7 +91,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!source) return fail();
     const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral);
+    const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral).resolvedInfo!;
     if (!actual) return fail();
 
     expect(actual.combinedText).toBe(
@@ -143,7 +143,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!source) return fail();
     const nodes = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression);
+    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression).resolvedInfo!;
     if (!actual) return fail();
 
     // prettier-ignore
@@ -219,7 +219,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     if (!source) return fail();
     const nodes = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression);
+    const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression).resolvedInfo!;
     if (!actual) return fail();
 
     // prettier-ignore
@@ -266,6 +266,43 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     });
   });
 
+  describe('resolveErrors', () => {
+    it('should return resolve errors when interpolation is too complex', () => {
+      const markers = {} as Markers;
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'main.ts',
+            // prettier-ignore
+            content: mark('\n' +
+              '    const fragment = gql`fragment Hoge on Foo { name }`;'     + '\n' +
+              '    const query = gql`'                                       + '\n' +
+              '      ${fn(fragment)}'                                        + '\n' +
+              '%%%     ^           ^                                    %%%' + '\n' +
+              '%%%     a1          a2                                   %%%' + '\n' +
+              '      query MyQuery {'                                        + '\n' +
+              '        ...Hoge'                                              + '\n' +
+              '      }'                                                      + '\n' +
+              '    ', markers)
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const nodes = findAllNodes(source, node => ts.isTaggedTemplateExpression(node));
+      const resolver = new TemplateExpressionResolver(langService, () => '');
+      const actual = resolver.resolve('main.ts', nodes[1] as ts.TemplateExpression);
+      if (actual.resolvedInfo) return fail();
+      expect(actual.resolveErrors).toStrictEqual([
+        {
+          fileName: 'main.ts',
+          start: markers.a1.pos,
+          end: markers.a2.pos,
+        },
+      ]);
+    });
+  });
+
   describe('string combinination pattern', () => {
     it('should return combined string in NoSubstitutionTemplateLiteral', () => {
       const langService = createTestingLanguageService({
@@ -280,7 +317,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
       const resolver = new TemplateExpressionResolver(langService, () => '');
-      const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral);
+      const actual = resolver.resolve('main.ts', node as ts.NoSubstitutionTemplateLiteral).resolvedInfo!;
       expect(actual!.combinedText).toBe('query { }');
     });
 
@@ -297,7 +334,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
       const resolver = new TemplateExpressionResolver(langService, () => '');
-      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
       expect(actual!.combinedText).toMatchSnapshot();
     });
 
@@ -324,7 +361,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
       const resolver = new TemplateExpressionResolver(langService, () => '');
-      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
       expect(actual!.combinedText).toMatchSnapshot();
     });
 
@@ -352,7 +389,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
       const resolver = new TemplateExpressionResolver(langService, () => '');
-      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
       expect(actual!.combinedText).toMatchSnapshot();
     });
 
@@ -385,7 +422,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       if (!source) return fail();
       const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
       const resolver = new TemplateExpressionResolver(langService, () => '');
-      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression);
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
       expect(actual!.combinedText).toMatchSnapshot();
     });
   });
@@ -422,7 +459,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       const resolver = new TemplateExpressionResolver(langService, () => '');
       const firstResult = resolver.resolve('main.ts', node as ts.TemplateExpression);
       expect(resolver._resultCache.has(node)).toBeTruthy();
-      expect(resolver.resolve('main.ts', node as ts.TemplateExpression)).toBe(firstResult);
+      expect(resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo).toBe(firstResult.resolvedInfo);
     });
   });
 });
@@ -451,7 +488,7 @@ describe(TemplateExpressionResolver.prototype.update, () => {
     if (!source) return fail();
     const nodes = findAllNodes(source, node => ts.isNoSubstitutionTemplateLiteral(node));
     const resolver = new TemplateExpressionResolver(langService, () => '');
-    const originalInfo = resolver.resolve('main.ts', nodes[0] as ts.NoSubstitutionTemplateLiteral);
+    const originalInfo = resolver.resolve('main.ts', nodes[0] as ts.NoSubstitutionTemplateLiteral).resolvedInfo!;
     if (!originalInfo) return fail();
     const actual = resolver.update(
       originalInfo,
