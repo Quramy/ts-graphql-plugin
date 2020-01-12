@@ -24,7 +24,7 @@ From [src/index.tsx:12:19](src/index.tsx#L12-L24)
     
 ## Fragments
 
-### Fragment 1
+### RepositoryFragment
 
 ```graphql
 fragment RepositoryFragment on Repository {

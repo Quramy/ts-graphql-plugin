@@ -70,7 +70,7 @@ From [src/main.ts:14:30](../src/main.ts#L14-L20)
     
 ## Fragments
 
-### Fragment 1
+### MyFragment
 
 \`\`\`graphql
 fragment MyFragment on Query {

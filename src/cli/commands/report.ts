@@ -23,7 +23,7 @@ export const cliDefinition = {
       description: 'Path to manifest.json file.',
       type: 'string',
     },
-    ignoreFragments: {
+    includeFragments: {
       description: 'If set, report including fragment informations.',
       type: 'boolean',
     },
@@ -43,13 +43,13 @@ export async function reportCommand({ options }: CommandOptions<typeof cliDefini
   const { color } = require('../../string-util') as typeof import('../../string-util');
 
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');
-  const { fromManifest, outFile, project, ignoreFragments } = options;
+  const { fromManifest, outFile, project, includeFragments } = options;
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
   const manifest = fromManifest ? JSON.parse(ts.sys.readFile(fromManifest, 'utf8') || '') : undefined;
   let outFileName = path.isAbsolute(outFile) ? outFile : path.resolve(process.cwd(), outFile);
   outFileName = ts.sys.directoryExists(outFileName) ? path.join(outFileName, 'GRAPHQL_OPERATIONS.md') : outFileName;
-  const [errors, markdown] = await analyzer.report(outFileName, manifest, ignoreFragments);
+  const [errors, markdown] = await analyzer.report(outFileName, manifest, !includeFragments);
   errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
   if (errors.length) {
     logger.error(color.magenta('Found some errors extracting operations.\n'));

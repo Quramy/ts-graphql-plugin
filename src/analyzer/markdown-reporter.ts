@@ -24,10 +24,10 @@ function createSection(
     h2 +
     '\n' +
     operationDocs
-      .map((doc, i) => {
+      .map(doc => {
         const { displayPath, linkPath } = createLinkPath(doc.fileName, baseDir, outputDir);
         return `
-### ${doc.type !== 'fragment' ? doc.operationName || 'anonymous' : 'Fragment ' + (i + 1)}
+### ${doc.type !== 'fragment' ? doc.operationName || 'anonymous' : doc.fragmentName}
 
 \`\`\`graphql
 ${doc.body.trim()}

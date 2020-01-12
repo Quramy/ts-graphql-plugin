@@ -19,6 +19,7 @@ Array [
           "line": 0,
         },
         "fileName": "main.ts",
+        "fragmentName": undefined,
         "operationName": "MyQuery",
         "tag": "gql",
         "templateLiteralNodeEnd": Object {

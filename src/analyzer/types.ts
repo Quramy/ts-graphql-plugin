@@ -4,6 +4,7 @@ export interface ManifestDocumentEntry {
   fileName: string;
   type: OperationType;
   operationName?: string;
+  fragmentName?: string;
   body: string;
   tag?: string;
   documentStart: { line: number; character: number };

@@ -214,11 +214,12 @@ export class Extractor {
       .filter(r => !!r.documentNode)
       .map(result => {
         const r = result as ExtractSucceededResult;
-        const { type, operationName } = this.getDominantDefiniton(r);
+        const { type, operationName, fragmentName } = this.getDominantDefiniton(r);
         return {
           fileName: r.fileName,
           type: type || 'other',
           operationName,
+          fragmentName,
           body: print(r.documentNode!),
           tag: tagName,
           templateLiteralNodeStart: this._helper.getLineAndChar(r.fileName, r.templateNode.getStart()),

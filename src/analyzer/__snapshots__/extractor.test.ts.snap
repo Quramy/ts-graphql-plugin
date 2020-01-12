@@ -17,6 +17,7 @@ Object {
         "line": 2,
       },
       "fileName": "main.ts",
+      "fragmentName": undefined,
       "operationName": "MyQuery",
       "tag": "",
       "templateLiteralNodeEnd": Object {
@@ -45,6 +46,7 @@ Object {
         "line": 7,
       },
       "fileName": "main.ts",
+      "fragmentName": undefined,
       "operationName": "Greeting",
       "tag": "",
       "templateLiteralNodeEnd": Object {
