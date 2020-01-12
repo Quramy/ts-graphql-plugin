@@ -3,7 +3,7 @@ import { parse, print, DocumentNode, GraphQLError } from 'graphql';
 import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
-import { ErrorWithLocation } from '../errors';
+import { ErrorWithLocation, ERRORS } from '../errors';
 import { detectDuplicatedFragments } from '../gql-ast-util';
 
 export type ExtractorOptions = {
@@ -79,8 +79,7 @@ export class Extractor {
                 fileName,
                 templateNode: node,
                 resolveTemplateError: {
-                  message:
-                    "Failed to extract GraphQL document from template literal because it's interpolation is too complex.",
+                  message: ERRORS.templateIsTooComplex.message,
                   start: resolveError.start,
                   end: resolveError.end,
                 },

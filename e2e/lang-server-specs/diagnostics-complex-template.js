@@ -1,6 +1,8 @@
 const assert = require('assert');
 const path = require('path');
 
+const { ERRORS } = require('../../lib/errors');
+
 function findResponse(responses, eventName) {
   return responses.find(response => response.event === eventName);
 }
@@ -31,10 +33,7 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
     assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(
-      semanticDiagEvent.body.diagnostics[0].text,
-      'This operation or fragment has too complex dynamic expression(s) to analize.',
-    );
+    assert.equal(semanticDiagEvent.body.diagnostics[0].text, ERRORS.templateIsTooComplex.message);
   });
 }
 
