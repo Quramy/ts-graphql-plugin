@@ -137,6 +137,7 @@ export class Extractor {
         errors.push(
           new ErrorWithLocation(r.resolveTemplateError.message, {
             fileName: r.fileName,
+            severity: 'Warn',
             content: r.templateNode.getSourceFile().getFullText(),
             start: r.resolveTemplateError.start,
             end: r.resolveTemplateError.end,

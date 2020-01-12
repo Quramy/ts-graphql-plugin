@@ -94,6 +94,20 @@ const semanticErrorPrj = {
   ],
 };
 
+const semanticWarningPrj = {
+  sdl: `
+  type Query {
+    hello: String! @deprecated(reason: "don't use")
+  }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: 'const query = gql`query MyQuery { hello }`;',
+    },
+  ],
+};
+
 const complexOperationsPrj = {
   sdl: `
   type Query {
@@ -153,6 +167,13 @@ describe(Analyzer, () => {
 
     it('should validate project with semantic error project', async () => {
       const analyzer = createTestingAnalyzer(semanticErrorPrj);
+      const { errors, schema } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      expect(schema).toBeTruthy();
+    });
+
+    it('should validate project with semantic error project', async () => {
+      const analyzer = createTestingAnalyzer(semanticWarningPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
       expect(schema).toBeTruthy();

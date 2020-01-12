@@ -4,15 +4,22 @@ export type ErrorRange = {
   end: number;
 };
 
+export type Severity = 'Error' | 'Warn';
+
 export type ErrorContent = ErrorRange & {
+  severity?: Severity;
   content: string;
 };
 
 export class ErrorWithLocation extends Error {
   readonly name = 'ErrorWithLocation';
+  readonly severity: Severity = 'Error';
 
   constructor(public readonly message: string, public readonly errorContent: ErrorContent) {
     super(message);
+    if (errorContent.severity) {
+      this.severity = errorContent.severity;
+    }
   }
 }
 

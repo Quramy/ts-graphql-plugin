@@ -42,10 +42,11 @@ function translateCompletionItems(items: CompletionItem[]): ts.CompletionInfo {
 
 function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
   const messageText = d.message.split('\n')[0];
+  const category = d.severity === 2 ? ts.DiagnosticCategory.Warning : ts.DiagnosticCategory.Error;
   return {
     code: ERRORS.graphqlLangServiceError.code,
     messageText,
-    category: d.severity as ts.DiagnosticCategory,
+    category,
     file,
     start,
     length,

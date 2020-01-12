@@ -1,0 +1,4 @@
+type Query {
+  hello: String!
+  helloWorld: String! @deprecated(reason: "Use 'hello' instead of this.")
+}
