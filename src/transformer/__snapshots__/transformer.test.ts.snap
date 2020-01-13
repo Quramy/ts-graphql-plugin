@@ -1,0 +1,150 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`transformer should ignore NoSubstitutionTemplateLiteral when tag is set 1`] = `
+"const query = \`abc\`;
+"
+`;
+
+exports[`transformer should ignore TaggedTemplateExpression when the node does not match tag name 1`] = `
+"const query = hoge \`abc\`;
+"
+`;
+
+exports[`transformer should ignore TemplateExpression when tag is set 1`] = `
+"const query = \`abc\${def}\`;
+"
+`;
+
+exports[`transformer should transform NoSubstitutionTemplateLiteral 1`] = `
+"const query = {
+    kind: \\"Document\\",
+    definitions: [{
+            kind: \\"OperationDefinition\\",
+            operation: \\"query\\",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: \\"SelectionSet\\",
+                selections: [{
+                        kind: \\"Field\\",
+                        name: {
+                            kind: \\"Name\\",
+                            value: \\"hello\\"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer should transform TaggedTemplateExpression 1`] = `
+"const query = {
+    kind: \\"Document\\",
+    definitions: [{
+            kind: \\"OperationDefinition\\",
+            operation: \\"query\\",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: \\"SelectionSet\\",
+                selections: [{
+                        kind: \\"Field\\",
+                        name: {
+                            kind: \\"Name\\",
+                            value: \\"hello\\"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer should transform TaggedTemplateExpression when the node matches tag name 1`] = `
+"const query = {
+    kind: \\"Document\\",
+    definitions: [{
+            kind: \\"OperationDefinition\\",
+            operation: \\"query\\",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: \\"SelectionSet\\",
+                selections: [{
+                        kind: \\"Field\\",
+                        name: {
+                            kind: \\"Name\\",
+                            value: \\"hello\\"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer should transform TemplateExpression 1`] = `
+"const query = {
+    kind: \\"Document\\",
+    definitions: [{
+            kind: \\"OperationDefinition\\",
+            operation: \\"query\\",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: \\"SelectionSet\\",
+                selections: [{
+                        kind: \\"Field\\",
+                        name: {
+                            kind: \\"Name\\",
+                            value: \\"hello\\"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer should transform innder document with documentTransformers 1`] = `
+"const query = {
+    kind: \\"Document\\",
+    definitions: [{
+            kind: \\"OperationDefinition\\",
+            operation: \\"query\\",
+            name: {
+                kind: \\"Name\\",
+                value: \\"MyQuery\\"
+            },
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: \\"SelectionSet\\",
+                selections: [{
+                        kind: \\"Field\\",
+                        name: {
+                            kind: \\"Name\\",
+                            value: \\"hello\\"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer should transform to string literal when target is text 1`] = `
+"const query = \\"query MyQuery {\\\\n  hello\\\\n}\\\\n\\";
+"
+`;
