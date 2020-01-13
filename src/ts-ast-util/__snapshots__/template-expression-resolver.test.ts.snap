@@ -2,7 +2,30 @@
 
 exports[`resolve string combinination pattern should return combined string in TemplateExpression with StringLiteral 1`] = `"query { foo }"`;
 
+exports[`resolve string combinination pattern should return combined string with class static property interpolation 1`] = `
+"
+                
+                  fragment Foo on Hoge {
+                    name
+                  }
+                
+                query {
+                  ...Foo
+                }"
+`;
+
 exports[`resolve string combinination pattern should return combined string with hopping reference 1`] = `
+"
+                
+                fragment Foo on Hoge {
+                  name
+                }
+                query {
+                  ...Foo
+                }"
+`;
+
+exports[`resolve string combinination pattern should return combined string with property access interpolation 1`] = `
 "
                 
                 fragment Foo on Hoge {
@@ -25,6 +48,17 @@ exports[`resolve string combinination pattern should return combined string with
 `;
 
 exports[`resolve string combinination pattern should return combined string with reference to other literal 1`] = `
+"
+                
+                fragment Foo on Hoge {
+                  name
+                }
+                query {
+                  ...Foo
+                }"
+`;
+
+exports[`resolve string combinination pattern should return combined string with shorthand property access interpolation 1`] = `
 "
                 
                 fragment Foo on Hoge {

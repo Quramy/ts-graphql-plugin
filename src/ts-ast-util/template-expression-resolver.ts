@@ -375,17 +375,28 @@ export class TemplateExpressionResolver {
         const src = this._langService.getProgram()!.getSourceFile(def.fileName);
         if (!src) return { dependencies };
         const found = findNode(src, def.textSpan.start);
-        if (!found || !found.parent || !ts.isVariableDeclaration(found.parent) || !found.parent.initializer)
-          return { dependencies };
+        if (!found || !found.parent) return { dependencies };
         currentFileName = def.fileName;
-        currentNode = found.parent.initializer;
-        if (ts.isIdentifier(found.parent.initializer)) {
+        if (ts.isVariableDeclaration(found.parent) && found.parent.initializer) {
+          currentNode = found.parent.initializer;
+        } else if (ts.isPropertyDeclaration(found.parent) && found.parent.initializer) {
+          currentNode = found.parent.initializer;
+        } else if (ts.isPropertyAssignment(found.parent)) {
+          currentNode = found.parent.initializer;
+        } else if (ts.isShorthandPropertyAssignment(found.parent)) {
+          currentNode = found;
+        } else {
+          return { dependencies };
+        }
+        if (ts.isIdentifier(currentNode)) {
           continue;
         }
         return setValueToCache(
           this._getValueAsString(currentFileName, currentNode, [...dependencies, currentFileName]),
         );
       }
+    } else if (ts.isPropertyAccessExpression(node)) {
+      return setValueToCache(this._getValueAsString(fileName, node.name, dependencies));
     } else if (ts.isTaggedTemplateExpression(node)) {
       if (ts.isNoSubstitutionTemplateLiteral(node.template)) {
         return setValueToCache({ text: node.template.text, dependencies });

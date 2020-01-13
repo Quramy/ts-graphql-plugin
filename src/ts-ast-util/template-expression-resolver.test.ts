@@ -365,6 +365,92 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       expect(actual!.combinedText).toMatchSnapshot();
     });
 
+    it('should return combined string with property access interpolation', () => {
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: `
+              const fragment = \`
+                fragment Foo on Hoge {
+                  name
+                }\`;
+              const obj = { fragment: fragment };
+              const query = \`
+                \${obj.fragment}
+                query {
+                  ...Foo
+                }\`;
+            `,
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
+      const resolver = new TemplateExpressionResolver(langService, () => '');
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
+      expect(actual!.combinedText).toMatchSnapshot();
+    });
+
+    it('should return combined string with shorthand property access interpolation', () => {
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: `
+              const fragment = \`
+                fragment Foo on Hoge {
+                  name
+                }\`;
+              const obj = { fragment };
+              const query = \`
+                \${obj.fragment}
+                query {
+                  ...Foo
+                }\`;
+            `,
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
+      const resolver = new TemplateExpressionResolver(langService, () => '');
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
+      expect(actual!.combinedText).toMatchSnapshot();
+    });
+
+    it('should return combined string with class static property interpolation', () => {
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: `
+              class MyClass {
+                static fragment = \`
+                  fragment Foo on Hoge {
+                    name
+                  }
+                \`;
+              }
+              const query = \`
+                \${MyClass.fragment}
+                query {
+                  ...Foo
+                }\`;
+            `,
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const [node] = findAllNodes(source, node => ts.isTemplateExpression(node));
+      const resolver = new TemplateExpressionResolver(langService, () => '');
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo!;
+      expect(actual!.combinedText).toMatchSnapshot();
+    });
+
     it('should return combined string with hopping reference', () => {
       const langService = createTestingLanguageService({
         files: [
