@@ -54,9 +54,21 @@ export class Analyzer {
     });
   }
 
-  extract() {
-    const results = this._extractor.extract(this._languageServiceHost.getScriptFileNames(), this._pluginConfig.tag);
+  getPluginConfig() {
+    return this._pluginConfig;
+  }
+
+  extract(fileNameList?: string[]) {
+    const results = this._extractor.extract(
+      fileNameList || this._languageServiceHost.getScriptFileNames(),
+      this._pluginConfig.tag,
+    );
     const errors = this._extractor.pickupErrors(results);
+    return [errors, results] as const;
+  }
+
+  extractToManifest() {
+    const [errors, results] = this.extract();
     const manifest = this._extractor.toManifest(results, this._pluginConfig.tag);
     return [errors, manifest] as const;
   }
@@ -71,8 +83,7 @@ export class Analyzer {
         'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.',
       );
     }
-    const results = this._extractor.extract(this._languageServiceHost.getScriptFileNames(), this._pluginConfig.tag);
-    const errors = this._extractor.pickupErrors(results, { ignoreGraphQLError: true });
+    const [errors, results] = this.extract();
     if (errors.length) {
       this._debug(`Found ${errors.length} extraction errors.`);
     }
@@ -89,7 +100,7 @@ export class Analyzer {
     if (manifest) {
       return [[] as ErrorWithLocation[], reporter.toMarkdownConntent(manifest, reportOptions)] as const;
     } else {
-      const [errors, extractedManifest] = this.extract();
+      const [errors, extractedManifest] = this.extractToManifest();
       return [errors, reporter.toMarkdownConntent(extractedManifest, reportOptions)] as const;
     }
   }

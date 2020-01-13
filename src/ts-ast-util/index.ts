@@ -31,7 +31,7 @@ export function findAllNodes(sourceFile: ts.SourceFile, cond: (n: ts.Node) => bo
 
 export function isTagged(node: ts.Node, condition: TagCondition) {
   if (!node || !node.parent) return false;
-  if (node.parent.kind !== ts.SyntaxKind.TaggedTemplateExpression) return false;
-  const tagNode = node.parent as ts.TaggedTemplateExpression;
+  if (!ts.isTaggedTemplateExpression(node.parent)) return false;
+  const tagNode = node.parent;
   return tagNode.tag.getText() === condition;
 }

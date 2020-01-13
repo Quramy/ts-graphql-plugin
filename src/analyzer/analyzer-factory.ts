@@ -5,16 +5,23 @@ import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
 import { SchemaManagerHost, SchemaConfig } from '../schema-manager/types';
 
-class ScriptHost implements ts.LanguageServiceHost {
+export class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string>();
+  private readonly _fileVersionMap = new Map<string, number>();
 
   constructor(private readonly _currentDirectory: string, private readonly _compilerOptions: ts.CompilerOptions) {}
 
   readFile(fileName: string) {
     const hit = this._fileMap.get(fileName);
     if (hit) return hit;
+    return this.updateFile(fileName);
+  }
+
+  updateFile(fileName: string) {
     const content = ts.sys.readFile(fileName, 'uts8');
     if (content) this._fileMap.set(fileName, content);
+    const currentVersion = this._fileVersionMap.get(fileName) || 0;
+    this._fileVersionMap.set(fileName, currentVersion + 1);
     return content;
   }
 
@@ -28,8 +35,10 @@ class ScriptHost implements ts.LanguageServiceHost {
     return ts.ScriptSnapshot.fromString(file);
   }
 
-  getScriptVersion() {
-    return '0';
+  getScriptVersion(fileName: string) {
+    const version = this._fileVersionMap.get(fileName);
+    if (!version) return '0';
+    return version + '';
   }
 
   getScriptFileNames() {
@@ -73,7 +82,7 @@ class SystemSchemaManagerHost implements SchemaManagerHost {
 }
 
 export class AnalyzerFactory {
-  createAnalyzerFromProjectPath(
+  createAnalyzerAndScriptHostFromProjectPath(
     projectPath: string,
     debug: (msg: string) => void = () => {},
     currentDirectory = process.cwd(),
@@ -83,7 +92,16 @@ export class AnalyzerFactory {
     tsconfig.fileNames.forEach(fileName => scriptHost.readFile(fileName));
     const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
     const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
-    return new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager, debug);
+    const analyzer = new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager, debug);
+    return { analyzer, scriptHost };
+  }
+
+  createAnalyzerFromProjectPath(
+    projectPath: string,
+    debug: (msg: string) => void = () => {},
+    currentDirectory = process.cwd(),
+  ) {
+    return this.createAnalyzerAndScriptHostFromProjectPath(projectPath, debug, currentDirectory).analyzer;
   }
 
   private _readTsconfig(project: string) {
