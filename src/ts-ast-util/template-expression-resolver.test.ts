@@ -65,10 +65,13 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
     expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
 
-    expect(actual.getInnerPosition(markers.a2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos });
-    expect(() => actual.getInnerPosition(markers.a2.pos + 1)).toThrowError();
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a2.pos });
-    expect(() => actual.getSourcePosition(markers.b2.pos + 1)).toThrowError();
+    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
+    expect(() => actual.getInnerPosition(markers.a2.pos + 2)).toThrowError();
+    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a2.pos + 1,
+    });
+    expect(() => actual.getSourcePosition(markers.b2.pos + 2)).toThrowError();
   });
 
   it('should resolve for closed NoSubstitutionTemplateLiteral node', () => {
@@ -108,10 +111,13 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
     expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
 
-    expect(actual.getInnerPosition(markers.a2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos });
-    expect(() => actual.getInnerPosition(markers.a2.pos + 1)).toThrowError();
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({ fileName: 'main.ts', pos: markers.a2.pos });
-    expect(() => actual.getSourcePosition(markers.b2.pos + 1)).toThrowError();
+    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
+    expect(() => actual.getInnerPosition(markers.a2.pos + 2)).toThrowError();
+    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+      fileName: 'main.ts',
+      pos: markers.a2.pos + 1,
+    });
+    expect(() => actual.getSourcePosition(markers.b2.pos + 2)).toThrowError();
   });
 
   it('should resolve templateExpression spans in no closed TemplateExpression node', () => {
