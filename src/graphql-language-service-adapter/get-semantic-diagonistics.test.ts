@@ -33,6 +33,15 @@ describe('getSemanticDiagnostics', () => {
     expect(actual1.start).toBe(11); // start character
 
     // prettier-ignore
+    fixture.source = 'const ql = ``';
+    expect(validateFn()[0].start).toBe(12);
+
+    // prettier-ignore
+    fixture.source = 'const ql = `' + '\n';
+    +'`';
+    expect(validateFn()[0].start).toBe(13);
+
+    // prettier-ignore
     fixture.source = 'const ql = `' + '\n'
                    + '{`';
     const [actual2] = validateFn();
