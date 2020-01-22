@@ -12,11 +12,13 @@ export function detectDuplicatedFragments(documentNode: DocumentNode) {
       }
     }
   });
-  return duplicatedFragments.map(def => {
-    return {
-      name: def.name.value,
-      start: def.loc!.start,
-      end: def.loc!.end,
-    };
-  });
+  return duplicatedFragments
+    .map(def => {
+      return {
+        name: def.name.value,
+        start: def.loc!.start,
+        end: def.loc!.end,
+      };
+    })
+    .sort((a, b) => b.start - a.start);
 }
