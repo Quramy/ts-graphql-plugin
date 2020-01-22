@@ -28,4 +28,26 @@ describe(detectDuplicatedFragments, () => {
     `;
     expect(detectDuplicatedFragments(parse(documentContent))).toStrictEqual([]);
   });
+
+  it('should return duplicated fragments order by location range desc', () => {
+    const documentContent = `
+      fragment Hoge on Query {
+        id
+      }
+      fragment Bar on Query {
+        id
+      }
+      fragment Foo on Query {
+        id
+      }
+      fragment Hoge on Query {
+        id
+      }
+      fragment Bar on Query {
+        id
+      }
+    `;
+    const actual = detectDuplicatedFragments(parse(documentContent));
+    expect(actual[0].start >= actual[1].end).toBeTruthy();
+  });
 });
