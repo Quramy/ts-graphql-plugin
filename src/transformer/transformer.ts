@@ -41,30 +41,27 @@ export function getTransformer({
   getEnabled,
 }: TransformOptions) {
   return (ctx: ts.TransformationContext) => {
-    let isRemovableImportDeclaration = false;
     const visit = (node: ts.Node): ts.Node | undefined => {
       if (!getEnabled()) return node;
       let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined = undefined;
 
       if (ts.isImportDeclaration(node)) {
-        isRemovableImportDeclaration = !!tag;
         const ret = ts.visitEachChild(node, visit, ctx);
-        if (isRemovableImportDeclaration) {
-          isRemovableImportDeclaration = false;
-          return undefined;
-        }
-        isRemovableImportDeclaration = false;
+        let hasIdentifier = false;
+        const find = (n: ts.Node) => {
+          hasIdentifier = hasIdentifier || ts.isIdentifier(n);
+          ts.forEachChild(n, find);
+        };
+        ts.forEachChild(ret, find);
+        if (!hasIdentifier) return undefined;
         return ret;
       }
       if (ts.isImportSpecifier(node)) {
         const removed = !!tag && node.name.text === tag;
-        isRemovableImportDeclaration = isRemovableImportDeclaration && removed;
         return removed ? undefined : node;
       }
-
       if (ts.isImportClause(node) && !!node.name) {
         const removed = !!tag && node.name?.text === tag;
-        isRemovableImportDeclaration = isRemovableImportDeclaration && removed;
         const ret = ts.visitEachChild(node, visit, ctx);
         if (!removed) return ret;
         return ts.updateImportClause(ret, undefined, ret.namedBindings);

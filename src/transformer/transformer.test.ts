@@ -328,6 +328,28 @@ describe('transformer', () => {
           }),
         ).toMatchSnapshot();
       });
+
+      it('should remove * as import tag when tag is matched', () => {
+        expect(
+          transformAndPrint({
+            tsContent: 'import * as hoge from "hoge";',
+            docContent: '',
+            tag: 'hoge',
+            target: 'object',
+          }),
+        ).toMatchSnapshot();
+      });
+
+      it('should ignore * as import when tag is not matched', () => {
+        expect(
+          transformAndPrint({
+            tsContent: 'import * as hoge from "hoge";',
+            docContent: '',
+            tag: 'foo',
+            target: 'object',
+          }),
+        ).toMatchSnapshot();
+      });
     });
   });
 
