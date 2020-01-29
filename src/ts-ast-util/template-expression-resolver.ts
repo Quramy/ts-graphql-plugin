@@ -52,7 +52,7 @@ export function createResultForNoSubstitution(
     getInnerPosition(pos: number) {
       if (pos < start) {
         throw new Error('invalid range: ' + pos);
-      } else if (pos > start + textLength - (textLength ? 1 : 0)) {
+      } else if (pos > start + textLength) {
         throw new Error('invalid range: ' + pos);
       }
       return { fileName, pos: pos - start };
@@ -60,7 +60,7 @@ export function createResultForNoSubstitution(
     getSourcePosition(pos: number) {
       if (pos < 0) {
         throw new Error('invalid range: ' + pos);
-      } else if (pos > textLength - (textLength ? 1 : 0)) {
+      } else if (pos > textLength) {
         throw new Error('invalid range: ' + pos);
       }
       return { fileName, pos: pos + start };
@@ -76,7 +76,7 @@ function createComputePositionsForTemplateHead(node: ts.TemplateHead, fileName: 
   const getInnerPosition = (pos: number, next: ComputePosition) => {
     if (pos < start) {
       throw new Error('invalid range: ' + pos);
-    } else if (pos > start + textLength - (textLength ? 1 : 0)) {
+    } else if (pos > start + textLength) {
       return next(pos);
     }
     return { fileName, pos: pos - start };
@@ -84,7 +84,7 @@ function createComputePositionsForTemplateHead(node: ts.TemplateHead, fileName: 
   const getSourcePosition = (pos: number, next: ComputePosition) => {
     if (pos < 0) {
       throw new Error('invalid range: ' + pos);
-    } else if (pos > textLength - (textLength ? 1 : 0)) {
+    } else if (pos > textLength) {
       return next(pos);
     }
     return { fileName, pos: pos + start };
