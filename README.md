@@ -10,7 +10,7 @@ Provides functions to help TypeScript GraphQL client development including auto 
 
 ![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.gif)
 
-## Features
+This plugin has the following features:
 
 - As TypeScript Language Service extension:
   - Completion suggestion
@@ -19,6 +19,31 @@ Provides functions to help TypeScript GraphQL client development including auto 
 - As CLI
   - Generate ts type files from your GraphQL operations in your TypeScript sources
   - Extract or validate GraphQL operations in your TypeScript sources
+- As webpack plugin
+  - Transform your queries to GraphQL AST object statically
+
+## ToC
+
+- [Getting started](#getting-started)
+- [CLI Usage](#cli-usage)
+  - [`typegen` command](#typegen-command)
+  - [`extract` command](#extract-command)
+  - [`validate` command](#validate-command)
+  - [`report` command](#report-command)
+- [Plugin options](#plugin-options)
+  - [`schema`](#schema)
+  - [`tag`](#tag)
+  - [`localSchemaExtensions`](#localschemaextensions)
+  - [`removeDuplicatedFragments`](#removeduplicatedfragments)
+- [webpack custom transformer](#webpack-custom-transformer)
+  - [webpack plugin options](#webpack-plugin-options)
+    - [`tsconfigPath` optional](#tsconfigpath-optional)
+  - [Transformer options](#transformer-options)
+    - [`removeFragmentDefinitons` optional](#removefragmentdefinitons-optional)
+    - [`documentTransformers` optional](#documenttransformers-optional)
+- [Template strings](#template-strings)
+- [Available editors](#available-editors)
+- [License](#license)
 
 ## Getting started
 
@@ -230,7 +255,7 @@ If you set this option `false`, this plugin passes through query document withou
 
 ## webpack custom transformer
 
-ts-graphql-plugin provides TypeScript custom transformer to static transform to transform from query template strings to GraphQL AST. It's useful if you use https://github.com/apollographql/graphql-tag
+ts-graphql-plugin provides TypeScript custom transformer to static transform from query template strings to GraphQL AST. It's useful if you use https://github.com/apollographql/graphql-tag
 
 ```js
 /* webpack.config.js */
