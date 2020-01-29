@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import { print } from 'graphql/language';
 import { fragmentNode } from './fragment-node';
 
 export const query = gql`
@@ -10,3 +11,4 @@ export const query = gql`
 `;
 
 console.log(JSON.stringify(query, null, 2));
+
