@@ -202,7 +202,7 @@ describe('transformer', () => {
       ).toMatchSnapshot();
     });
 
-    it('should transform innder document with documentTransformers', () => {
+    it('should transform inner document with documentTransformers', () => {
       expect(
         transformAndPrint({
           tsContent: `
@@ -332,7 +332,7 @@ describe('transformer', () => {
   });
 
   describe('misc options', () => {
-    it('should nothing when getEnabled optins returns falsy', () => {
+    it('should nothing when getEnabled option returns false', () => {
       expect(
         transformAndPrint({
           tsContent: `const query = \`abc\`;`,
