@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "tag": "gql",
+        "schema": "schema.graphql"
+      }
+    ]
+  }
+}

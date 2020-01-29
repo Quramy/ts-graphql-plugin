@@ -37,7 +37,7 @@ export async function extractCommand({ options }: CommandOptions<typeof cliDefin
 
   const { project, outFile } = options;
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
-  const [errors, manifest] = analyzer.extract();
+  const [errors, manifest] = analyzer.extractToManifest();
 
   if (errors.length) {
     logger.error(color.magenta('Found some errors extracting operations.\n'));

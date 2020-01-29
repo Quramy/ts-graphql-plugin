@@ -132,10 +132,10 @@ const complexOperationsPrj = {
 };
 
 describe(Analyzer, () => {
-  describe(Analyzer.prototype.extract, () => {
+  describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
       const analyzer = createTestingAnalyzer(simpleSources);
-      expect(analyzer.extract()).toMatchSnapshot();
+      expect(analyzer.extractToManifest()).toMatchSnapshot();
     });
   });
 
@@ -190,7 +190,7 @@ describe(Analyzer, () => {
 
     it('should create markdown report from manifest', () => {
       const analyzer = createTestingAnalyzer(simpleSources);
-      const manifestOutput = analyzer.extract();
+      const manifestOutput = analyzer.extractToManifest();
       const [errors, output] = analyzer.report('out.md', manifestOutput[1]);
       expect(errors.length).toBe(0);
       expect(output).toMatchSnapshot();

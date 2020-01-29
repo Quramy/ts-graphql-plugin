@@ -228,6 +228,76 @@ This option affects all editor supporting functions and result of CLI commands.
 
 If you set this option `false`, this plugin passes through query document without removing duplication.
 
+## webpack custom transformer
+
+ts-graphql-plugin provides TypeScript custom transformer to static transform to transform from query template strings to GraphQL AST. It's useful if you use https://github.com/apollographql/graphql-tag
+
+```js
+/* webpack.config.js */
+const TsGraphQLPlugin = require('ts-graphql-plugin/webpack');
+
+const tsgqlPlugin = new TsGraphQLPlugin({
+  /* plugin options */
+});
+
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        loader: 'ts-loader',
+        options: {
+          getCustomTransformers: () => ({
+            before: [
+              tsgqlPlugin.getTransformer({
+                /* transformer options */
+              }),
+            ],
+          }),
+        },
+      },
+    ],
+  },
+  plugins: [tsgqlPlugin],
+};
+```
+
+_NOTE_: For now, this plugin transforms nothing when webpack's `--mode` option is `development` and webpack runs with `--watch` option.
+
+### webpack plugin options
+
+#### `tsconfigPath` optional
+
+Set your project tsconfig json's file path. Default value: `tsconfig.json`.
+
+### Transformer options
+
+#### `removeFragmentDefinitons` optional
+
+Default: `true`. If set, the transformer transforms template strings which include only GraphQL fragment definitions to empty string literal.
+
+For example, we finally does not need the GraphQL AST document of `fragment`. We need interpolated GraphQL query AST for `query`. So this transformer statically resolves `${fragment}` interpolation and removes right-hand-side of the `fragment` variable.
+
+```ts
+const fragment = gql`
+  fragment MyFragment on Query {
+    hello
+  }
+`;
+
+const query = gql`
+  ${fragment}
+  query MyQuery {
+    ...MyFragment
+  }
+`;
+```
+
+#### `documentTransformers` optional
+
+Default: `[]`. You can set an array of GraphQL AST document visitor functions. The visitor functions should be compatible to https://graphql.org/graphql-js/language/#visit .
+
 ## Template strings
 
 This tool analyzes template string literals in .ts files such as:

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Analyzer extract should extract manifest 1`] = `
+exports[`Analyzer extractToManifest should extract manifest 1`] = `
 Array [
   Array [],
   Object {
