@@ -40,6 +40,7 @@ export type GetTransformerOptions = {
   target?: 'object' | 'text';
   removeFragmentDefinitons?: boolean;
   documentTransformers?: string[];
+  getEnabled?: () => boolean;
 };
 
 export class TransformServer {
@@ -80,6 +81,7 @@ export class TransformServer {
     target = 'object',
     removeFragmentDefinitons = true,
     documentTransformers = [],
+    getEnabled = () => true,
   }: GetTransformerOptions = {}) {
     const { tag } = this._analyzer.getPluginConfig();
     const documentTransformerModules = documentTransformers.map(transformerName => {
@@ -90,6 +92,7 @@ export class TransformServer {
       return mod as DocumentTransformer;
     });
     return getTransformer({
+      getEnabled,
       tag,
       target,
       removeFragmentDefinitons,

@@ -263,6 +263,8 @@ module.exports = {
 };
 ```
 
+_NOTE_: For now, this plugin transforms nothing when webpack's `--mode` option is `development` and webpack runs with `--watch` option.
+
 ### webpack plugin options
 
 #### `tsconfigPath` optional

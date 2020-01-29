@@ -10,6 +10,7 @@ function transformAndPrint({
   tsContent,
   removeFragmentDefinitons = true,
   documentTransformers = [],
+  enabled = true,
 }: {
   tag?: string;
   target: 'text' | 'object';
@@ -17,6 +18,7 @@ function transformAndPrint({
   tsContent: string;
   removeFragmentDefinitons?: boolean;
   documentTransformers?: ((doc: DocumentNode) => DocumentNode)[];
+  enabled?: boolean;
 }) {
   const getDocumentNode = () => parse(docContent);
   const source = ts.createSourceFile('main.ts', tsContent, ts.ScriptTarget.Latest, true);
@@ -26,6 +28,7 @@ function transformAndPrint({
     getDocumentNode,
     removeFragmentDefinitons,
     documentTransformers,
+    getEnabled: () => enabled,
   });
   const { transformed } = ts.transform(source, [transformer]);
   return ts.createPrinter({ newLine: ts.NewLineKind.LineFeed }).printFile(transformed[0]);
@@ -325,6 +328,19 @@ describe('transformer', () => {
           }),
         ).toMatchSnapshot();
       });
+    });
+  });
+
+  describe('misc options', () => {
+    it('should nothing when getEnabled optins returns falsy', () => {
+      expect(
+        transformAndPrint({
+          tsContent: `const query = \`abc\`;`,
+          docContent: ``,
+          target: 'object',
+          enabled: false,
+        }),
+      ).toMatchSnapshot();
     });
   });
 });

@@ -19,19 +19,20 @@ const PLUGIN_NAME = 'ts-graphql-plugin';
 
 export class WebpackPlugin {
   private readonly _transformServer: TransformServer;
+  private _disabled = false;
 
   constructor({ tsconfigPath = process.cwd() }: { tsconfigPath?: string } = {}) {
     this._transformServer = new TransformServer({ projectPath: tsconfigPath });
   }
 
   getTransformer(options?: GetTransformerOptions) {
-    return this._transformServer.getTransformer(options);
+    return this._transformServer.getTransformer({ ...options, getEnabled: () => !this._disabled });
   }
 
   apply(compiler: WatchFileSystemCompiler) {
     compiler.hooks.afterPlugins.tap(PLUGIN_NAME, () => this._transformServer.loadProject());
-
     compiler.hooks.watchRun.tap(PLUGIN_NAME, () => {
+      this._disabled = compiler.options.mode === 'development';
       const watcher = compiler.watchFileSystem.watcher || compiler.watchFileSystem.wfs.watcher;
       const changedFiles = Object.keys(watcher.mtimes);
       const changedSourceFileNames = changedFiles.filter(f => path.extname(f) === '.ts' || path.extname(f) === '.tsx');

@@ -9,6 +9,7 @@ export type TransformOptions = {
   removeFragmentDefinitons: boolean;
   target: 'text' | 'object';
   getDocumentNode: (node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) => DocumentNode | undefined;
+  getEnabled: () => boolean;
 };
 
 function toObjectNode(field: any): ts.Expression {
@@ -37,10 +38,12 @@ export function getTransformer({
   getDocumentNode,
   removeFragmentDefinitons,
   documentTransformers,
+  getEnabled,
 }: TransformOptions) {
   return (ctx: ts.TransformationContext) => {
     let isRemovableImportDeclaration = false;
     const visit = (node: ts.Node): ts.Node | undefined => {
+      if (!getEnabled()) return node;
       let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined = undefined;
 
       if (ts.isImportDeclaration(node)) {

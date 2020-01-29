@@ -194,3 +194,8 @@ exports[`transformer import declaration transformation named import should remov
 `;
 
 exports[`transformer import declaration transformation named import should remove tag import when tag is matched 1`] = `""`;
+
+exports[`transformer misc options should nothing when getEnabled optins returns falsy 1`] = `
+"const query = \`abc\`;
+"
+`;
