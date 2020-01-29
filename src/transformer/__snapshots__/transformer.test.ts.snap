@@ -176,6 +176,11 @@ exports[`transformer import declaration transformation default import should rem
 
 exports[`transformer import declaration transformation default import should remove tag import when tag is matched 1`] = `""`;
 
+exports[`transformer import declaration transformation named import should ignore * as import when tag is not matched 1`] = `
+"import * as hoge from \\"hoge\\";
+"
+`;
+
 exports[`transformer import declaration transformation named import should ignore tag import when tag is not matched 1`] = `
 "import { hoge } from \\"hoge\\";
 "
@@ -183,6 +188,11 @@ exports[`transformer import declaration transformation named import should ignor
 
 exports[`transformer import declaration transformation named import should ignore tag import without tag 1`] = `
 "import { hoge } from \\"hoge\\";
+"
+`;
+
+exports[`transformer import declaration transformation named import should remove * as import tag when tag is matched 1`] = `
+"import * as hoge from \\"hoge\\";
 "
 `;
 
