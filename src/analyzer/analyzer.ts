@@ -145,12 +145,11 @@ export class Analyzer {
           if (error instanceof TypeGenError) {
             const sourcePosition = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
             if (sourcePosition.isInOtherExpression) return;
-            const errorContent = {
-              fileName: r.fileName,
-              content: r.templateNode.getSourceFile().getFullText(),
-              start: sourcePosition.pos,
-              end: r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos,
-            };
+            const fileName = r.fileName;
+            const content = r.templateNode.getSourceFile().getFullText();
+            const start = sourcePosition.pos;
+            const end = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos;
+            const errorContent = { fileName, content, start, end };
             const translatedError = new ErrorWithLocation(error.message, errorContent);
             errors.push(translatedError);
           } else {
