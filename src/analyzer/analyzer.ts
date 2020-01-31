@@ -10,7 +10,7 @@ import { location2pos, dasherize } from '../string-util';
 import { validate } from './validator';
 import { ManifestOutput } from './types';
 import { MarkdownReporter } from './markdown-reporter';
-import { TypeGenVisitor } from '../typegen/type-gen-visitor';
+import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   if (errorInfo.locations && errorInfo.locations[0]) {
@@ -131,13 +131,29 @@ export class Analyzer {
           '__generated__',
           dasherize(operationOrFragmentName) + '.ts',
         );
-        this._debug(
-          `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
-            this._prjRootPath,
-            r.fileName,
-          )}'.`,
-        );
-        outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
+        try {
+          outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
+          this._debug(
+            `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
+              this._prjRootPath,
+              r.fileName,
+            )}'.`,
+          );
+        } catch (error) {
+          if (error instanceof TypeGenError) {
+            const sourcePosition = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
+            if (sourcePosition.isInOtherExpression) return;
+            const translatedError = new ErrorWithLocation(error.message, {
+              fileName: r.fileName,
+              content: r.templateNode.getSourceFile().getFullText(),
+              start: sourcePosition.pos,
+              end: r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos,
+            });
+            errors.push(translatedError);
+          } else {
+            throw error;
+          }
+        }
       }
     });
     return { errors, outputSourceFiles };

@@ -31,9 +31,8 @@ export async function typegenCommand({ options }: CommandOptions<typeof cliDefin
   const errorReporter = new ErrorReporter(process.cwd(), logger.error.bind(logger));
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
   const { errors, outputSourceFiles } = await analyzer.typegen();
-  errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
   if (errors.length) {
-    logger.error(color.magenta('Found some errors extracting operations.\n'));
+    logger.error(color.magenta(`Found ${errors.length} errors generating type files.\n`));
     errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
   }
   if (!outputSourceFiles || outputSourceFiles.length === 0) {

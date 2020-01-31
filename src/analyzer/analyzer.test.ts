@@ -216,5 +216,14 @@ describe(Analyzer, () => {
       expect(errors.length).toBe(1);
       expect(errors[0].message).toMatchSnapshot();
     });
+
+    it('should report errors occuring in typegen visitor', async () => {
+      const analyzer = createTestingAnalyzer(semanticErrorPrj);
+      const { errors, outputSourceFiles } = await analyzer.typegen();
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(0);
+      expect(errors.length).toBe(2);
+      expect(errors[1].message).toMatchSnapshot();
+    });
   });
 });
