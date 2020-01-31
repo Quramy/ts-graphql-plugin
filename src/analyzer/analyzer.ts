@@ -15,19 +15,21 @@ import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   if (errorInfo.locations && errorInfo.locations[0]) {
     const start = location2pos(errorInfo.fileContent, errorInfo.locations[0]);
-    return new ErrorWithLocation(errorInfo.message, {
+    const errorContent = {
       fileName: errorInfo.fileName,
       content: errorInfo.fileContent,
       start,
       end: start + 1,
-    });
+    };
+    return new ErrorWithLocation(errorInfo.message, errorContent);
   } else {
-    return new ErrorWithLocation(errorInfo.message, {
+    const errorContent = {
       fileName: errorInfo.fileName,
       content: errorInfo.fileContent,
       start: 0,
       end: errorInfo.fileContent.length - 1,
-    });
+    };
+    return new ErrorWithLocation(errorInfo.message, errorContent);
   }
 }
 
@@ -114,14 +116,14 @@ export class Analyzer {
       if (r.documentNode) {
         const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
         if (type === 'complex') {
-          errors.push(
-            new ErrorWithLocation('This document node has complex operations.', {
-              fileName: r.fileName,
-              content: r.templateNode.getText(),
-              start: r.templateNode.getStart(),
-              end: r.templateNode.getEnd(),
-            }),
-          );
+          const errorContent = {
+            fileName: r.fileName,
+            content: r.templateNode.getText(),
+            start: r.templateNode.getStart(),
+            end: r.templateNode.getEnd(),
+          };
+          const error = new ErrorWithLocation('This document node has complex operations.', errorContent);
+          errors.push(error);
           return;
         }
         const operationOrFragmentName = type === 'fragment' ? fragmentName : operationName;
@@ -143,12 +145,13 @@ export class Analyzer {
           if (error instanceof TypeGenError) {
             const sourcePosition = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
             if (sourcePosition.isInOtherExpression) return;
-            const translatedError = new ErrorWithLocation(error.message, {
+            const errorContent = {
               fileName: r.fileName,
               content: r.templateNode.getSourceFile().getFullText(),
               start: sourcePosition.pos,
               end: r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos,
-            });
+            };
+            const translatedError = new ErrorWithLocation(error.message, errorContent);
             errors.push(translatedError);
           } else {
             throw error;
