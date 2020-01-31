@@ -13,22 +13,17 @@ import { MarkdownReporter } from './markdown-reporter';
 import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
+  const fileName = errorInfo.fileName;
+  const content = errorInfo.fileContent;
   if (errorInfo.locations && errorInfo.locations[0]) {
     const start = location2pos(errorInfo.fileContent, errorInfo.locations[0]);
-    const errorContent = {
-      fileName: errorInfo.fileName,
-      content: errorInfo.fileContent,
-      start,
-      end: start + 1,
-    };
+    const end = start + 1;
+    const errorContent = { fileName, content, start, end };
     return new ErrorWithLocation(errorInfo.message, errorContent);
   } else {
-    const errorContent = {
-      fileName: errorInfo.fileName,
-      content: errorInfo.fileContent,
-      start: 0,
-      end: errorInfo.fileContent.length - 1,
-    };
+    const start = 0;
+    const end = content.length - 1;
+    const errorContent = { fileName, content, start, end };
     return new ErrorWithLocation(errorInfo.message, errorContent);
   }
 }
@@ -116,12 +111,11 @@ export class Analyzer {
       if (r.documentNode) {
         const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
         if (type === 'complex') {
-          const errorContent = {
-            fileName: r.fileName,
-            content: r.templateNode.getText(),
-            start: r.templateNode.getStart(),
-            end: r.templateNode.getEnd(),
-          };
+          const fileName = r.fileName;
+          const content = r.templateNode.getSourceFile().getFullText();
+          const start = r.templateNode.getStart();
+          const end = r.templateNode.getEnd();
+          const errorContent = { fileName, content, start, end };
           const error = new ErrorWithLocation('This document node has complex operations.', errorContent);
           errors.push(error);
           return;
