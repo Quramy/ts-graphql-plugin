@@ -3,7 +3,7 @@ import { parse, print, DocumentNode, GraphQLError } from 'graphql';
 import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
-import { ErrorWithLocation, ERRORS } from '../errors';
+import { ErrorWithLocation, ERROR_CODES } from '../errors';
 import { detectDuplicatedFragments } from '../gql-ast-util';
 
 export type ExtractorOptions = {
@@ -79,7 +79,7 @@ export class Extractor {
                 fileName,
                 templateNode: node,
                 resolveTemplateError: {
-                  message: ERRORS.templateIsTooComplex.message,
+                  message: ERROR_CODES.templateIsTooComplex.message,
                   start: resolveError.start,
                   end: resolveError.end,
                 },

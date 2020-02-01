@@ -1,5 +1,5 @@
 import { ErrorReporter } from './error-reporter';
-import { ErrorWithLocation, ErrorWithoutLocation } from '../errors';
+import { ErrorWithLocation, ErrorWithoutLocation } from '.';
 import { mark, Markers } from '../string-util/testing/position-marker';
 import { clearColor } from '../string-util';
 

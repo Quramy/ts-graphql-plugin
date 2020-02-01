@@ -32,7 +32,7 @@ export class ErrorWithoutLocation extends Error {
 
 export type TsGqlError = ErrorWithLocation | ErrorWithoutLocation;
 
-export const ERRORS = {
+export const ERROR_CODES = {
   graphqlLangServiceError: {
     code: 51001,
   },

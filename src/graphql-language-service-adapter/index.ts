@@ -7,7 +7,7 @@ import { isTagged, TagCondition } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { detectDuplicatedFragments } from '../gql-ast-util';
-import { ERRORS } from '../errors';
+import { ERROR_CODES } from '../errors';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
@@ -44,7 +44,7 @@ function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, 
   const messageText = d.message.split('\n')[0];
   const category = d.severity === 2 ? ts.DiagnosticCategory.Warning : ts.DiagnosticCategory.Error;
   return {
-    code: ERRORS.graphqlLangServiceError.code,
+    code: ERROR_CODES.graphqlLangServiceError.code,
     messageText,
     category,
     file,
@@ -68,7 +68,7 @@ function createDiagnosticFromSchemaErrorInfo(
   }
   return {
     category: ts.DiagnosticCategory.Error,
-    code: ERRORS.schemaBuildError.code,
+    code: ERROR_CODES.schemaBuildError.code,
     messageText,
     file,
     start,
@@ -186,8 +186,8 @@ export class GraphQLLanguageServiceAdapter {
             .forEach(resolveError => {
               result.push({
                 category: ts.DiagnosticCategory.Warning,
-                code: ERRORS.templateIsTooComplex.code,
-                messageText: ERRORS.templateIsTooComplex.message,
+                code: ERROR_CODES.templateIsTooComplex.code,
+                messageText: ERROR_CODES.templateIsTooComplex.message,
                 file: node.getSourceFile(),
                 start: resolveError.start,
                 length: resolveError.end,
@@ -213,8 +213,8 @@ export class GraphQLLanguageServiceAdapter {
           if (isInOtherExpression) {
             result.push({
               category: ts.DiagnosticCategory.Error,
-              code: ERRORS.errorInOtherInterpolation.code,
-              messageText: ERRORS.errorInOtherInterpolation.message,
+              code: ERROR_CODES.errorInOtherInterpolation.code,
+              messageText: ERROR_CODES.errorInOtherInterpolation.message,
               file: node.getSourceFile(),
               start: startPositionOfSource,
               length,
