@@ -30,39 +30,31 @@ export class HttpSchemaManager extends SchemaManager {
     return new Promise<GraphQLSchema>((resolve, reject) => {
       const uri = parse(options.url);
       let body = '';
-      const r = uri.protocol === 'https:' ? Https.request : Http.request;
-      const req = r(
-        {
-          hostname: uri.hostname,
-          protocol: uri.protocol,
-          path: uri.path,
-          port: uri.port && Number.parseInt(uri.port, 10),
-          headers,
-          method: options.method,
-        },
-        res => {
-          res.on('data', chunk => (body += chunk));
-          res.on('end', () => {
-            if (!res.statusCode || res.statusCode < 200 || res.statusCode > 300) {
-              reject({
-                statusCode: res.statusCode,
-                body,
-              });
-            } else {
-              let result: any;
-              try {
-                result = JSON.parse(body);
-                resolve(buildClientSchema(result.data));
-              } catch (e) {
-                reject(e);
-              }
+      const { method } = options;
+      const { hostname, protocol, path } = uri;
+      const requester = protocol === 'https:' ? Https.request : Http.request;
+      const port = uri.port && Number.parseInt(uri.port, 10);
+      const reqParam = { hostname, protocol, path, port, headers, method };
+      const req = requester(reqParam, res => {
+        res.on('data', chunk => (body += chunk));
+        res.on('end', () => {
+          if (!res.statusCode || res.statusCode < 200 || res.statusCode > 300) {
+            reject({
+              statusCode: res.statusCode,
+              body,
+            });
+          } else {
+            let result: any;
+            try {
+              result = JSON.parse(body);
+              resolve(buildClientSchema(result.data));
+            } catch (e) {
+              reject(e);
             }
-          });
-        },
-      );
-      req.on('error', reason => {
-        reject(reason);
+          }
+        });
       });
+      req.on('error', reason => reject(reason));
       req.write(INTROSPECTION_QUERY_BODY);
       req.end();
     });
@@ -91,7 +83,7 @@ export class HttpSchemaManager extends SchemaManager {
       HttpSchemaManager.request(this._options)
         .then(data => {
           this.log(`Fetch schema data from ${this._options.url}.`);
-          if (this._shouldUpdate(data)) {
+          if (data) {
             this._schema = data;
             this.emitChange();
           }
@@ -104,14 +96,5 @@ export class HttpSchemaManager extends SchemaManager {
         });
     };
     request();
-  }
-
-  _shouldUpdate(newSchama: any) {
-    if (!this._schema) {
-      if (newSchama) return true;
-      return false;
-    }
-    if (!newSchama) return false;
-    return JSON.stringify(this._schema) !== JSON.stringify(newSchama);
   }
 }
