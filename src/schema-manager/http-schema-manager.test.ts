@@ -1,21 +1,36 @@
-import { ApolloServer, gql } from 'apollo-server';
+import express from 'express';
+import { Server } from 'http';
+import { ApolloServer, gql } from 'apollo-server-express';
 import { GraphQLSchema } from 'graphql';
 import { HttpSchemaManager } from './http-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
-async function createServerFixture() {
+function createServerFixture() {
   const typeDefs = gql`
     type Query {
       hello: String!
     }
   `;
   const server = new ApolloServer({ typeDefs, mocks: true });
-  await server.listen(4001);
-  return server;
+  const app = express();
+  app.post('/invalid-path', (_, res) => res.status(404).end());
+  app.post('/invalid-json', (_, res) => res.status(200).end('text'));
+  app.post('/invalid-schema', (_, res) =>
+    res
+      .json({ hoge: 'hoge' })
+      .status(200)
+      .end(),
+  );
+  server.applyMiddleware({ app });
+  return new Promise<Server>(res => {
+    const server = app.listen(4001, () => {
+      res(server);
+    });
+  });
 }
 
 describe(HttpSchemaManager, () => {
-  let server: ApolloServer;
+  let server: Server;
   beforeAll(async () => {
     if (!server) {
       server = await createServerFixture();
@@ -23,7 +38,7 @@ describe(HttpSchemaManager, () => {
   });
   afterAll(async () => {
     if (server) {
-      await server!.stop();
+      await new Promise(res => server!.close(() => res()));
     }
   });
 
@@ -56,5 +71,48 @@ describe(HttpSchemaManager, () => {
     });
     const schema = await manager.waitBaseSchema();
     expect(schema).toBeNull();
+  });
+
+  it('should return null if content type of the reposonse is not JSON', async () => {
+    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
+    const manager = new HttpSchemaManager(schemaManagerHost, {
+      method: 'POST',
+      url: 'http://localhost:4001/invalid-json',
+    });
+    const schema = await manager.waitBaseSchema();
+    expect(schema).toBeNull();
+  });
+
+  it('should return null if JSON response is not introspection result', async () => {
+    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
+    const manager = new HttpSchemaManager(schemaManagerHost, {
+      method: 'POST',
+      url: 'http://localhost:4001/invalid-schema',
+    });
+    const schema = await manager.waitBaseSchema();
+    expect(schema).toBeNull();
+  });
+
+  it('should retry to fetch', async () => {
+    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
+    const manager = new HttpSchemaManager(schemaManagerHost, {
+      method: 'POST',
+      url: 'http://localhost:4001/graphql',
+    });
+    await new Promise(res => server!.close(() => res()));
+    manager.startWatch(50);
+    await new Promise(res => setTimeout(res, 50));
+    expect(manager.getBaseSchema()).toBeNull();
+    server = await createServerFixture();
+    const schema = await new Promise(res => {
+      const getSchema = () =>
+        setTimeout(() => {
+          const s = manager.getBaseSchema();
+          if (s) res(s);
+          getSchema();
+        }, 32);
+      getSchema();
+    });
+    expect(schema).toBeInstanceOf(GraphQLSchema);
   });
 });
