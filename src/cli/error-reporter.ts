@@ -1,5 +1,5 @@
 import path from 'path';
-import { ErrorWithLocation } from '../errors';
+import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { pos2location, pad, color } from '../string-util';
 
 const lineMark = (line: number, width: number) => {
@@ -14,7 +14,20 @@ const lineMarkForUnderline = (width: number) => {
 export class ErrorReporter {
   constructor(private readonly _currentDirectory: string, private readonly _output: (msg: string) => void = () => {}) {}
 
-  indicateErrorWithLocation(error: ErrorWithLocation) {
+  outputError(error: TsGqlError) {
+    if (error instanceof ErrorWithoutLocation) {
+      this._outputErrorWithoutLocation(error);
+    } else if (error instanceof ErrorWithLocation) {
+      this._outputErrorWithLocation(error);
+    }
+  }
+
+  _outputErrorWithoutLocation(error: ErrorWithoutLocation) {
+    const prefix = error.severity === 'Error' ? color.red('error') : color.yellow('warn');
+    this._output(prefix + ': ' + error.message);
+  }
+
+  _outputErrorWithLocation(error: ErrorWithLocation) {
     const {
       message,
       errorContent: { content, start, end, fileName },

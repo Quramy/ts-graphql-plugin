@@ -147,14 +147,11 @@ describe(Analyzer, () => {
       expect(schema).toBeTruthy();
     });
 
-    it('should throw an error with no schema project', async () => {
+    it('should report error when no schema', async () => {
       const analyzer = createTestingAnalyzer(noSchemaPrj);
-      try {
-        await analyzer.validate();
-        fail();
-      } catch (error) {
-        expect(error.message).toMatchSnapshot();
-      }
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
     });
 
     it('should validate project with schema error project', async () => {
@@ -198,6 +195,13 @@ describe(Analyzer, () => {
   });
 
   describe(Analyzer.prototype.typegen, () => {
+    it('should report error when no schema', async () => {
+      const analyzer = createTestingAnalyzer(noSchemaPrj);
+      const { errors } = await analyzer.typegen();
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
+    });
+
     it('should create type files', async () => {
       const analyzer = createTestingAnalyzer(simpleSources);
       const { outputSourceFiles } = await analyzer.typegen();
@@ -210,6 +214,15 @@ describe(Analyzer, () => {
 
     it('should ignore complex operations document', async () => {
       const analyzer = createTestingAnalyzer(complexOperationsPrj);
+      const { errors, outputSourceFiles } = await analyzer.typegen();
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(0);
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
+    });
+
+    it('should report errors occuring in typegen visitor', async () => {
+      const analyzer = createTestingAnalyzer(semanticErrorPrj);
       const { errors, outputSourceFiles } = await analyzer.typegen();
       if (!outputSourceFiles) return fail();
       expect(outputSourceFiles.length).toBe(0);

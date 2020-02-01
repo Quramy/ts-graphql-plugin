@@ -1,4 +1,4 @@
-import { TypeGenVisitor } from './type-gen-visitor';
+import { TypeGenVisitor, TypeGenError } from './type-gen-visitor';
 import ts from 'typescript';
 import { parse, buildSchema } from 'graphql';
 
@@ -12,6 +12,25 @@ function generateAstAndPrint({ schemaSDL, documentContent }: { schemaSDL: string
 
 describe('typegen', () => {
   describe('variable type generation', () => {
+    it('should throw error when reference to not existing input type', () => {
+      expect(() =>
+        generateAstAndPrint({
+          schemaSDL: `
+              type Query {
+                hello(var: String!): String!
+              }
+            `,
+          documentContent: `
+              query MyQuery (
+                $idVar: UnknowType,
+              ) {
+                hello(var: $var)
+              }
+            `,
+        }),
+      ).toThrowError(TypeGenError);
+    });
+
     it('should gen type from scalar types', () => {
       const result = generateAstAndPrint({
         schemaSDL: `
@@ -143,6 +162,74 @@ describe('typegen', () => {
 
   describe('result type generation', () => {
     describe('output types pattern', () => {
+      it('should throw error when reference to Query but schema does not have Query type', () => {
+        expect(() =>
+          generateAstAndPrint({
+            schemaSDL: `
+              type Mutation {
+                hello: String!
+              }
+            `,
+            documentContent: `
+              query MyQuery {
+                hello
+              }
+            `,
+          }),
+        ).toThrowError(TypeGenError);
+      });
+
+      it('should throw error when reference to Mutation but schema does not have Mutation type', () => {
+        expect(() =>
+          generateAstAndPrint({
+            schemaSDL: `
+              type Query {
+                hello: String!
+              }
+            `,
+            documentContent: `
+              mutation MyMutaion {
+                hello
+              }
+            `,
+          }),
+        ).toThrowError(TypeGenError);
+      });
+
+      it('should throw error when reference to Subscription but schema does not have Subscription type', () => {
+        expect(() =>
+          generateAstAndPrint({
+            schemaSDL: `
+              type Query {
+                hello: String!
+              }
+            `,
+            documentContent: `
+              subscription MySubscription {
+                hello
+              }
+            `,
+          }),
+        ).toThrowError(TypeGenError);
+      });
+
+      it('should throw error when reference to not existing field', () => {
+        expect(() =>
+          generateAstAndPrint({
+            schemaSDL: `
+              type Query {
+                hello: String!
+              }
+            `,
+            documentContent: `
+              query MyQuery {
+                goodBye
+              }
+            `,
+          }),
+        ).toThrowError(TypeGenError);
+      });
+
       it('should gen type from built-in scalar types', () => {
         const result = generateAstAndPrint({
           schemaSDL: `
@@ -251,7 +338,7 @@ describe('typegen', () => {
             }
           `,
           }),
-        ).toThrowError();
+        ).toThrowError(TypeGenError);
       });
 
       it('should gen type with correct list/nonNull modifiers', () => {

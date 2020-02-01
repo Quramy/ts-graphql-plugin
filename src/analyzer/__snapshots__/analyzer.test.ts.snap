@@ -85,6 +85,10 @@ export type MyQueryVariables = {};
 
 exports[`Analyzer typegen should ignore complex operations document 1`] = `"This document node has complex operations."`;
 
-exports[`Analyzer validate should throw an error with no schema project 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's \\"schema\\" configuration at tsconfig.json's compilerOptions.plugins section."`;
+exports[`Analyzer typegen should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's \\"schema\\" configuration at tsconfig.json's compilerOptions.plugins section."`;
+
+exports[`Analyzer typegen should report errors occuring in typegen visitor 1`] = `"Type \\"Query\\" does not have field \\"helloo\\"."`;
+
+exports[`Analyzer validate should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's \\"schema\\" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
 exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name \\"hogehoge\\""`;

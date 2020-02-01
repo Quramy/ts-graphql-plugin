@@ -41,7 +41,7 @@ export async function extractCommand({ options }: CommandOptions<typeof cliDefin
 
   if (errors.length) {
     logger.error(color.magenta('Found some errors extracting operations.\n'));
-    errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
+    errors.forEach(error => errorReporter.outputError(error));
   }
   ts.sys.writeFile(outFile, JSON.stringify(manifest, null, 2));
   logger.info(`Write manifest file to '${color.green(outFile)}'.`);

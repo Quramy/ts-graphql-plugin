@@ -4,6 +4,7 @@ import {
   DocumentNode,
   FieldNode,
   FragmentDefinitionNode,
+  ASTNode,
   NamedTypeNode,
   TypeNode,
   GraphQLScalarType,
@@ -71,6 +72,12 @@ interface FieldTypeElement {
   }[];
 }
 
+export class TypeGenError extends Error {
+  constructor(public readonly message: string, public readonly node: ASTNode) {
+    super(message);
+  }
+}
+
 export type TypeGenVisitorOptions = {
   schema: GraphQLSchema;
 };
@@ -107,13 +114,25 @@ export class TypeGenVisitor {
       OperationDefinition: {
         enter: node => {
           if (node.operation === 'query') {
-            parentTypeStack.stack(this._schema.getQueryType()!);
+            const queryType = this._schema.getQueryType();
+            if (!queryType) {
+              throw new TypeGenError(`Schema does not have Query type.`, node);
+            }
+            parentTypeStack.stack(queryType);
             resultFieldElementStack.stack();
           } else if (node.operation === 'mutation') {
-            parentTypeStack.stack(this._schema.getMutationType()!);
+            const mutationType = this._schema.getMutationType();
+            if (!mutationType) {
+              throw new TypeGenError(`Schema does not have Mutation type.`, node);
+            }
+            parentTypeStack.stack(mutationType);
             resultFieldElementStack.stack();
           } else if (node.operation === 'subscription') {
-            parentTypeStack.stack(this._schema.getSubscriptionType()!);
+            const subscriptionType = this._schema.getSubscriptionType();
+            if (!subscriptionType) {
+              throw new TypeGenError(`Schema does not have Subscription type.`, node);
+            }
+            parentTypeStack.stack(subscriptionType);
             resultFieldElementStack.stack();
           }
           variableElementStack.stack();
@@ -143,7 +162,10 @@ export class TypeGenVisitor {
             list,
             strict,
           } = this._getFieldMetadataFromTypeNode(node.type);
-          const variableType = this._schema.getType(inputTypeName)! as GraphQLInputType;
+          const variableType = this._schema.getType(inputTypeName) as GraphQLInputType;
+          if (!variableType) {
+            throw new TypeGenError(`Schema does not have InputType "${inputTypeName}".`, node);
+          }
           const visitVariableType = (
             name: string,
             variableType: GraphQLInputType,
@@ -231,9 +253,15 @@ export class TypeGenVisitor {
         enter: node => {
           if (node.name.value === '__typename') return;
           if (parentTypeStack.current instanceof GraphQLUnionType) {
-            throw new Error("Selections can't be made directly on unions");
+            throw new TypeGenError("Selections can't be made directly on unions.", node);
           }
           const field = parentTypeStack.current.getFields()[node.name.value];
+          if (!field) {
+            throw new TypeGenError(
+              `Type "${parentTypeStack.current.name}" does not have field "${node.name.value}".`,
+              node,
+            );
+          }
           const fieldMetadata = this._getFieldMetadataFromFieldTypeInstance(field);
           if (
             fieldMetadata.fieldType instanceof GraphQLObjectType ||
