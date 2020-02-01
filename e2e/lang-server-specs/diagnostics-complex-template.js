@@ -1,7 +1,7 @@
 const assert = require('assert');
 const path = require('path');
 
-const { ERRORS } = require('../../lib/errors');
+const { ERROR_CODES } = require('../../lib/errors');
 
 function findResponse(responses, eventName) {
   return responses.find(response => response.event === eventName);
@@ -33,7 +33,7 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
     assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(semanticDiagEvent.body.diagnostics[0].text, ERRORS.templateIsTooComplex.message);
+    assert.equal(semanticDiagEvent.body.diagnostics[0].text, ERROR_CODES.templateIsTooComplex.message);
   });
 }
 

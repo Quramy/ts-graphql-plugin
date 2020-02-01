@@ -29,7 +29,7 @@ export async function extractCommand({ options }: CommandOptions<typeof cliDefin
   const {
     AnalyzerFactory,
   } = require('../../analyzer/analyzer-factory') as typeof import('../../analyzer/analyzer-factory');
-  const { ErrorReporter } = require('../error-reporter') as typeof import('../error-reporter');
+  const { ErrorReporter } = require('../../errors/error-reporter') as typeof import('../../errors/error-reporter');
   const { color } = require('../../string-util') as typeof import('../../string-util');
 
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');
