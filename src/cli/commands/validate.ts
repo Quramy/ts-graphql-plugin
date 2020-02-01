@@ -33,11 +33,11 @@ export async function validateCommand({ options }: CommandOptions<typeof cliDefi
   const warnErrors = errors.filter(e => e.severity === 'Warn');
   if (errorErrors.length) {
     logger.error(`Found ${color.red(errorErrors.length + '')} errors:`);
-    errorErrors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+    errorErrors.forEach(errorReporter.outputError.bind(errorReporter));
   }
   if (warnErrors.length) {
     logger.error(`Found ${color.yellow(warnErrors.length + '')} warnings:`);
-    warnErrors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+    warnErrors.forEach(errorReporter.outputError.bind(errorReporter));
   }
   if (errors.length) return false;
   logger.info(color.green('No GraphQL validation errors.'));

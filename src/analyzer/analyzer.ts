@@ -5,7 +5,7 @@ import { Extractor } from './extractor';
 import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
-import { ErrorWithLocation } from '../errors';
+import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { location2pos, dasherize } from '../string-util';
 import { validate } from './validator';
 import { ManifestOutput } from './types';
@@ -71,20 +71,17 @@ export class Analyzer {
   }
 
   async validate() {
-    const { schema, errors: schemaBuildErrors } = await this._schemaManager.waitSchema();
-    if (schemaBuildErrors) {
-      return { errors: schemaBuildErrors.map(info => convertSchemaBuildErrorsToErrorWithLocation(info)) };
+    const [schemaErrors, schema] = await this._getSchema();
+    if (!schema) return { errors: schemaErrors };
+    const [extractedErrors, results] = this.extract();
+    if (extractedErrors.length) {
+      this._debug(`Found ${extractedErrors.length} extraction errors.`);
     }
-    if (!schema) {
-      throw new Error(
-        'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.',
-      );
-    }
-    const [errors, results] = this.extract();
-    if (errors.length) {
-      this._debug(`Found ${errors.length} extraction errors.`);
-    }
-    return { errors: [...errors, ...validate(results, schema)], extractedResults: results, schema };
+    return {
+      errors: [...schemaErrors, ...extractedErrors, ...validate(results, schema)],
+      extractedResults: results,
+      schema,
+    };
   }
 
   report(outputFileName: string, manifest?: ManifestOutput, ignoreFragments = true) {
@@ -95,7 +92,7 @@ export class Analyzer {
       outputDir: path.dirname(outputFileName),
     };
     if (manifest) {
-      return [[] as ErrorWithLocation[], reporter.toMarkdownConntent(manifest, reportOptions)] as const;
+      return [[] as TsGqlError[], reporter.toMarkdownConntent(manifest, reportOptions)] as const;
     } else {
       const [errors, extractedManifest] = this.extractToManifest();
       return [errors, reporter.toMarkdownConntent(extractedManifest, reportOptions)] as const;
@@ -103,8 +100,13 @@ export class Analyzer {
   }
 
   async typegen() {
-    const { errors, schema, extractedResults } = await this.validate();
-    if (!schema || !extractedResults) return { errors };
+    const [schemaErrors, schema] = await this._getSchema();
+    if (!schema) return { errors: schemaErrors };
+    const [extractedErrors, extractedResults] = this.extract();
+    if (extractedErrors.length) {
+      this._debug(`Found ${extractedErrors.length} extraction errors.`);
+    }
+    const typegenErrors: TsGqlError[] = [];
     const visitor = new TypeGenVisitor({ schema });
     const outputSourceFiles: ts.SourceFile[] = [];
     extractedResults.forEach(r => {
@@ -117,7 +119,7 @@ export class Analyzer {
           const end = r.templateNode.getEnd();
           const errorContent = { fileName, content, start, end };
           const error = new ErrorWithLocation('This document node has complex operations.', errorContent);
-          errors.push(error);
+          typegenErrors.push(error);
           return;
         }
         const operationOrFragmentName = type === 'fragment' ? fragmentName : operationName;
@@ -145,13 +147,28 @@ export class Analyzer {
             const end = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos;
             const errorContent = { fileName, content, start, end };
             const translatedError = new ErrorWithLocation(error.message, errorContent);
-            errors.push(translatedError);
+            typegenErrors.push(translatedError);
           } else {
             throw error;
           }
         }
       }
     });
-    return { errors, outputSourceFiles };
+    return { errors: [...schemaErrors, ...extractedErrors, ...typegenErrors], outputSourceFiles };
+  }
+
+  private async _getSchema() {
+    const errors: TsGqlError[] = [];
+    const { schema, errors: schemaBuildErrors } = await this._schemaManager.waitSchema();
+    if (schemaBuildErrors) {
+      schemaBuildErrors.forEach(info => errors.push(convertSchemaBuildErrorsToErrorWithLocation(info)));
+    }
+    if (!schema && !errors.length) {
+      const error = new ErrorWithoutLocation(
+        'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.',
+      );
+      errors.push(error);
+    }
+    return [errors, schema] as const;
   }
 }

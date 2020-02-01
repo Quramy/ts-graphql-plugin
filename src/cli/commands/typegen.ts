@@ -32,8 +32,8 @@ export async function typegenCommand({ options }: CommandOptions<typeof cliDefin
   const analyzer = new AnalyzerFactory().createAnalyzerFromProjectPath(project, logger.debug.bind(logger));
   const { errors, outputSourceFiles } = await analyzer.typegen();
   if (errors.length) {
-    logger.error(color.magenta(`Found ${errors.length} errors generating type files.\n`));
-    errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
+    logger.error(`Found ${color.red(errors.length + '')} errors generating type files.\n`);
+    errors.forEach(error => errorReporter.outputError(error));
   }
   if (!outputSourceFiles || outputSourceFiles.length === 0) {
     logger.error('No type files to generate.');

@@ -23,6 +23,15 @@ export class ErrorWithLocation extends Error {
   }
 }
 
+export class ErrorWithoutLocation extends Error {
+  readonly name = 'ErrorWithoutLocation';
+  constructor(public readonly message: string, public readonly severity: Severity = 'Error') {
+    super(message);
+  }
+}
+
+export type TsGqlError = ErrorWithLocation | ErrorWithoutLocation;
+
 export const ERRORS = {
   graphqlLangServiceError: {
     code: 51001,

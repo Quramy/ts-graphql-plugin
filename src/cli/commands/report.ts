@@ -50,10 +50,10 @@ export async function reportCommand({ options }: CommandOptions<typeof cliDefini
   let outFileName = path.isAbsolute(outFile) ? outFile : path.resolve(process.cwd(), outFile);
   outFileName = ts.sys.directoryExists(outFileName) ? path.join(outFileName, 'GRAPHQL_OPERATIONS.md') : outFileName;
   const [errors, markdown] = await analyzer.report(outFileName, manifest, !includeFragments);
-  errors.forEach(errorReporter.indicateErrorWithLocation.bind(errorReporter));
+  errors.forEach(errorReporter.outputError.bind(errorReporter));
   if (errors.length) {
     logger.error(color.magenta('Found some errors extracting operations.\n'));
-    errors.forEach(error => errorReporter.indicateErrorWithLocation(error));
+    errors.forEach(error => errorReporter.outputError(error));
   }
   if (!markdown) {
     logger.error('No GraphQL operations.');

@@ -17,11 +17,6 @@ const tooComplexExpressionQuery = gql`
 const semanticErrorQUery = gql`
   query {
     helo
-  }
-`;
-
-const semanticWarnQuery = gql`
-  query {
     helloWorld
   }
 `;
