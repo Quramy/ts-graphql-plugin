@@ -103,6 +103,25 @@ Extracts GraphQL operations and fragments from ts files and report them to a Mar
 
 ## Plugin options
 
+Pass plugin options to your tsconfig.json to configure this plugin.
+
+```js
+/* tsconfig.json */
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        /* plugin options */
+        "schema": "path-or-url-to-your-schema.graphql",
+        "tag": "gql",
+        ...
+      }
+    ]
+  }
+}
+```
+
 ### `schema`
 
 It's a required parameter and should point your GraphQL schema SDL file such as :
@@ -198,14 +217,14 @@ It's useful to write multiple kinds template strings(e.g. one is Angular Compone
 
 ### `localSchemaExtensions`
 
-It's optional. If you want extend server-side schema, derived from `schema` option, you can set path of SDL file of your local extension.
+It's optional. If you want to extend server-side schema, derived from `schema` option, you can set path of SDL file of your local extension.
 
 For example:
 
 ```graphql
 # local-extension.graphql
 
-directive @myClientDirective on FIELD
+directive @client on FIELD
 
 type SomeClientOnlyType {
   name: String!
@@ -218,7 +237,8 @@ extend type Query {
 
 ```js
 /* tsconfig.json */
-
+{
+  "compilerOptions": {
     "plugins": [
       {
         "name": "ts-graphql-plugin",
@@ -226,6 +246,20 @@ extend type Query {
         "localSchemaExtensions": ["local-extension.graphql"]
       }
     ]
+  }
+}
+```
+
+The above example setting allows to write the following query:
+
+```ts
+const query = gql`
+  query {
+    someLocalField @client {
+      name
+    }
+  }
+`;
 ```
 
 ### `removeDuplicatedFragments`
@@ -245,11 +279,11 @@ const query = gql`
     ...A
   }
   ${fragment}
-  # duplicated fragment definiton
+  # Duplicated fragment interpolation
 `;
 ```
 
-This option affects all editor supporting functions and result of CLI commands.
+This option affects all editor supporting functions, results of CLI commands and results of transformation.
 
 If you set this option `false`, this plugin passes through query document without removing duplication.
 
