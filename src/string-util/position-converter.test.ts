@@ -1,4 +1,4 @@
-import { location2pos, pos2location } from '.';
+import { location2pos, pos2location } from './position-converter';
 
 describe(location2pos, () => {
   it('should convert from location to position', () => {
