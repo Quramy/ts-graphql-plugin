@@ -5,7 +5,7 @@ import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';
 
-function createDiagnosticFromSchemaErrorInfo(
+function createSchemaErrorDiagnostic(
   errorInfo: SchemaBuildErrorInfo,
   file: ts.SourceFile,
   start: number,
@@ -18,27 +18,23 @@ function createDiagnosticFromSchemaErrorInfo(
       messageText += `[${errorInfo.locations[0].line + 1}:${errorInfo.locations[0].character + 1}]`;
     }
   }
-  return {
-    category: ts.DiagnosticCategory.Error,
-    code: ERROR_CODES.schemaBuildError.code,
-    messageText,
-    file,
-    start,
-    length,
-  };
+  const category = ts.DiagnosticCategory.Error;
+  const code = ERROR_CODES.schemaBuildError.code;
+  return { category, code, messageText, file, start, length };
+}
+
+function createIsInOtherExpressionDiagnostic(file: ts.SourceFile, start: number, length: number) {
+  const category = ts.DiagnosticCategory.Error;
+  const code = ERROR_CODES.errorInOtherInterpolation.code;
+  const messageText = ERROR_CODES.errorInOtherInterpolation.message;
+  return { category, code, messageText, file, start, length };
 }
 
 function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, length: number): ts.Diagnostic {
-  const messageText = d.message.split('\n')[0];
   const category = d.severity === 2 ? ts.DiagnosticCategory.Warning : ts.DiagnosticCategory.Error;
-  return {
-    code: ERROR_CODES.graphqlLangServiceError.code,
-    messageText,
-    category,
-    file,
-    start,
-    length,
-  };
+  const code = ERROR_CODES.graphqlLangServiceError.code;
+  const messageText = d.message.split('\n')[0];
+  return { code, messageText, category, file, start, length };
 }
 
 export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemanticDiagnostics, fileName: string) {
@@ -49,9 +45,10 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
   if (schemaErrors) {
     nodes.forEach(node => {
       schemaErrors.forEach(schemaErrorInfo => {
-        result.push(
-          createDiagnosticFromSchemaErrorInfo(schemaErrorInfo, node.getSourceFile(), node.getStart(), node.getWidth()),
-        );
+        const file = node.getSourceFile();
+        const start = node.getStart();
+        const lengrh = node.getWidth();
+        result.push(createSchemaErrorDiagnostic(schemaErrorInfo, file, start, lengrh));
       });
     });
   } else if (schema) {
@@ -86,6 +83,7 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
       } = info;
       diagnostics.forEach(d => {
         let length = 0;
+        const file = node.getSourceFile();
         const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
           convertInnerLocation2InnerPosition(d.range.start),
         );
@@ -96,17 +94,9 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
           length = 0;
         }
         if (isInOtherExpression) {
-          result.push({
-            category: ts.DiagnosticCategory.Error,
-            code: ERROR_CODES.errorInOtherInterpolation.code,
-            messageText: ERROR_CODES.errorInOtherInterpolation.message,
-            file: node.getSourceFile(),
-            start: startPositionOfSource,
-            length,
-          });
-          return;
+          result.push(createIsInOtherExpressionDiagnostic(file, startPositionOfSource, length));
         } else {
-          result.push(translateDiagnostic(d, node.getSourceFile(), startPositionOfSource, length));
+          result.push(translateDiagnostic(d, file, startPositionOfSource, length));
         }
       });
     });
