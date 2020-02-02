@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getSemanticDiagnostics should report errors coused by schema building 1`] = `"[ts-graphql-plugin] Schema build error: 'some schema build error' Check schema.graphql[1:1]"`;
