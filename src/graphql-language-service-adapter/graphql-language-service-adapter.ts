@@ -16,6 +16,8 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   removeDuplicatedFragments: boolean;
 }
 
+type Args<T> = T extends (...args: infer A) => any ? A : never;
+
 export class GraphQLLanguageServiceAdapter {
   private _schemaErrors?: SchemaBuildErrorInfo[] | null;
   private _schema?: GraphQLSchema | null;
@@ -32,21 +34,16 @@ export class GraphQLLanguageServiceAdapter {
     this._analysisContext = this._createAnalysisContext();
   }
 
-  getCompletionAtPosition(
-    delegate: GetCompletionAtPosition,
-    fileName: string,
-    position: number,
-    options?: ts.GetCompletionsAtPositionOptions,
-  ) {
-    return getCompletionAtPosition(this._analysisContext, delegate, fileName, position, options);
+  getCompletionAtPosition(delegate: GetCompletionAtPosition, ...args: Args<GetCompletionAtPosition>) {
+    return getCompletionAtPosition(this._analysisContext, delegate, ...args);
   }
 
-  getSemanticDiagnostics(delegate: GetSemanticDiagnostics, fileName: string) {
-    return getSemanticDiagnostics(this._analysisContext, delegate, fileName);
+  getSemanticDiagnostics(delegate: GetSemanticDiagnostics, ...args: Args<GetSemanticDiagnostics>) {
+    return getSemanticDiagnostics(this._analysisContext, delegate, ...args);
   }
 
-  getQuickInfoAtPosition(delegate: GetQuickInfoAtPosition, fileName: string, position: number) {
-    return getQuickInfoAtPosition(this._analysisContext, delegate, fileName, position);
+  getQuickInfoAtPosition(delegate: GetQuickInfoAtPosition, ...args: Args<GetQuickInfoAtPosition>) {
+    return getQuickInfoAtPosition(this._analysisContext, delegate, ...args);
   }
 
   updateSchema(errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) {
