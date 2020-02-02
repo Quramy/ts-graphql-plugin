@@ -1,8 +1,10 @@
 import ts from 'typescript/lib/tsserverlibrary';
 
-export * from '../ts-ast-util/types';
+export * from './types';
 
-export * from '../ts-ast-util/template-expression-resolver';
+export * from './template-expression-resolver';
+
+export { createScriptSourceHelper } from './script-source-helper';
 
 export type TagCondition = string;
 

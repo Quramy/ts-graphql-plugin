@@ -1,63 +1,39 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, createResultForNoSubstitution, ScriptSourceHelper } from '../../ts-ast-util';
 import { GraphQLSchema } from 'graphql';
-import { GraphQLLanguageServiceAdapter } from '..';
-import { TemplateExpressionResolver } from '../../ts-ast-util/template-expression-resolver';
-export class AdapterFixture {
-  adapter: GraphQLLanguageServiceAdapter;
-  private _source: ts.SourceFile;
+import { createScriptSourceHelper } from '../../ts-ast-util';
+import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
+import {
+  createTestingLanguageServiceAndHost,
+  TestingLanguageServiceHost,
+} from '../../ts-ast-util/testing/testing-language-service';
 
-  constructor(scriptFileName: string, schema?: GraphQLSchema) {
-    this._source = ts.createSourceFile(scriptFileName, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
-    // @ts-ignore
-    const getNode = (fileName: string, position: number) => findNode(this._source, position);
-    // @ts-ignore
-    const getAllNodes = (foundNode: string, cond: (n: ts.Node) => boolean) => {
-      return findAllNodes(this._source, cond);
-    };
-    // @ts-ignore
-    const getLineAndChar = (fileName: string, position: number) => {
-      return ts.getLineAndCharacterOfPosition(this._source, position);
-    };
-    const resolveTemplateLiteral = (
-      // @ts-ignore
-      fileName: string,
-      node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-    ) => {
-      if (ts.isTemplateExpression(node)) {
-        throw new Error('not implemented');
-      } else {
-        return {
-          resolvedInfo: createResultForNoSubstitution(node, scriptFileName),
-          resolveErrors: [],
-        };
-      }
-    };
-    const helper: ScriptSourceHelper = {
-      getNode,
-      getAllNodes,
-      getLineAndChar,
-      resolveTemplateLiteral,
-      updateTemplateLiteralInfo: TemplateExpressionResolver.prototype.update,
-    };
-    this.adapter = new GraphQLLanguageServiceAdapter(helper, {
-      schema: schema || null,
-      removeDuplicatedFragments: true,
+export class AdapterFixture {
+  readonly adapter: GraphQLLanguageServiceAdapter;
+  readonly langService: ts.LanguageService;
+  private readonly _sourceFileName: string;
+  private readonly _langServiceHost: TestingLanguageServiceHost;
+
+  constructor(sourceFileName: string, schema?: GraphQLSchema) {
+    const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({
+      files: [{ fileName: sourceFileName, content: '' }],
     });
+    this._sourceFileName = sourceFileName;
+    this._langServiceHost = languageServiceHost;
+    this.langService = languageService;
+    this.adapter = new GraphQLLanguageServiceAdapter(
+      createScriptSourceHelper({ languageService, languageServiceHost }),
+      {
+        schema: schema || null,
+        removeDuplicatedFragments: true,
+      },
+    );
   }
 
   get source() {
-    return this._source && this._source.getText();
+    return this._langServiceHost.getFile(this._sourceFileName)!.content;
   }
 
-  set source(newText: string) {
-    const range: ts.TextChangeRange = {
-      span: {
-        start: 0,
-        length: this._source.getText().length,
-      },
-      newLength: newText.length,
-    };
-    this._source = this._source.update(newText, range);
+  set source(content: string) {
+    this._langServiceHost.updateFile(this._sourceFileName, content);
   }
 }

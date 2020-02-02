@@ -33,7 +33,10 @@ export function mark(content: string, inputMarkes: Markers) {
     if (!lines[i]) break;
     const marks = lines[i].match(/^\s*%%%(.*)%%%\s*$/);
     if (!marks) continue;
-    const names = marks[1].trim().split(/\s+/);
+    const names = marks[1]
+      .replace('\\', ' ')
+      .trim()
+      .split(/\s+/);
     for (let j = 0; j < Math.min(cols.length, names.length); ++j) {
       markInfos.push({
         line: actualLines.length - 1,
