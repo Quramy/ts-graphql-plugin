@@ -1,29 +1,24 @@
 import ts from 'typescript';
-import { findAllNodes, findNode, createResultForNoSubstitution, ScriptSourceHelper } from '../../ts-ast-util';
 import { GraphQLSchema } from 'graphql';
-import { GraphQLLanguageServiceAdapter } from '..';
-import { TemplateExpressionResolver } from '../../ts-ast-util/template-expression-resolver';
+import {
+  findAllNodes,
+  findNode,
+  createResultForNoSubstitution,
+  ScriptSourceHelper,
+  TemplateExpressionResolver,
+} from '../../ts-ast-util';
+import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
+
 export class AdapterFixture {
   adapter: GraphQLLanguageServiceAdapter;
   private _source: ts.SourceFile;
 
   constructor(scriptFileName: string, schema?: GraphQLSchema) {
     this._source = ts.createSourceFile(scriptFileName, '', ts.ScriptTarget.ES2015, true, ts.ScriptKind.TS);
-    // @ts-ignore
-    const getNode = (fileName: string, position: number) => findNode(this._source, position);
-    // @ts-ignore
-    const getAllNodes = (foundNode: string, cond: (n: ts.Node) => boolean) => {
-      return findAllNodes(this._source, cond);
-    };
-    // @ts-ignore
-    const getLineAndChar = (fileName: string, position: number) => {
-      return ts.getLineAndCharacterOfPosition(this._source, position);
-    };
-    const resolveTemplateLiteral = (
-      // @ts-ignore
-      fileName: string,
-      node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-    ) => {
+    const getNode = (_: string, position: number) => findNode(this._source, position);
+    const getAllNodes = (_: string, cond: (n: ts.Node) => boolean) => findAllNodes(this._source, cond);
+    const getLineAndChar = (_: string, position: number) => ts.getLineAndCharacterOfPosition(this._source, position);
+    const resolveTemplateLiteral = (_: string, node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) => {
       if (ts.isTemplateExpression(node)) {
         throw new Error('not implemented');
       } else {
