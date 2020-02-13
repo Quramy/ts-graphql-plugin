@@ -4,6 +4,14 @@ import { SchemaManager } from './schema-manager';
 import { buildSchema, buildClientSchema } from 'graphql';
 import { SchemaManagerHost } from './types';
 
+function extractIntrospectionContentFromJson(jsonObject: any) {
+  if (jsonObject.data) {
+    return jsonObject.data;
+  } else {
+    return jsonObject;
+  }
+}
+
 export interface FileSchemaManagerOptions {
   path: string;
 }
@@ -29,7 +37,9 @@ export class FileSchemaManager extends SchemaManager {
         return sdl ? buildSchema(sdl) : null;
       } else {
         const introspectionContents = this._host.readFile(resolvedSchmaPath, 'utf-8');
-        return introspectionContents ? buildClientSchema(JSON.parse(introspectionContents).data) : null;
+        return introspectionContents
+          ? buildClientSchema(extractIntrospectionContentFromJson(JSON.parse(introspectionContents)))
+          : null;
       }
     } catch (e) {
       this.log('Fail to read schema file...');
