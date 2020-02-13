@@ -149,20 +149,19 @@ Also you can use GraphQL introspection query result data such as:
 
 ```js
 {
-  "data": {
-    "__schema": {
-      "queryType": {
-        "name": "Query"
-      },
-      "types": [
-        {
-          "kind": "OBJECT",
-          "name": "Query",
-          "description": null,
-          "fields": [
-            {
-              "name": "viewer",
-              :
+  "__schema": {
+    "queryType": {
+      "name": "Query"
+    },
+    "types": [
+      {
+        "kind": "OBJECT",
+        "name": "Query",
+        "description": null,
+        "fields": [
+          {
+            "name": "viewer",
+            :
 ```
 
 You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL server like [GitHub v4 API](https://developer.github.com/v4/). For example:
