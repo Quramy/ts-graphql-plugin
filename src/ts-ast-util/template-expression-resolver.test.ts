@@ -1,9 +1,9 @@
 import * as ts from 'typescript';
+import { mark, Frets } from 'fretted-strings';
 
 import { findAllNodes } from '.';
 import { TemplateExpressionResolver } from '../ts-ast-util/template-expression-resolver';
 import { createTestingLanguageService } from './testing/testing-language-service';
-import { mark, Markers } from '../string-util/testing/position-marker';
 
 describe(TemplateExpressionResolver.prototype.resolve, () => {
   it('should resolve for empty NoSubstitutionTemplateLiteral node', () => {
@@ -29,7 +29,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
   });
 
   it('should resolve for no closed NoSubstitutionTemplateLiteral node', () => {
-    const markers = {} as Markers;
+    const frets = {} as Frets;
     const langService = createTestingLanguageService({
       files: [
         {
@@ -39,7 +39,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             'const query = `query { }' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
-            markers,
+            frets,
           )
         },
       ],
@@ -57,25 +57,25 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
         '%%%     b2 %%%',
-        markers,
+        frets,
       ),
     );
 
-    expect(() => actual.getInnerPosition(markers.a1.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
-    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a1.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
+    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: frets.a1.pos + 1 });
 
-    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(() => actual.getInnerPosition(markers.a2.pos + 2)).toThrowError();
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+    expect(actual.getInnerPosition(frets.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b2.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a2.pos + 2)).toThrowError();
+    expect(actual.getSourcePosition(frets.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a2.pos + 1,
+      pos: frets.a2.pos + 1,
     });
-    expect(() => actual.getSourcePosition(markers.b2.pos + 2)).toThrowError();
+    expect(() => actual.getSourcePosition(frets.b2.pos + 2)).toThrowError();
   });
 
   it('should resolve for closed NoSubstitutionTemplateLiteral node', () => {
-    const markers = {} as Markers;
+    const frets = {} as Frets;
     const langService = createTestingLanguageService({
       files: [
         {
@@ -85,7 +85,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             'const query = `query { }`' + '\n' +
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
-            markers,
+            frets,
           )
         },
       ],
@@ -103,25 +103,25 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
         'query { }' + '\n' +
         '%%%     ^  %%%' + '\n' +
         '%%%     b2 %%%',
-        markers,
+        frets,
       ),
     );
 
-    expect(() => actual.getInnerPosition(markers.a1.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
-    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a1.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
+    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: frets.a1.pos + 1 });
 
-    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(() => actual.getInnerPosition(markers.a2.pos + 2)).toThrowError();
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+    expect(actual.getInnerPosition(frets.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b2.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a2.pos + 2)).toThrowError();
+    expect(actual.getSourcePosition(frets.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a2.pos + 1,
+      pos: frets.a2.pos + 1,
     });
-    expect(() => actual.getSourcePosition(markers.b2.pos + 2)).toThrowError();
+    expect(() => actual.getSourcePosition(frets.b2.pos + 2)).toThrowError();
   });
 
   it('should resolve templateExpression spans in no closed TemplateExpression node', () => {
-    const markers = {} as Markers;
+    const frets = {} as Frets;
     const langService = createTestingLanguageService({
       files: [
         {
@@ -141,7 +141,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    ', markers)
+            '    ', frets)
         },
       ],
     });
@@ -163,41 +163,41 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b2%%%' + '\n' +
-      '    ', markers);
+      '    ', frets);
 
     expect(actual.combinedText).toBe(expectedCombinedText);
 
-    expect(() => actual.getInnerPosition(markers.a1.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
-    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a1.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
+    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: frets.a1.pos + 1 });
 
-    expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
-    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({
+    expect(() => actual.getInnerPosition(frets.a2.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b1.pos + 1 });
+    expect(actual.getSourcePosition(frets.b1.pos)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a3.pos,
+      pos: frets.a3.pos,
       isInOtherExpression: true,
     });
-    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
+    expect(actual.getSourcePosition(frets.b1.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a2.pos + 1,
+      pos: frets.a2.pos + 1,
     });
 
-    expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({
+    expect(() => actual.getInnerPosition(frets.a4.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b2.pos + 1 });
+    expect(actual.getSourcePosition(frets.b2.pos)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a5.pos,
+      pos: frets.a5.pos,
       isInOtherExpression: true,
     });
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+    expect(actual.getSourcePosition(frets.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a4.pos + 1,
+      pos: frets.a4.pos + 1,
     });
   });
 
   it('should resolve templateExpression spans in closed TemplateExpression node', () => {
-    const markers = {} as Markers;
+    const frets = {} as Frets;
     const langService = createTestingLanguageService({
       files: [
         {
@@ -217,7 +217,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    `;', markers)
+            '    `;', frets)
         },
       ],
     });
@@ -239,42 +239,42 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       '      fragment Hoge on Foo { name }'     + '\n' +
       '%%%                               ^ %%%' + '\n' +
       '%%%                               b2%%%' + '\n' +
-      '    ', markers);
+      '    ', frets);
 
     expect(actual.combinedText).toBe(expectedCombinedText);
 
-    expect(() => actual.getInnerPosition(markers.a1.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
-    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: markers.a1.pos + 1 });
+    expect(() => actual.getInnerPosition(frets.a1.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a1.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: 0 });
+    expect(actual.getSourcePosition(0)).toStrictEqual({ fileName: 'main.ts', pos: frets.a1.pos + 1 });
 
-    expect(() => actual.getInnerPosition(markers.a2.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b1.pos + 1 });
-    expect(actual.getSourcePosition(markers.b1.pos)).toStrictEqual({
+    expect(() => actual.getInnerPosition(frets.a2.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a2.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b1.pos + 1 });
+    expect(actual.getSourcePosition(frets.b1.pos)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a3.pos,
+      pos: frets.a3.pos,
       isInOtherExpression: true,
     });
-    expect(actual.getSourcePosition(markers.b1.pos + 1)).toStrictEqual({
+    expect(actual.getSourcePosition(frets.b1.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a2.pos + 1,
+      pos: frets.a2.pos + 1,
     });
 
-    expect(() => actual.getInnerPosition(markers.a4.pos)).toThrowError();
-    expect(actual.getInnerPosition(markers.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: markers.b2.pos + 1 });
-    expect(actual.getSourcePosition(markers.b2.pos)).toStrictEqual({
+    expect(() => actual.getInnerPosition(frets.a4.pos)).toThrowError();
+    expect(actual.getInnerPosition(frets.a4.pos + 1)).toStrictEqual({ fileName: 'main.ts', pos: frets.b2.pos + 1 });
+    expect(actual.getSourcePosition(frets.b2.pos)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a5.pos,
+      pos: frets.a5.pos,
       isInOtherExpression: true,
     });
-    expect(actual.getSourcePosition(markers.b2.pos + 1)).toStrictEqual({
+    expect(actual.getSourcePosition(frets.b2.pos + 1)).toStrictEqual({
       fileName: 'main.ts',
-      pos: markers.a4.pos + 1,
+      pos: frets.a4.pos + 1,
     });
   });
 
   describe('resolveErrors', () => {
     it('should return resolve errors when interpolation is too complex', () => {
-      const markers = {} as Markers;
+      const frets = {} as Frets;
       const langService = createTestingLanguageService({
         files: [
           {
@@ -289,7 +289,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
               '      query MyQuery {'                                        + '\n' +
               '        ...Hoge'                                              + '\n' +
               '      }'                                                      + '\n' +
-              '    ', markers)
+              '    ', frets)
           },
         ],
       });
@@ -302,8 +302,8 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       expect(actual.resolveErrors).toStrictEqual([
         {
           fileName: 'main.ts',
-          start: markers.a1.pos,
-          end: markers.a2.pos,
+          start: frets.a1.pos,
+          end: frets.a2.pos,
         },
       ]);
     });
@@ -558,7 +558,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
 
 describe(TemplateExpressionResolver.prototype.update, () => {
   it('should return updated info arleady resolved with text replacement', () => {
-    const markers = {} as Markers;
+    const frets = {} as Frets;
     const langService = createTestingLanguageService({
       files: [
         {
@@ -572,7 +572,7 @@ describe(TemplateExpressionResolver.prototype.update, () => {
             '%%%      a1    a2   %%%' + '\n' +
             '         bbbbbbb'        + '\n' +
             '    `;'                  + '\n' +
-            '    ', markers)
+            '    ', frets)
         },
       ],
     });
@@ -585,8 +585,8 @@ describe(TemplateExpressionResolver.prototype.update, () => {
     const actual = resolver.update(
       originalInfo,
       {
-        start: originalInfo.getInnerPosition(markers.a1.pos).pos,
-        end: originalInfo.getInnerPosition(markers.a2.pos + 1).pos,
+        start: originalInfo.getInnerPosition(frets.a1.pos).pos,
+        end: originalInfo.getInnerPosition(frets.a2.pos + 1).pos,
       },
       'xxxxx',
     );
@@ -598,18 +598,18 @@ describe(TemplateExpressionResolver.prototype.update, () => {
      %%% b1  b2   %%%
          bbbbbbb
     `,
-      markers,
+      frets,
     );
     expect(actual.combinedText).toBe(expectedStr);
-    expect(actual.getInnerPosition(markers.a1.pos - 1).pos).toBe(markers.b1.pos - 1);
-    expect(actual.getInnerPosition(markers.a1.pos).pos).toBe(markers.b1.pos);
-    expect(actual.getInnerPosition(markers.a1.pos + 1).pos).toBe(markers.b1.pos);
-    expect(actual.getInnerPosition(markers.a2.pos).pos).toBe(markers.b1.pos);
-    expect(actual.getInnerPosition(markers.a2.pos + 1).pos).toBe(markers.b2.pos + 1);
-    expect(actual.getSourcePosition(markers.b1.pos - 1).pos).toBe(markers.a1.pos - 1);
-    expect(actual.getSourcePosition(markers.b1.pos).pos).toBe(markers.a1.pos);
-    expect(actual.getSourcePosition(markers.b1.pos + 1).pos).toBe(markers.a1.pos);
-    expect(actual.getSourcePosition(markers.b2.pos).pos).toBe(markers.a1.pos);
-    expect(actual.getSourcePosition(markers.b2.pos + 1).pos).toBe(markers.a2.pos + 1);
+    expect(actual.getInnerPosition(frets.a1.pos - 1).pos).toBe(frets.b1.pos - 1);
+    expect(actual.getInnerPosition(frets.a1.pos).pos).toBe(frets.b1.pos);
+    expect(actual.getInnerPosition(frets.a1.pos + 1).pos).toBe(frets.b1.pos);
+    expect(actual.getInnerPosition(frets.a2.pos).pos).toBe(frets.b1.pos);
+    expect(actual.getInnerPosition(frets.a2.pos + 1).pos).toBe(frets.b2.pos + 1);
+    expect(actual.getSourcePosition(frets.b1.pos - 1).pos).toBe(frets.a1.pos - 1);
+    expect(actual.getSourcePosition(frets.b1.pos).pos).toBe(frets.a1.pos);
+    expect(actual.getSourcePosition(frets.b1.pos + 1).pos).toBe(frets.a1.pos);
+    expect(actual.getSourcePosition(frets.b2.pos).pos).toBe(frets.a1.pos);
+    expect(actual.getSourcePosition(frets.b2.pos + 1).pos).toBe(frets.a2.pos + 1);
   });
 });

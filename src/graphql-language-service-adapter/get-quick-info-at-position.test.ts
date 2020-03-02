@@ -1,7 +1,7 @@
 import ts from 'typescript';
+import { mark, Frets } from 'fretted-strings';
 import { createSimpleSchema } from './testing/simple-schema';
 import { AdapterFixture } from './testing/adapter-fixture';
-import { mark, Markers } from '../string-util/testing/position-marker';
 import { GraphQLSchema } from 'graphql';
 
 function delegateFn(): ts.QuickInfo {
@@ -23,7 +23,7 @@ describe('getQuickInfoAtPosition', () => {
   it('should return GraphQL quick info', () => {
     const fixture = createFixture('main.ts', createSimpleSchema());
     const quickInfoFn = fixture.adapter.getQuickInfoAtPosition.bind(fixture.adapter, delegateFn, 'main.ts');
-    const markers: Markers = {};
+    const frets: Frets = {};
     fixture.source = mark(
       `
         const query = \`
@@ -34,19 +34,19 @@ describe('getQuickInfoAtPosition', () => {
           }
         \`;
     `,
-      markers,
+      frets,
     );
-    expect(quickInfoFn(markers.a1.pos - 1)!.displayParts).toEqual([]);
+    expect(quickInfoFn(frets.a1.pos - 1)!.displayParts).toEqual([]);
     expect(
-      quickInfoFn(markers.a1.pos)!
+      quickInfoFn(frets.a1.pos)!
         .displayParts!.map(dp => dp.text)
         .join(''),
     ).toMatchSnapshot();
     expect(
-      quickInfoFn(markers.a2.pos)!
+      quickInfoFn(frets.a2.pos)!
         .displayParts!.map(dp => dp.text)
         .join(''),
     ).toMatchSnapshot();
-    expect(quickInfoFn(markers.a2.pos + 1)!.displayParts).toEqual([]);
+    expect(quickInfoFn(frets.a2.pos + 1)!.displayParts).toEqual([]);
   });
 });

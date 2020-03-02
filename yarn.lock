@@ -3028,6 +3028,11 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
+fretted-strings@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/fretted-strings/-/fretted-strings-1.0.0.tgz#421822d566df910feafb56361eec409352942a75"
+  integrity sha512-fj69q0cFtBpZu2cIH13w2u6LmZ/c5hPBA+kzpEB5us7tlRCdTNWWARFxUWF+4XcAgNqDzH5xDChkboz/uu0BvQ==
+
 from2@^2.1.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/from2/-/from2-2.3.0.tgz#8bfb5502bde4a4d36cfdeea007fcca21d7e382af"
