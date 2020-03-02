@@ -2,7 +2,7 @@ import * as ts from 'typescript/lib/tsserverlibrary';
 import { AdapterFixture } from './testing/adapter-fixture';
 import { createSimpleSchema } from './testing/simple-schema';
 import { GraphQLSchema } from 'graphql';
-import { mark, Markers } from '../string-util/testing/position-marker';
+import { mark, Frets } from 'fretted-strings';
 import { ERROR_CODES } from '../errors';
 
 function craeteFixture(name: string, schema?: GraphQLSchema) {
@@ -70,17 +70,17 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const markers: Markers = {};
+    const frets: Frets = {};
 
     fixture.source = mark(
       // prettier-ignore
       '    const query = `query {`;    ' + '\n' +
       '%%%                      ^   %%%' + '\n' +
       '%%%                      a1  %%%' + '\n',
-      markers,
+      frets,
     );
     const actual = validateFn();
-    expect(actual[0].start).toBe(markers.a1.pos);
+    expect(actual[0].start).toBe(frets.a1.pos);
   });
 
   it('should return diagnostic array for invalid GraphQL template string', () => {
@@ -140,7 +140,7 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const markers: Markers = {};
+    const frets: Frets = {};
     fixture.source = mark(
       `
       const query = \`
@@ -152,18 +152,18 @@ describe('getSemanticDiagnostics', () => {
         }
       \`;
     `,
-      markers,
+      frets,
     );
     const actual = validateFn();
     expect(actual[0].code).toBe(ERROR_CODES.templateIsTooComplex.code);
-    expect(actual[0].start).toBe(markers.a1.pos);
+    expect(actual[0].start).toBe(frets.a1.pos);
   });
 
   it('should return "isInOtherExpression" error when interpolated fragment has error', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const markers: Markers = {};
+    const frets: Frets = {};
     fixture.source = mark(
       `
       const fragment = \`
@@ -180,11 +180,11 @@ describe('getSemanticDiagnostics', () => {
         }
       \`;
     `,
-      markers,
+      frets,
     );
     const actual = validateFn();
     expect(actual.length).toBe(2);
     expect(actual[1].code).toBe(ERROR_CODES.errorInOtherInterpolation.code);
-    expect(actual[1].start).toBe(markers.a1.pos);
+    expect(actual[1].start).toBe(frets.a1.pos);
   });
 });
