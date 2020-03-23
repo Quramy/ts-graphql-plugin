@@ -15,12 +15,7 @@ function createServerFixture() {
   const app = express();
   app.post('/invalid-path', (_, res) => res.status(404).end());
   app.post('/invalid-json', (_, res) => res.status(200).end('text'));
-  app.post('/invalid-schema', (_, res) =>
-    res
-      .json({ hoge: 'hoge' })
-      .status(200)
-      .end(),
-  );
+  app.post('/invalid-schema', (_, res) => res.json({ hoge: 'hoge' }).status(200).end());
   server.applyMiddleware({ app });
   return new Promise<Server>(res => {
     const server = app.listen(4001, () => {
