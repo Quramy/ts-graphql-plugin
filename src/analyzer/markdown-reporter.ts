@@ -33,8 +33,9 @@ function createSection(
 ${doc.body.trim()}
 \`\`\`
 
-From [${displayPath}:${doc.documentStart.line + 1}:${doc.documentStart.character + 1}](${linkPath}#L${doc.documentStart
-          .line + 1}-L${doc.documentEnd.line + 1})
+From [${displayPath}:${doc.documentStart.line + 1}:${doc.documentStart.character + 1}](${linkPath}#L${
+          doc.documentStart.line + 1
+        }-L${doc.documentEnd.line + 1})
     `;
       })
       .join('\n')

@@ -93,7 +93,7 @@ function createComputePositionsForTemplateHead(node: ts.TemplateHead, fileName: 
 }
 
 function createComputePositionsForTemplateSpan(node: ts.TemplateSpan, fileName: string, headLength: number = 0) {
-  const start = node.literal.pos + 1 /* , '}'.length , */;
+  const start = node.literal.pos + 1; /* , '}'.length , */
   const textLength = node.literal.text.length;
   const end = start + node.literal.text.length;
   const expressionStart = node.expression.pos;
@@ -116,12 +116,12 @@ function createComputePositionsForTemplateSpan(node: ts.TemplateSpan, fileName: 
   return [getInnerPosition, getSourcePosition];
 }
 
-class ResultCache<T> {
-  private _cacheMap = new Map<ts.Node, T>();
+class ResultCache<S> {
+  private _cacheMap = new Map<ts.Node, S>();
 
   constructor(private _maxSize: number = 200) {}
 
-  set(key: ts.Node, value: T) {
+  set(key: ts.Node, value: S) {
     this._cacheMap.set(key, value);
     if (this._cacheMap.size > this._maxSize) {
       const lru = this._cacheMap.keys().next();
