@@ -1,24 +1,36 @@
 import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
-import { HttpSchemaManagerOptions, HttpSchemaManager } from './http-schema-manager';
+import { HttpSchemaManager } from './http-schema-manager';
+import { ScriptedHttpSchemaManager } from './scripted-http-schema-manager';
 import { SchemaManagerHost } from './types';
+import { RequestSetup } from './request-introspection-query';
 
 interface FileSchemaConfigOptions {
   file: FileSchemaManagerOptions;
 }
 
 interface HttpSchemaConfigOptions {
-  http: HttpSchemaManagerOptions;
+  http: RequestSetup;
 }
 
-type SchemaConfigOptions = FileSchemaConfigOptions | HttpSchemaConfigOptions;
+interface ScriptedHttpSchemaManagerOptions {
+  http: {
+    fromScript: string;
+  };
+}
+
+type SchemaConfigOptions = FileSchemaConfigOptions | HttpSchemaConfigOptions | ScriptedHttpSchemaManagerOptions;
 
 function isFileType(conf: SchemaConfigOptions): conf is FileSchemaConfigOptions {
   return !!(conf as any).file;
 }
 
 function isHttpType(conf: SchemaConfigOptions): conf is HttpSchemaConfigOptions {
-  return !!(conf as any).http;
+  return !!(conf as any).http?.url;
+}
+
+function isScriptedHttpType(conf: SchemaConfigOptions): conf is ScriptedHttpSchemaManagerOptions {
+  return !!(conf as any).http?.fromScript;
 }
 
 export class SchemaManagerFactory {
@@ -27,16 +39,21 @@ export class SchemaManagerFactory {
   create(): SchemaManager {
     const schemaConfig = this._host.getConfig().schema;
     let options: SchemaConfigOptions;
+
     if (typeof schemaConfig === 'string') {
       options = this._convertOptionsFromString(schemaConfig);
     } else {
-      options = schemaConfig;
+      options = schemaConfig as SchemaConfigOptions;
     }
+
     if (isFileType(options)) {
       return new FileSchemaManager(this._host, options.file);
     } else if (isHttpType(options)) {
       return new HttpSchemaManager(this._host, options.http);
+    } else if (isScriptedHttpType(options)) {
+      return new ScriptedHttpSchemaManager(this._host, options.http);
     }
+
     return new NoopSchemaManager(this._host);
   }
 
@@ -45,8 +62,15 @@ export class SchemaManagerFactory {
       return {
         http: {
           url: path,
-        } as HttpSchemaManagerOptions,
+        } as RequestSetup,
       };
+    }
+    if (/.js$/.test(path)) {
+      return {
+        http: {
+          fromScript: path,
+        },
+      } as ScriptedHttpSchemaManagerOptions;
     } else {
       return {
         file: {
