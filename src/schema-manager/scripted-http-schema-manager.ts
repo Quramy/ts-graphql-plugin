@@ -39,8 +39,7 @@ export class ScriptedHttpSchemaManager extends HttpSchemaManager {
     try {
       setup = await configurationScript(this._host.getProjectRootPath());
     } catch (error) {
-      const errorMessage =
-        `ScriptedHttpSchemaManager configuration script '${this._scriptFile}' ` + `execution failed due to: ${error}`;
+      const errorMessage = `ScriptedHttpSchemaManager configuration script '${this._scriptFile}' execution failed due to: ${error}`;
       this.log(errorMessage);
       throw new Error(errorMessage);
     }
