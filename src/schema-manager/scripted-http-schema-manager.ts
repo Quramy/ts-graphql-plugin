@@ -56,6 +56,7 @@ export class ScriptedHttpSchemaManager extends HttpSchemaManager {
       throw new Error(errorMessage);
     }
 
+    setup.method = setup.method || 'POST';
     this._options = setup;
     return setup;
   }

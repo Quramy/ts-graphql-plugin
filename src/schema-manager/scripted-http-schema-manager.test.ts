@@ -157,4 +157,25 @@ describe(ScriptedHttpSchemaManager, () => {
 
     expect(manager._getOptions()).rejects.toEqual(new Error('RequestSetup.url have to be valid url: some string'));
   });
+
+  it('should set method to POST if is not specified', async () => {
+    const requestSetup = {
+      url: 'http://example.com/graphql',
+      headers: {
+        Authorization: 'Bearer abcabcabc',
+      },
+    };
+    const configScriptMock = jest.fn().mockReturnValue(new Promise(resolve => resolve(requestSetup)));
+    const manager = createScriptedHttpSchemaManager();
+    manager._host.getProjectRootPath.mockReturnValue('./');
+    manager._host.fileExists.mockReturnValue(true);
+    manager._requireScript.mockReturnValue(configScriptMock);
+
+    const result = await manager._getOptions();
+
+    expect(result).toEqual({
+      ...requestSetup,
+      method: 'POST',
+    });
+  });
 });
