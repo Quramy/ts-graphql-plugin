@@ -17,19 +17,14 @@ export interface RequestSetup {
 
 export function isRequestSetup(requestSetup: RequestSetup | any): requestSetup is RequestSetup {
   const availablePropertyNames = ['url', 'method', 'headers'];
-  let hasUrlProperty = false;
 
   for (const property in requestSetup) {
     if (!availablePropertyNames.includes(property)) {
       return false;
     }
-
-    if (property === 'url') {
-      hasUrlProperty = true;
-    }
   }
 
-  return hasUrlProperty;
+  return !!requestSetup.url;
 }
 
 export function requestIntrospectionQuery(options: RequestSetup) {
