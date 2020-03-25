@@ -11,7 +11,7 @@ const INTROSPECTION_QUERY_LENGTH = Buffer.byteLength(INTROSPECTION_QUERY_BODY);
 
 export interface RequestSetup {
   url: string;
-  method?: 'POST';
+  method?: string;
   headers?: { [key: string]: string };
 }
 
