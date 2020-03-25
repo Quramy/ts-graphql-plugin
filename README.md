@@ -187,12 +187,6 @@ If you need to use more complex logic like fetch bearer token using client secre
   },
 ```
 
-Or just using shorter syntax:
-
-```json
-  "schema": "my-graphql-config.js",
-```
-
 Your script have to return valid `RequestSetup` or `Promise<RequestSetup>` object:
 
 ```ts
