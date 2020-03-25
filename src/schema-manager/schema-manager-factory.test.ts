@@ -2,6 +2,7 @@ import { SchemaManagerFactory } from './schema-manager-factory';
 import { HttpSchemaManager } from './http-schema-manager';
 import { FileSchemaManager } from './file-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
+import { ScriptedHttpSchemaManager } from './scripted-http-schema-manager';
 
 describe(SchemaManagerFactory, () => {
   it('should return HttpSchemaManager from http url string', () => {
@@ -44,7 +45,7 @@ describe(SchemaManagerFactory, () => {
     expect(actual instanceof FileSchemaManager).toBeTruthy();
   });
 
-  it('should return HttpSchemaManager from http object', () => {
+  it('should return HttpSchemaManager from http object with url property', () => {
     const factory = new SchemaManagerFactory(
       createTestingSchemaManagerHost({
         schema: {
@@ -70,5 +71,19 @@ describe(SchemaManagerFactory, () => {
     );
     const actual = factory.create();
     expect(actual instanceof FileSchemaManager).toBeTruthy();
+  });
+
+  it('should return ScriptedHttpSchemaManager from http object with fromScript property', () => {
+    const factory = new SchemaManagerFactory(
+      createTestingSchemaManagerHost({
+        schema: {
+          http: {
+            fromScript: 'graphql-config.js',
+          },
+        },
+      }),
+    );
+    const actual = factory.create();
+    expect(actual instanceof ScriptedHttpSchemaManager).toBeTruthy();
   });
 });
