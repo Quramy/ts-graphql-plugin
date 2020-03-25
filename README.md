@@ -177,7 +177,7 @@ You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL
   },
 ```
 
-If you need to use more complex logic like fetch bearer token using client secret then you can build your configuration using js script. First, you need to setup your configuration like below:
+If you need to use more complex logic like fetch bearer token using client secret then you can build your http schema configuration using javascript. First, you need to setup your plugin configuration like below:
 
 ```json
   "schema": {
@@ -193,9 +193,18 @@ Or just using shorter syntax:
   "schema": "my-graphql-config.js",
 ```
 
-Then in your `my-graphql-config.js` file export function that returns promise or result. Example:
+Your script have to return valid `RequestSetup` or `Promise<RequestSetup>` object:
+
+```ts
+url: string;
+method?: string; // default to 'POST'
+headers?: { [key: string]: string };
+```
+
+Example how configuration script may look like:
 
 ```js
+// my-graphql-config.js
 const fetch = require('node-fetch');
 
 module.exports = projectRootPath =>
