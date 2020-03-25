@@ -64,13 +64,6 @@ export class SchemaManagerFactory {
           url: path,
         } as RequestSetup,
       };
-    }
-    if (/.js$/.test(path)) {
-      return {
-        http: {
-          fromScript: path,
-        },
-      } as ScriptedHttpSchemaManagerOptions;
     } else {
       return {
         file: {
