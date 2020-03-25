@@ -1,6 +1,6 @@
 name: build
 
-on: [push, pull_request]
+on: pull_request
 
 jobs:
   build:
@@ -20,7 +20,6 @@ jobs:
         run: |
           yarn --frozen-lockfile
           yarn compile
-          yarn format:check
           yarn test
         env:
           CI: true
