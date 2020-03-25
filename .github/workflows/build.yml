@@ -1,6 +1,6 @@
 name: build
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -34,30 +34,3 @@ jobs:
           name: e2e
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./e2e_coverage/coverage-final.json
-
-  publish:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [12.x]
-
-    needs: [build]
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: npm publish
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
-          npm whoami
-          yarn --frozen-lockfile
-          yarn compile
-          npm publish
-        if: contains(github.ref, 'tags/v')
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-          CI: true
