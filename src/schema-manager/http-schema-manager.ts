@@ -2,10 +2,6 @@ import { SchemaManager } from './schema-manager';
 import { SchemaManagerHost } from './types';
 import { requestIntrospectionQuery, RequestSetup } from './request-introspection-query';
 
-function isRequestSetup(conf: any): conf is RequestSetup {
-  return !!conf?.url;
-}
-
 export class HttpSchemaManager extends SchemaManager {
   private _schema: any = null;
 
@@ -16,6 +12,8 @@ export class HttpSchemaManager extends SchemaManager {
   protected async _getOptions(): Promise<RequestSetup | null> {
     return this._options;
   }
+
+  protected _fetchErrorOcurred(): void {}
 
   getBaseSchema() {
     return this._schema;
@@ -46,8 +44,8 @@ export class HttpSchemaManager extends SchemaManager {
         return;
       }
 
-      if (!isRequestSetup(options)) {
-        this.log(`Options is not RequestSetup object: ${JSON.stringify(options, null, 2)}`);
+      if (options === null) {
+        this.log(`Options cannot be null`);
         setTimeout(makeRequest, backoff * 2.0);
         return;
       }
@@ -67,6 +65,7 @@ export class HttpSchemaManager extends SchemaManager {
         this.log(`Fail to fetch schema data from ${options.url} via:`);
         this.log(`${JSON.stringify(reason, null, 2)}`);
 
+        this._fetchErrorOcurred();
         setTimeout(makeRequest, backoff * 2.0);
       }
     };

@@ -1,24 +1,28 @@
 import { ScriptedHttpSchemaManager } from './scripted-http-schema-manager';
 
 describe(ScriptedHttpSchemaManager, () => {
-  beforeEach(jest.resetModules);
-
   function createScriptedHttpSchemaManager(fromScript: string = './graphql-config') {
-    const scriptedHttpSchemaManager = {
+    const manager = {
       _host: {
         getProjectRootPath: jest.fn(),
         fileExists: jest.fn(),
       },
-      _scriptFile: fromScript,
+      _scriptFileName: fromScript,
       _options: null,
       log: jest.fn(),
       _requireScript: jest.fn(),
+      _getScriptFilePath: ScriptedHttpSchemaManager.prototype['_getScriptFilePath'],
       _getOptions: ScriptedHttpSchemaManager.prototype['_getOptions'],
+      _fetchErrorOcurred: ScriptedHttpSchemaManager.prototype['_fetchErrorOcurred'],
+      _configurationScriptChanged: ScriptedHttpSchemaManager.prototype['_configurationScriptChanged'],
     };
 
-    scriptedHttpSchemaManager._getOptions = scriptedHttpSchemaManager._getOptions.bind(scriptedHttpSchemaManager);
+    manager._getScriptFilePath = manager._getScriptFilePath.bind(manager);
+    manager._getOptions = manager._getOptions.bind(manager);
+    manager._fetchErrorOcurred = manager._fetchErrorOcurred.bind(manager);
+    manager._configurationScriptChanged = manager._configurationScriptChanged.bind(manager);
 
-    return scriptedHttpSchemaManager;
+    return manager;
   }
 
   it('should correctly load, execute http setup script, and return setup object', async () => {
@@ -177,5 +181,51 @@ describe(ScriptedHttpSchemaManager, () => {
       ...requestSetup,
       method: 'POST',
     });
+  });
+
+  it('should reload script and execute it again after fetch error', async () => {
+    const requestSetup = {
+      url: 'http://example.com/graphql',
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer abcabcabc',
+      },
+    };
+    const configScriptMock = jest.fn().mockReturnValue(new Promise(resolve => resolve(requestSetup)));
+    const manager = createScriptedHttpSchemaManager();
+    manager._host.getProjectRootPath.mockReturnValue('./');
+    manager._host.fileExists.mockReturnValue(true);
+    manager._requireScript.mockReturnValue(configScriptMock);
+
+    await manager._getOptions(); // initialization, should call _requireScriptMethod
+    await manager._getOptions(); // returns cached result, should not call _requireScript method
+    manager._fetchErrorOcurred();
+    await manager._getOptions(); // cache should be null, should call _requireScript method again
+
+    expect(manager._requireScript).toBeCalledTimes(2);
+    expect(configScriptMock).toBeCalledTimes(2);
+  });
+
+  it('should reload script and execute it again after configuration script file change', async () => {
+    const requestSetup = {
+      url: 'http://example.com/graphql',
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer abcabcabc',
+      },
+    };
+    const configScriptMock = jest.fn().mockReturnValue(new Promise(resolve => resolve(requestSetup)));
+    const manager = createScriptedHttpSchemaManager();
+    manager._host.getProjectRootPath.mockReturnValue('./');
+    manager._host.fileExists.mockReturnValue(true);
+    manager._requireScript.mockReturnValue(configScriptMock);
+
+    await manager._getOptions(); // initialization, should call _requireScriptMethod
+    await manager._getOptions(); // returns cached result, should not call _requireScript method
+    manager._configurationScriptChanged();
+    await manager._getOptions(); // cache should be null, should call _requireScript method again
+
+    expect(manager._requireScript).toBeCalledTimes(2);
+    expect(configScriptMock).toBeCalledTimes(2);
   });
 });

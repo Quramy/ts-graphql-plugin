@@ -8,15 +8,29 @@ interface ScriptedHttpSchemaManagerOptions {
 }
 
 export class ScriptedHttpSchemaManager extends HttpSchemaManager {
-  private _scriptFile: string;
+  private _scriptFileName: string;
 
   constructor(_host: SchemaManagerHost, options: ScriptedHttpSchemaManagerOptions) {
     super(_host);
-    this._scriptFile = options.fromScript;
+    this._scriptFileName = options.fromScript;
+    this._host.watchFile(this._getScriptFilePath(), this._configurationScriptChanged.bind(this), 100);
+  }
+
+  private _getScriptFilePath() {
+    return join(this._host.getProjectRootPath(), this._scriptFileName);
   }
 
   private _requireScript(path: string) {
+    delete require.cache[path];
     return require(path);
+  }
+
+  private _configurationScriptChanged() {
+    this._options = null;
+  }
+
+  protected _fetchErrorOcurred() {
+    this._options = null;
   }
 
   protected async _getOptions(): Promise<RequestSetup> {
@@ -24,7 +38,7 @@ export class ScriptedHttpSchemaManager extends HttpSchemaManager {
       return this._options;
     }
 
-    const configurationScriptPath = join(this._host.getProjectRootPath(), this._scriptFile);
+    const configurationScriptPath = this._getScriptFilePath();
 
     if (!this._host.fileExists(configurationScriptPath)) {
       const errorMessage = `ScriptedHttpSchemaManager configuration script '${configurationScriptPath}' does not exist`;
@@ -39,7 +53,7 @@ export class ScriptedHttpSchemaManager extends HttpSchemaManager {
     try {
       setup = await configurationScript(this._host.getProjectRootPath());
     } catch (error) {
-      const errorMessage = `ScriptedHttpSchemaManager configuration script '${this._scriptFile}' execution failed due to: ${error}`;
+      const errorMessage = `ScriptedHttpSchemaManager configuration script '${this._scriptFileName}' execution failed due to: ${error}`;
       this.log(errorMessage);
       throw new Error(errorMessage);
     }
