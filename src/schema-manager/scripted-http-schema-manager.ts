@@ -1,6 +1,6 @@
 import { SchemaManagerHost } from './types';
 import { RequestSetup, isRequestSetup } from './request-introspection-query';
-import { join } from 'path';
+import { join, isAbsolute } from 'path';
 import { HttpSchemaManager } from './http-schema-manager';
 
 interface ScriptedHttpSchemaManagerOptions {
@@ -17,7 +17,8 @@ export class ScriptedHttpSchemaManager extends HttpSchemaManager {
   }
 
   private _getScriptFilePath() {
-    return join(this._host.getProjectRootPath(), this._scriptFileName);
+    const rootPath = isAbsolute(this._host.getProjectRootPath()) ? this._host.getProjectRootPath() : process.cwd();
+    return join(rootPath, this._scriptFileName);
   }
 
   private _requireScript(path: string) {
