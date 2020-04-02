@@ -177,6 +177,52 @@ You can pass URL and custom HTTP headers. It's useful to use an existing GraphQL
   },
 ```
 
+If you need to use more complex logic like fetch bearer token using client secret then you can build your http schema configuration using javascript. First, you need to setup your plugin configuration like below:
+
+```json
+  "schema": {
+    "http": {
+      "fromScript": "my-graphql-config.js"
+    }
+  },
+```
+
+Your script have to return valid `RequestSetup` or `Promise<RequestSetup>` object:
+
+```ts
+url: string;
+method?: string; // default to 'POST'
+headers?: { [key: string]: string };
+```
+
+Example how configuration script may look like:
+
+```js
+// my-graphql-config.js
+const fetch = require('node-fetch');
+
+module.exports = projectRootPath =>
+  new Promise(resolve => {
+    fetch('http://localhost/identity-server/connect/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `client_secret=${process.env.MY_CLIENT_SECRET}`,
+    })
+      .then(response => response.json())
+      .then(response => {
+        resolve({
+          url: 'http://localhost/graphql',
+          method: 'POST', // unnecessary, "POST" is default value
+          headers: {
+            Authorization: `Bearer ${response.access_token}`,
+          },
+        });
+      });
+  });
+```
+
 The `schema` option accepts the following type:
 
 ```ts
@@ -190,7 +236,13 @@ type SchemaConfig =
   | {
       http: {
         url: string;
+        method?: string;
         headers?: { [key: string]: string };
+      };
+    }
+  | {
+      http: {
+        fromScript: string;
       };
     };
 ```

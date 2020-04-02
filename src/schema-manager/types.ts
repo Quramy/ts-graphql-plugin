@@ -9,7 +9,13 @@ export type SchemaConfig = {
     | {
         http: {
           url: string;
+          method?: string;
           headers?: { [key: string]: string };
+        };
+      }
+    | {
+        http: {
+          fromScript: string;
         };
       };
   localSchemaExtensions?: string[];
