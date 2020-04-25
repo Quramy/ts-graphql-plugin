@@ -195,6 +195,14 @@ export type MyQueryVariables = {};
 "
 `;
 
+exports[`typegen result type generation output types pattern should gen type with field alias 1`] = `
+"export type MyQuery = {
+    greeting: string;
+};
+export type MyQueryVariables = {};
+"
+`;
+
 exports[`typegen variable type generation should gen optional type with default value variable 1`] = `
 "export type MyQuery = {
     hello: string;
