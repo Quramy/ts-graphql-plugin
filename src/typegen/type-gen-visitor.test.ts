@@ -366,6 +366,22 @@ describe('typegen', () => {
         });
         expect(result).toMatchSnapshot();
       });
+
+      it('should gen type with field alias', () => {
+        const result = generateAstAndPrint({
+          schemaSDL: `
+            type Query {
+              hello: String!
+            }
+          `,
+          documentContent: `
+            query MyQuery {
+              greeting: hello
+            }
+          `,
+        });
+        expect(result).toMatchSnapshot();
+      });
     });
 
     describe('definition node pattern', () => {

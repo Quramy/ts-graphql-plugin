@@ -299,7 +299,13 @@ export class TypeGenVisitor {
           }
           typeNode = this._wrapTsTypeNodeWithModifiers(typeNode, list, strict);
           resultFieldElementStack.current.members.push(
-            ts.createPropertySignature(undefined, node.name.value, undefined, typeNode, undefined),
+            ts.createPropertySignature(
+              undefined,
+              node.alias ? node.alias.value : node.name.value,
+              undefined,
+              typeNode,
+              undefined,
+            ),
           );
           fieldMetadataMap.delete(node);
         },
