@@ -15,6 +15,10 @@ export const cliDefinition = {
       description: 'Show debug messages.',
       type: 'boolean',
     },
+    exitOnWarn: {
+      description: 'Exit with code 0 even when warnings are found.',
+      type: 'boolean',
+    },
   },
 } as const;
 
@@ -39,7 +43,11 @@ export async function validateCommand({ options }: CommandOptions<typeof cliDefi
     logger.error(`Found ${color.yellow(warnErrors.length + '')} warnings:`);
     warnErrors.forEach(errorReporter.outputError.bind(errorReporter));
   }
-  if (errors.length) return false;
+  if (errorErrors.length) {
+    return false;
+  } else if (warnErrors.length) {
+    return options.exitOnWarn;
+  }
   logger.info(color.green('No GraphQL validation errors.'));
   return true;
 }
