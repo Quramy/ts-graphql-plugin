@@ -64,7 +64,7 @@
     "prettier": "^2.0.1",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
-    "ts-jest": "^25.1.0",
+    "ts-jest": "^26.0.0",
     "ts-loader": "^6.2.1",
     "typescript": "~3.7.0",
     "typescript-eslint-language-service": "^2.0.3",
