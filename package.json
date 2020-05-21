@@ -47,7 +47,7 @@
     "@types/node-fetch": "^2.5.4",
     "@types/webpack": "^4.41.2",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
-    "@typescript-eslint/parser": "^2.13.0",
+    "@typescript-eslint/parser": "^3.0.0",
     "apollo-server": "^2.9.15",
     "apollo-server-express": "^2.9.16",
     "c8": "^7.0.0",
