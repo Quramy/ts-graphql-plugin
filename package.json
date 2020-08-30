@@ -40,7 +40,7 @@
     "graphql-language-service-types": "^1.6.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.2",
+    "@types/express": "^4.17.7",
     "@types/graphql": "^14.2.3",
     "@types/jest": "^25.1.1",
     "@types/node": "^14.0.1",
@@ -57,6 +57,7 @@
     "fretted-strings": "^1.0.0",
     "glob": "^7.1.2",
     "graphql": "^15.3.0",
+    "graphql-config": "^3.0.3",
     "husky": "^4.0.2",
     "jest": "^26.4.2",
     "node-fetch": "^2.6.0",
@@ -71,6 +72,9 @@
     "vscode-languageserver-types": "^3.14.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
+  },
+  "resolutions": {
+    "@types/express-serve-static-core": "^4.17.9"
   },
   "peerDependencies": {
     "graphql": "^15.3.0",
