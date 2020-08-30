@@ -20,8 +20,8 @@ async function run(server) {
   return server.close().then(() => {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
-    assert.equal(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.equal(semanticDiagEvent.body.diagnostics[0].text, 'Syntax Error: Unexpected <EOF>');
+    assert.strictEqual(semanticDiagEvent.body.diagnostics.length, 1);
+    assert.strictEqual(semanticDiagEvent.body.diagnostics[0].text, 'Syntax Error: Unexpected <EOF>.');
   });
 }
 

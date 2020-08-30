@@ -1,5 +1,5 @@
 import { GraphQLSchema, graphql, buildSchema } from 'graphql';
-import { introspectionQuery } from 'graphql/utilities';
+import { getIntrospectionQuery } from 'graphql/utilities';
 import { FileSchemaManager } from './file-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
@@ -35,7 +35,7 @@ describe(FileSchemaManager, () => {
         hello: String!
       }
     `;
-    const introspectionResult = await graphql(buildSchema(sdl), introspectionQuery);
+    const introspectionResult = await graphql(buildSchema(sdl), getIntrospectionQuery());
     const { manager } = createManagerWithHost('schema.json', JSON.stringify(introspectionResult.data));
     expect(await manager.waitBaseSchema()).toBeInstanceOf(GraphQLSchema);
   });
@@ -46,7 +46,7 @@ describe(FileSchemaManager, () => {
         hello: String!
       }
     `;
-    const introspectionResult = await graphql(buildSchema(sdl), introspectionQuery);
+    const introspectionResult = await graphql(buildSchema(sdl), getIntrospectionQuery());
     const { manager } = createManagerWithHost('schema.json', JSON.stringify(introspectionResult));
     expect(await manager.waitBaseSchema()).toBeInstanceOf(GraphQLSchema);
   });
