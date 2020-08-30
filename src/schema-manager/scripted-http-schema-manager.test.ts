@@ -67,29 +67,29 @@ describe(ScriptedHttpSchemaManager, () => {
 
   it('should throw error if configuration script file does not exist', () => {
     const manager = createScriptedHttpSchemaManager('/file-that-does-not-exist.js');
-    manager._host.getProjectRootPath.mockReturnValue('./');
+    manager._host.getProjectRootPath.mockReturnValue('/');
     manager._host.fileExists.mockReturnValue(false);
 
-    expect(manager._getOptions()).rejects.toEqual(
-      new Error("ScriptedHttpSchemaManager configuration script 'file-that-does-not-exist.js' does not exist"),
+    return expect(manager._getOptions()).rejects.toEqual(
+      new Error("ScriptedHttpSchemaManager configuration script '/file-that-does-not-exist.js' does not exist"),
     );
   });
 
-  it('should throw error if configuration script throws error', () => {
+  it('should throw error if configuration script throws error', async () => {
     const configScriptMock = jest.fn().mockReturnValue(new Promise((_, reject) => reject(new Error('Some error'))));
     const manager = createScriptedHttpSchemaManager();
     manager._host.fileExists.mockReturnValue(true);
     manager._host.getProjectRootPath.mockReturnValue('./');
     manager._requireScript.mockReturnValue(configScriptMock);
 
-    expect(manager._getOptions()).rejects.toEqual(
+    return expect(manager._getOptions()).rejects.toEqual(
       new Error(
         `ScriptedHttpSchemaManager configuration script './graphql-config' execution failed due to: Error: Some error`,
       ),
     );
   });
 
-  it('should throw error if request setup object does not contain url property', () => {
+  it('should throw error if request setup object does not contain url property', async () => {
     const wrongRequestSetup = {
       method: 'POST',
       headers: {
@@ -102,12 +102,12 @@ describe(ScriptedHttpSchemaManager, () => {
     manager._host.getProjectRootPath.mockReturnValue('./');
     manager._requireScript.mockReturnValue(configScriptMock);
 
-    expect(manager._getOptions()).rejects.toEqual(
+    return expect(manager._getOptions()).rejects.toEqual(
       new Error(`RequestSetup object is wrong: ${JSON.stringify(wrongRequestSetup, null, 2)}`),
     );
   });
 
-  it('should throw error if request setup object does contain misspelled method property', () => {
+  it('should throw error if request setup object does contain misspelled method property', async () => {
     const wrongRequestSetup = {
       url: 'http://example.com/graphql',
       methooood: 'POST',
@@ -121,12 +121,12 @@ describe(ScriptedHttpSchemaManager, () => {
     manager._host.getProjectRootPath.mockReturnValue('./');
     manager._requireScript.mockReturnValue(configScriptMock);
 
-    expect(manager._getOptions()).rejects.toEqual(
+    return expect(manager._getOptions()).rejects.toEqual(
       new Error(`RequestSetup object is wrong: ${JSON.stringify(wrongRequestSetup, null, 2)}`),
     );
   });
 
-  it('should throw error if request setup object does contain misspelled headers property', () => {
+  it('should throw error if request setup object does contain misspelled headers property', async () => {
     const wrongRequestSetup = {
       url: 'http://example.com/graphql',
       method: 'POST',
@@ -140,12 +140,12 @@ describe(ScriptedHttpSchemaManager, () => {
     manager._host.getProjectRootPath.mockReturnValue('./');
     manager._requireScript.mockReturnValue(configScriptMock);
 
-    expect(manager._getOptions()).rejects.toEqual(
+    return expect(manager._getOptions()).rejects.toEqual(
       new Error(`RequestSetup object is wrong: ${JSON.stringify(wrongRequestSetup, null, 2)}`),
     );
   });
 
-  it('should throw error if request setup object url is not url', () => {
+  it('should throw error if request setup object url is not url', async () => {
     const wrongRequestSetup = {
       url: 'some string',
       method: 'POST',
@@ -159,7 +159,9 @@ describe(ScriptedHttpSchemaManager, () => {
     manager._host.getProjectRootPath.mockReturnValue('./');
     manager._requireScript.mockReturnValue(configScriptMock);
 
-    expect(manager._getOptions()).rejects.toEqual(new Error('RequestSetup.url have to be valid url: some string'));
+    return expect(manager._getOptions()).rejects.toEqual(
+      new Error('RequestSetup.url have to be valid url: some string'),
+    );
   });
 
   it('should set method to POST if is not specified', async () => {
