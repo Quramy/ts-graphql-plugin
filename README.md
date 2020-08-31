@@ -47,7 +47,7 @@ This plugin has the following features:
 
 ## Getting started
 
-First, confirm that your project has typescript(v2.3.x or later) and graphql.
+First, confirm that your project has typescript(v2.3.x or later) and graphql(v15.x.0 or later).
 
 To install this plugin, execute the following:
 
@@ -471,6 +471,10 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Emacs
 - Sublime text
 - Eclipse
+
+## GraphQL version compatibility
+
+- If you use `graphql < 15.x`, install `ts-graphql-plugin@^1.x.x`.
 
 ## License
 
