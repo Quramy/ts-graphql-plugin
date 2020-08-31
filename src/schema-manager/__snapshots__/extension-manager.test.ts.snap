@@ -37,7 +37,7 @@ Array [
         "line": 0,
       },
     ],
-    "message": "Syntax Error: Expected Name, found )",
+    "message": "Syntax Error: Expected Name, found \\")\\".",
   },
 ]
 `;

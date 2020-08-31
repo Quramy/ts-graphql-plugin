@@ -64,7 +64,7 @@ export function getTransformer({
         const removed = !!tag && node.name?.text === tag;
         const ret = ts.visitEachChild(node, visit, ctx);
         if (!removed) return ret;
-        return ts.updateImportClause(ret, undefined, ret.namedBindings);
+        return ts.updateImportClause(ret, undefined, ret.namedBindings, false);
       }
 
       if (ts.isTaggedTemplateExpression(node) && (!tag || (ts.isIdentifier(node.tag) && node.tag.text === tag))) {

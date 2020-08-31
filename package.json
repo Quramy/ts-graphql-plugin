@@ -36,11 +36,11 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
-    "graphql-language-service-interface": "^2.0.0",
-    "graphql-language-service-types": "^1.5.2"
+    "graphql-language-service-interface": "^2.4.1",
+    "graphql-language-service-types": "^1.6.1"
   },
   "devDependencies": {
-    "@types/express": "^4.17.2",
+    "@types/express": "^4.17.7",
     "@types/graphql": "^14.2.3",
     "@types/jest": "^25.1.1",
     "@types/node": "^14.0.1",
@@ -48,32 +48,36 @@
     "@types/webpack": "^4.41.2",
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
-    "apollo-server": "^2.9.15",
-    "apollo-server-express": "^2.9.16",
+    "apollo-server": "^2.17.0",
+    "apollo-server-express": "^2.17.0",
     "c8": "^7.0.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.8.0",
     "express": "^4.17.1",
     "fretted-strings": "^1.0.0",
     "glob": "^7.1.2",
-    "graphql": "^14.5.0",
+    "graphql": "^15.3.0",
+    "graphql-config": "^3.0.3",
     "husky": "^4.0.2",
-    "jest": "^25.1.0",
+    "jest": "^26.4.2",
     "node-fetch": "^2.6.0",
     "npm-run-all": "^4.1.1",
     "prettier": "^2.0.1",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
-    "ts-jest": "^26.0.0",
+    "ts-jest": "^26.3.0",
     "ts-loader": "^6.2.1",
-    "typescript": "~3.7.0",
+    "typescript": "^3.9.7",
     "typescript-eslint-language-service": "^2.0.3",
     "vscode-languageserver-types": "^3.14.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   },
+  "resolutions": {
+    "@types/express-serve-static-core": "^4.17.9"
+  },
   "peerDependencies": {
-    "graphql": "^0.12.0 || ^14.0.0",
+    "graphql": "^15.3.0",
     "typescript": "^2.3.0 || ^3.0.0 || ^4.0.0"
   },
   "husky": {
