@@ -40,7 +40,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
             frets,
-          )
+          ),
         },
       ],
     });
@@ -86,7 +86,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '%%%           ^        ^   %%%' + '\n' +
             '%%%           a1       a2  %%%',
             frets,
-          )
+          ),
         },
       ],
     });
@@ -141,7 +141,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    ', frets)
+            '    ', frets),
         },
       ],
     });
@@ -217,7 +217,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
             '      ${fragment}'                                            + '\n' +
             '%%%     ^       ^                                        %%%' + '\n' +
             '%%%     a5      a4                                       %%%' + '\n' +
-            '    `;', frets)
+            '    `;', frets),
         },
       ],
     });
@@ -289,7 +289,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
               '      query MyQuery {'                                        + '\n' +
               '        ...Hoge'                                              + '\n' +
               '      }'                                                      + '\n' +
-              '    ', frets)
+              '    ', frets),
           },
         ],
       });
@@ -572,7 +572,7 @@ describe(TemplateExpressionResolver.prototype.update, () => {
             '%%%      a1    a2   %%%' + '\n' +
             '         bbbbbbb'        + '\n' +
             '    `;'                  + '\n' +
-            '    ', frets)
+            '    ', frets),
         },
       ],
     });

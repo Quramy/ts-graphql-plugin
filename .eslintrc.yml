@@ -27,6 +27,5 @@ rules:
   no-trailing-spaces:
     - error
     - ignoreComments: true
-  '@typescript-eslint/camelcase': error
   '@typescript-eslint/no-use-before-define': error
   '@typescript-eslint/no-namespace': error
