@@ -423,12 +423,18 @@ export class TypeGenVisitor {
 
   private _wrapTsTypeNodeWithModifiers(typeNode: ts.TypeNode, list: ListTypeKind, strict: boolean) {
     if (!strict) {
-      typeNode = ts.createUnionTypeNode([typeNode, ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword)]);
+      typeNode = ts.createUnionTypeNode([
+        typeNode,
+        ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
+      ]);
     }
     if (list === 'strictList' || list === 'nullableList') {
       typeNode = ts.createArrayTypeNode(typeNode);
       if (list === 'nullableList') {
-        typeNode = ts.createUnionTypeNode([typeNode, ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword)]);
+        typeNode = ts.createUnionTypeNode([
+          typeNode,
+          ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
+        ]);
       }
     }
     return typeNode;
