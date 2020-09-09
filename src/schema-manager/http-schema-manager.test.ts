@@ -1,26 +1,31 @@
-import express from 'express';
 import { Server } from 'http';
-import { ApolloServer, gql } from 'apollo-server-express';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
+import express from 'express';
+import { graphqlHTTP } from 'express-graphql';
 import { HttpSchemaManager } from './http-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
 function createServerFixture() {
-  const typeDefs = gql`
-    type Query {
-      hello: String!
-    }
-  `;
-  const server = new ApolloServer({ typeDefs, mocks: true });
+  const schema = new GraphQLSchema({
+    query: new GraphQLObjectType({
+      name: 'RootQueryType',
+      fields: {
+        hello: {
+          type: GraphQLString,
+          resolve() {
+            return 'world';
+          },
+        },
+      },
+    }),
+  });
   const app = express();
   app.post('/invalid-path', (_, res) => res.status(404).end());
   app.post('/invalid-json', (_, res) => res.status(200).end('text'));
   app.post('/invalid-schema', (_, res) => res.json({ hoge: 'hoge' }).status(200).end());
-  server.applyMiddleware({ app });
+  app.post('/graphql', graphqlHTTP({ schema, graphiql: false }));
   return new Promise<Server>(res => {
-    const server = app.listen(4001, () => {
-      res(server);
-    });
+    const server = app.listen(4001, () => res(server));
   });
 }
 
