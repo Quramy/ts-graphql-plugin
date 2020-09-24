@@ -55,8 +55,6 @@ class Stack<T> {
 type StructualModifierKind = 'null' | 'list';
 class StructureStack extends Stack<StructualModifierKind> {}
 
-type ListTypeKind = 'none' | 'nullableList' | 'strictList';
-
 type GraphQLFragmentTypeConditionNamedType = GraphQLObjectType | GraphQLUnionType | GraphQLInterfaceType;
 
 interface FieldModifier {
