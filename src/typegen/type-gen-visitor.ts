@@ -34,9 +34,10 @@ class Stack<T> {
   stack(value?: T) {
     if (value === undefined && this._initializer) {
       this._array.push(this._initializer());
-      return;
+      return this;
     } else if (value !== undefined) {
       this._array.push(value);
+      return this;
     } else {
       throw new Error();
     }
@@ -51,13 +52,13 @@ class Stack<T> {
   }
 }
 
-type ListTypeKind = 'none' | 'nullableList' | 'strictList';
+type StructualModifierKind = 'null' | 'list';
+class StructureStack extends Stack<StructualModifierKind> {}
 
 type GraphQLFragmentTypeConditionNamedType = GraphQLObjectType | GraphQLUnionType | GraphQLInterfaceType;
 
 interface FieldModifier {
-  list: ListTypeKind;
-  strict: boolean;
+  structureStack: StructureStack;
 }
 
 interface FieldMetadata extends FieldModifier {
@@ -159,8 +160,7 @@ export class TypeGenVisitor {
             typeNode: {
               name: { value: inputTypeName },
             },
-            list,
-            strict,
+            structureStack,
           } = this._getFieldMetadataFromTypeNode(node.type);
           const variableType = this._schema.getType(inputTypeName) as GraphQLInputType;
           if (!variableType) {
@@ -169,8 +169,7 @@ export class TypeGenVisitor {
           const visitVariableType = (
             name: string,
             variableType: GraphQLInputType,
-            list: ListTypeKind,
-            strict: boolean,
+            structureStack: StructureStack,
             optional: boolean,
           ) => {
             let typeNode: ts.TypeNode | undefined;
@@ -181,15 +180,15 @@ export class TypeGenVisitor {
             } else if (variableType instanceof GraphQLInputObjectType) {
               variableElementStack.stack();
               Object.entries(variableType.getFields()).forEach(([fieldName, v]) => {
-                const { fieldType, list, strict } = this._getFieldMetadataFromFieldTypeInstance(v);
-                visitVariableType(fieldName, fieldType, list, strict, false);
+                const { fieldType, structureStack } = this._getFieldMetadataFromFieldTypeInstance(v);
+                visitVariableType(fieldName, fieldType, structureStack, false);
               });
               typeNode = this._createTsFieldTypeNode(variableElementStack.consume());
             }
             if (!typeNode) {
               throw new Error('Unknown variable input type. ' + variableType.toJSON());
             }
-            typeNode = this._wrapTsTypeNodeWithModifiers(typeNode, list, strict);
+            typeNode = this._wrapTsTypeNodeWithStructualModifiers(typeNode, structureStack);
             variableElementStack.current.members.push(
               ts.createPropertySignature(
                 undefined,
@@ -200,7 +199,7 @@ export class TypeGenVisitor {
               ),
             );
           };
-          visitVariableType(node.variable.name.value, variableType, list, strict, !!node.defaultValue);
+          visitVariableType(node.variable.name.value, variableType, structureStack, !!node.defaultValue);
         },
       },
       FragmentDefinition: {
@@ -280,7 +279,7 @@ export class TypeGenVisitor {
             );
             return;
           }
-          const { fieldType, strict, list } = fieldMetadataMap.get(node)!;
+          const { fieldType, structureStack } = fieldMetadataMap.get(node)!;
           let typeNode: ts.TypeNode | undefined;
           if (fieldType instanceof GraphQLScalarType) {
             typeNode = this._createTsTypeNodeFromScalar(fieldType);
@@ -297,7 +296,7 @@ export class TypeGenVisitor {
           if (!typeNode) {
             throw new Error('Unknown field output type. ' + fieldType.toJSON());
           }
-          typeNode = this._wrapTsTypeNodeWithModifiers(typeNode, list, strict);
+          typeNode = this._wrapTsTypeNodeWithStructualModifiers(typeNode, structureStack);
           resultFieldElementStack.current.members.push(
             ts.createPropertySignature(
               undefined,
@@ -333,35 +332,14 @@ export class TypeGenVisitor {
 
   private _getFieldMetadataFromFieldTypeInstance<T extends GraphQLField<any, any> | GraphQLInputField>(field: T) {
     let fieldType = field!.type;
-    let listTypeKind: ListTypeKind | undefined;
-    let isStrict: boolean | undefined;
-    if (fieldType instanceof GraphQLNonNull) {
-      fieldType = fieldType.ofType;
+    const structureStack = new StructureStack().stack('null');
+    while (fieldType instanceof GraphQLNonNull || fieldType instanceof GraphQLList) {
       if (fieldType instanceof GraphQLList) {
-        fieldType = fieldType.ofType;
-        listTypeKind = 'strictList';
-        if (fieldType instanceof GraphQLNonNull) {
-          fieldType = fieldType.ofType;
-          isStrict = true;
-        } else {
-          isStrict = false;
-        }
-      } else {
-        isStrict = true;
-        listTypeKind = 'none';
+        structureStack.stack('list').stack('null');
+      } else if (fieldType instanceof GraphQLNonNull) {
+        structureStack.consume();
       }
-    } else if (fieldType instanceof GraphQLList) {
       fieldType = fieldType.ofType;
-      listTypeKind = 'nullableList';
-      if (fieldType instanceof GraphQLNonNull) {
-        fieldType = fieldType.ofType;
-        isStrict = true;
-      } else {
-        isStrict = false;
-      }
-    } else {
-      listTypeKind = 'none';
-      isStrict = false;
     }
     return {
       fieldType: fieldType as T extends GraphQLField<any, any>
@@ -369,44 +347,22 @@ export class TypeGenVisitor {
         : T extends GraphQLInputField
         ? GraphQLInputType
         : never,
-      list: listTypeKind,
-      strict: isStrict,
+      structureStack,
     };
   }
 
   private _getFieldMetadataFromTypeNode(node: TypeNode) {
     let typeNode = node;
-    let listTypeKind: ListTypeKind | undefined;
-    let isStrict: boolean | undefined;
-    if (typeNode.kind === 'NonNullType') {
-      typeNode = typeNode.type;
+    const structureStack = new StructureStack().stack('null');
+    while (typeNode.kind !== 'NamedType') {
       if (typeNode.kind === 'ListType') {
-        typeNode = typeNode.type;
-        listTypeKind = 'strictList';
-        if (typeNode.kind === 'NonNullType') {
-          typeNode = typeNode.type;
-          isStrict = true;
-        } else {
-          isStrict = false;
-        }
-      } else {
-        isStrict = true;
-        listTypeKind = 'none';
+        structureStack.stack('list').stack('null');
+      } else if (typeNode.kind === 'NonNullType') {
+        structureStack.consume();
       }
-    } else if (typeNode.kind === 'ListType') {
       typeNode = typeNode.type;
-      listTypeKind = 'nullableList';
-      if (typeNode.kind === 'NonNullType') {
-        typeNode = typeNode.type;
-        isStrict = true;
-      } else {
-        isStrict = false;
-      }
-    } else {
-      listTypeKind = 'none';
-      isStrict = false;
     }
-    return { typeNode: typeNode as NamedTypeNode, list: listTypeKind, strict: isStrict };
+    return { typeNode, structureStack };
   }
 
   private _isConcreteTypeOfParentUnionType(
@@ -421,23 +377,21 @@ export class TypeGenVisitor {
     }
   }
 
-  private _wrapTsTypeNodeWithModifiers(typeNode: ts.TypeNode, list: ListTypeKind, strict: boolean) {
-    if (!strict) {
-      typeNode = ts.createUnionTypeNode([
-        typeNode,
-        ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
-      ]);
+  private _wrapTsTypeNodeWithStructualModifiers(typeNode: ts.TypeNode, structureStack: StructureStack) {
+    let node = typeNode;
+    while (!structureStack.isEmpty) {
+      const kind = structureStack.consume();
+      node =
+        kind === 'null'
+          ? ts.createUnionTypeNode([
+              node,
+              ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
+            ])
+          : kind === 'list'
+          ? ts.createArrayTypeNode(node)
+          : node;
     }
-    if (list === 'strictList' || list === 'nullableList') {
-      typeNode = ts.createArrayTypeNode(typeNode);
-      if (list === 'nullableList') {
-        typeNode = ts.createUnionTypeNode([
-          typeNode,
-          ts.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
-        ]);
-      }
-    }
-    return typeNode;
+    return node;
   }
 
   private _createTsTypeNodeFromEnum(fieldType: GraphQLEnumType) {
