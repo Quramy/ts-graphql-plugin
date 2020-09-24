@@ -3,7 +3,7 @@
 [![github actions](https://github.com/Quramy/ts-graphql-plugin/workflows/build/badge.svg)](https://github.com/Quramy/ts-graphql-plugin/actions)
 [![codecov](https://codecov.io/gh/Quramy/ts-graphql-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/Quramy/ts-graphql-plugin)
 [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin)
-![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg) [![Greenkeeper badge](https://badges.greenkeeper.io/Quramy/ts-graphql-plugin.svg)](https://greenkeeper.io/)
+![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
 
 Provides functions to help TypeScript GraphQL client development including auto completion, query validation, type generation and so on.
