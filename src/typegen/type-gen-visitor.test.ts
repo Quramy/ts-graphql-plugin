@@ -120,6 +120,8 @@ describe('typegen', () => {
             nullableFieldStrictList(value: [String]!): String!
             strictFieldNullableList(value: [String!]): String!
             strictFieldStrictList(value: [String!]!): String!
+            nullableNestedList(value: [[String]]): String!
+            strictNestedList(value: [[String!]!]!): String!
           }
         `,
         documentContent: `
@@ -130,6 +132,8 @@ describe('typegen', () => {
             $var4: [String]!,
             $var5: [String!],
             $var6: [String!]!,
+            $var7: [[String]],
+            $var8: [[String!]!]!,
           ){
             nullableField(value: $var1)
             strictField(value: $var2)
@@ -137,6 +141,8 @@ describe('typegen', () => {
             nullableFieldStrictList(value: $var4)
             strictFieldNullableList(value: $var5)
             strictFieldStrictList(value: $var6)
+            nullableNestedList(value: $var7)
+            strictNestedList(value: $var8)
           }
         `,
       });
@@ -351,6 +357,8 @@ describe('typegen', () => {
               nullableFieldStrictList: [String]!
               strictFieldNullableList: [String!]
               strictFieldStrictList: [String!]!
+              nullableNestedList: [[String]]
+              strictNestedList: [[String!]!]!
             }
           `,
           documentContent: `
@@ -361,6 +369,8 @@ describe('typegen', () => {
               nullableFieldStrictList
               strictFieldNullableList
               strictFieldStrictList
+              nullableNestedList
+              strictNestedList
             }
           `,
         });

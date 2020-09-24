@@ -190,6 +190,8 @@ exports[`typegen result type generation output types pattern should gen type wit
     nullableFieldStrictList: (string | null)[];
     strictFieldNullableList: string[] | null;
     strictFieldStrictList: string[];
+    nullableNestedList: ((string | null)[] | null)[] | null;
+    strictNestedList: string[][];
 };
 export type MyQueryVariables = {};
 "
@@ -270,6 +272,8 @@ exports[`typegen variable type generation should gen type with correct list/nonN
     nullableFieldStrictList: string;
     strictFieldNullableList: string;
     strictFieldStrictList: string;
+    nullableNestedList: string;
+    strictNestedList: string;
 };
 export type MyQueryVariables = {
     var1: string | null;
@@ -278,6 +282,8 @@ export type MyQueryVariables = {
     var4: (string | null)[];
     var5: string[] | null;
     var6: string[];
+    var7: ((string | null)[] | null)[] | null;
+    var8: string[][];
 };
 "
 `;
