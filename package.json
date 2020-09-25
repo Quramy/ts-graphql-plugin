@@ -66,7 +66,7 @@
     "rimraf": "3.0.2",
     "ts-jest": "26.3.0",
     "ts-loader": "8.0.4",
-    "typescript": "4.0.2",
+    "typescript": "4.0.3",
     "typescript-eslint-language-service": "4.0.1",
     "vscode-languageserver-types": "3.15.1",
     "webpack": "4.44.2",
