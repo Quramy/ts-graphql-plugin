@@ -1814,10 +1814,10 @@ bytes@3.1.0:
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.1.0.tgz#f6cf7933a360e0588fa9fde85651cdc7f805d1f6"
   integrity sha512-zauLjrfCG+xvoyaqLoV8bLVXXNGC4JqlxFCutSDWA6fJrTo2ZuvLYTqZ7aHBLZSMOopbzwv8f+wZcVzfVTI2Dg==
 
-c8@7.3.1:
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/c8/-/c8-7.3.1.tgz#5cbcfb72e3b4ea104f0717bfe6fba50c62a3f15c"
-  integrity sha512-GXddMEWjNkw6OHQx0bRc+4Sk65beqQq9gBHLJxEYlmu3q+yIIBQpOjBApPyRcFjLTJHsWdWtrOMjLJkX7q7irQ==
+c8@7.3.2:
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/c8/-/c8-7.3.2.tgz#1eb8e2126a8a79ef426754d360ffe56cfa039b0e"
+  integrity sha512-7yC8oYh+EFF9SyAnxaUaSCAsYqY672Y+EpQB6c6Q5q58O7Ctykeuw4I/JSPoqoj2imiPYEQIbX3NTe/ZxZfLaQ==
   dependencies:
     "@bcoe/v8-coverage" "^0.2.3"
     "@istanbuljs/schema" "^0.1.2"
@@ -1829,7 +1829,7 @@ c8@7.3.1:
     istanbul-reports "^3.0.2"
     rimraf "^3.0.0"
     test-exclude "^6.0.0"
-    v8-to-istanbul "^5.0.0"
+    v8-to-istanbul "^6.0.0"
     yargs "^16.0.0"
     yargs-parser "^20.0.0"
 
@@ -7011,10 +7011,19 @@ v8-compile-cache@^2.1.1:
   resolved "https://registry.yarnpkg.com/v8-compile-cache/-/v8-compile-cache-2.1.1.tgz#54bc3cdd43317bca91e35dcaf305b1a7237de745"
   integrity sha512-8OQ9CL+VWyt3JStj7HX7/ciTL2V3Rl1Wf5OL+SNTm0yK1KvtReVulksyeRnCANHHuUxHlQig+JJDlUhBt1NQDQ==
 
-v8-to-istanbul@^5.0.0, v8-to-istanbul@^5.0.1:
+v8-to-istanbul@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/v8-to-istanbul/-/v8-to-istanbul-5.0.1.tgz#0608f5b49a481458625edb058488607f25498ba5"
   integrity sha512-mbDNjuDajqYe3TXFk5qxcQy8L1msXNE37WTlLoqqpBfRsimbNcrlhQlDPntmECEcUvdC+AQ8CyMMf6EUx1r74Q==
+  dependencies:
+    "@types/istanbul-lib-coverage" "^2.0.1"
+    convert-source-map "^1.6.0"
+    source-map "^0.7.3"
+
+v8-to-istanbul@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/v8-to-istanbul/-/v8-to-istanbul-6.0.0.tgz#645c3f4a0cdfc8a1ae5dc48ec6cf7328e7bec50a"
+  integrity sha512-o01hYXgLQVFfF1QOo7LeSqxC6J2BdnVS+dT6YGrKFMouLtLS7UTrjWVqYgkeef/iTpovP1WHyeDq0lRuLCEyIg==
   dependencies:
     "@types/istanbul-lib-coverage" "^2.0.1"
     convert-source-map "^1.6.0"
