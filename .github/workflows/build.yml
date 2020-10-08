@@ -27,9 +27,9 @@ jobs:
         with:
           name: jest
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage/coverage-final.json
+          file: ./coverage/lcov.info
       - uses: codecov/codecov-action@v1
         with:
           name: e2e
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./e2e_coverage/coverage-final.json
+          file: ./e2e_coverage/lcov.info

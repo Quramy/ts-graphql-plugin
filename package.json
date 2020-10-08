@@ -20,7 +20,7 @@
     "jest": "jest",
     "jest:ci": "jest --coverage",
     "e2e": "node e2e/run.js",
-    "e2e:ci": "c8 -o e2e_coverage -x e2e -r json -i \"src/**/*\" node e2e/run.js",
+    "e2e:ci": "c8 -o e2e_coverage -x e2e -r json -r lcov -i \"src/**/*\" node e2e/run.js",
     "test": "yarn format:check && yarn lint && yarn jest:ci && yarn e2e:ci",
     "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\" \"e2e/**/*\"",
     "format": "yarn prettier --write",
