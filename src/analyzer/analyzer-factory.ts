@@ -5,6 +5,17 @@ import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
 import { SchemaManagerHost, SchemaConfig } from '../schema-manager/types';
 
+const NO_PLUGCN_SETTING_ERROR_MESSAGE = `tsconfig.json should have ts-graphql-plugin setting. Add the following:
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "schema": "shema.graphql",   /* Path to your GraphQL schema */
+        "tag": "gql"                 /* Template tag function name */
+      }
+    ]
+  }`;
+
 export class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string>();
   private readonly _fileVersionMap = new Map<string, number>();
@@ -123,33 +134,11 @@ export class AnalyzerFactory {
     const prjRootPath = path.dirname(configPath);
     const plugins = tsconfig.options.plugins;
     if (!plugins || !Array.isArray(plugins)) {
-      throw new Error(
-        `tsconfig.json should have ts-graphql-plugin setting. Add the following:
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "ts-graphql-plugin",
-        "schema": "shema.graphql",   /* Path to your GraphQL schema */
-        "tag": "gql"                 /* Template tag function name */
-      }
-    ]
-  }`,
-      );
+      throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
     const found = (plugins as any[]).find((p: any) => p.name === 'ts-graphql-plugin');
     if (!found) {
-      throw new Error(
-        `tsconfig.json should have ts-graphql-plugin setting. Add the following:
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "ts-graphql-plugin",
-        "schema": "shema.graphql",   /* Path to your GraphQL schema */
-        "tag": "gql"                 /* Template tag function name */
-      }
-    ]
-  }`,
-      );
+      throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
     const pluginConfig = found as TsGraphQLPluginConfigOptions;
     return {

@@ -22,6 +22,14 @@ describe(AnalyzerFactory, () => {
       expect(() => new AnalyzerFactory().createAnalyzerFromProjectPath('NOT_EXISTING_PRJ')).toThrowError();
     });
 
+    it('should throw an error when project dir does not have tsconfig.json', () => {
+      expect(() =>
+        new AnalyzerFactory().createAnalyzerFromProjectPath(
+          path.resolve(__dirname, '../../project-fixtures/no-config-prj'),
+        ),
+      ).toThrowError();
+    });
+
     it('should throw an error when config has no plugins field', () => {
       expect(() =>
         new AnalyzerFactory().createAnalyzerFromProjectPath(
