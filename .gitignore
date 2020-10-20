@@ -4,6 +4,7 @@ types/
 *.log
 *.swp
 *.swo
+*.tsbuildinfo
 .DS_Store
 manifest.json
 coverage/
