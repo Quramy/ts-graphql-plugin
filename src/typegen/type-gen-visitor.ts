@@ -188,12 +188,16 @@ export class TypeGenVisitor {
             if (!typeNode) {
               throw new Error('Unknown variable input type. ' + variableType.toJSON());
             }
-            typeNode = this._wrapTsTypeNodeWithStructualModifiers(typeNode, structureStack);
+            const { node: tn, lastStructureKind } = this._wrapTsTypeNodeWithStructualModifiers(
+              typeNode,
+              structureStack,
+            );
+            typeNode = tn;
             variableElementStack.current.members.push(
               ts.createPropertySignature(
                 undefined,
                 name,
-                optional ? ts.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+                optional || lastStructureKind === 'null' ? ts.createToken(ts.SyntaxKind.QuestionToken) : undefined,
                 typeNode,
                 undefined,
               ),
@@ -296,7 +300,7 @@ export class TypeGenVisitor {
           if (!typeNode) {
             throw new Error('Unknown field output type. ' + fieldType.toJSON());
           }
-          typeNode = this._wrapTsTypeNodeWithStructualModifiers(typeNode, structureStack);
+          typeNode = this._wrapTsTypeNodeWithStructualModifiers(typeNode, structureStack).node;
           resultFieldElementStack.current.members.push(
             ts.createPropertySignature(
               undefined,
@@ -379,8 +383,9 @@ export class TypeGenVisitor {
 
   private _wrapTsTypeNodeWithStructualModifiers(typeNode: ts.TypeNode, structureStack: StructureStack) {
     let node = typeNode;
+    let kind: StructualModifierKind | undefined = undefined;
     while (!structureStack.isEmpty) {
-      const kind = structureStack.consume();
+      kind = structureStack.consume();
       node =
         kind === 'null'
           ? ts.createUnionTypeNode([
@@ -391,7 +396,7 @@ export class TypeGenVisitor {
           ? ts.createArrayTypeNode(node)
           : node;
     }
-    return node;
+    return { node, lastStructureKind: kind };
   }
 
   private _createTsTypeNodeFromEnum(fieldType: GraphQLEnumType) {

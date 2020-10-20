@@ -276,13 +276,13 @@ exports[`typegen variable type generation should gen type with correct list/nonN
     strictNestedList: string;
 };
 export type MyQueryVariables = {
-    var1: string | null;
+    var1?: string | null;
     var2: string;
-    var3: (string | null)[] | null;
+    var3?: (string | null)[] | null;
     var4: (string | null)[];
-    var5: string[] | null;
+    var5?: string[] | null;
     var6: string[];
-    var7: ((string | null)[] | null)[] | null;
+    var7?: ((string | null)[] | null)[] | null;
     var8: string[][];
 };
 "
