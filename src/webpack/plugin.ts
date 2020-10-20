@@ -5,11 +5,11 @@ import { TransformServer, GetTransformerOptions } from '../transformer/transform
 type WatchFileSystemCompiler = Compiler & {
   watchFileSystem: {
     watcher: {
-      mtimes: { [name: string]: number };
+      mtimes?: { [name: string]: number };
     };
     wfs: {
       watcher: {
-        mtimes: { [name: string]: number };
+        mtimes?: { [name: string]: number };
       };
     };
   };
@@ -34,7 +34,9 @@ export class WebpackPlugin {
     compiler.hooks.watchRun.tap(PLUGIN_NAME, () => {
       this._disabled = compiler.options.mode === 'development';
       const watcher = compiler.watchFileSystem.watcher || compiler.watchFileSystem.wfs.watcher;
-      const changedFiles = Object.keys(watcher.mtimes);
+      const changedFiles = compiler.modifiedFiles
+        ? [...compiler.modifiedFiles.keys()]
+        : Object.keys(watcher.mtimes ?? []); // webpack v4 does not expose modifiedFiles. So we access to changed files with some hacks.
       const changedSourceFileNames = changedFiles.filter(f => path.extname(f) === '.ts' || path.extname(f) === '.tsx');
       this._transformServer.updateFiles(changedSourceFileNames);
     });
