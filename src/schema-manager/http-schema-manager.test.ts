@@ -38,7 +38,7 @@ describe(HttpSchemaManager, () => {
   });
   afterAll(async () => {
     if (server) {
-      await new Promise(res => server!.close(() => res()));
+      await new Promise(res => server!.close(res));
     }
   });
 
@@ -99,7 +99,7 @@ describe(HttpSchemaManager, () => {
       method: 'POST',
       url: 'http://localhost:4001/graphql',
     });
-    await new Promise(res => server!.close(() => res()));
+    await new Promise(res => server!.close(res));
     manager.startWatch(50);
     await new Promise(res => setTimeout(res, 50));
     expect(manager.getBaseSchema()).toBeNull();

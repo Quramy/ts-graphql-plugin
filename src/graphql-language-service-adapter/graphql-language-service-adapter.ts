@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { GraphQLSchema, parse } from 'graphql';
-import { isTagged, ScriptSourceHelper, TagCondition } from '../ts-ast-util';
+import { isTagged, ScriptSourceHelper, TagCondition, isTemplateLiteralTypeNode } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { detectDuplicatedFragments } from '../gql-ast-util';
 import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
@@ -81,9 +81,12 @@ export class GraphQLLanguageServiceAdapter {
     let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
     if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
       node = foundNode;
-    } else if (ts.isTemplateHead(foundNode)) {
+    } else if (ts.isTemplateHead(foundNode) && !isTemplateLiteralTypeNode(foundNode.parent)) {
       node = foundNode.parent;
-    } else if (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) {
+    } else if (
+      (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) &&
+      !isTemplateLiteralTypeNode(foundNode.parent.parent)
+    ) {
       node = foundNode.parent.parent;
     } else {
       return;
