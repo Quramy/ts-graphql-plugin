@@ -111,7 +111,7 @@ query MyQuery {
 exports[`Extractor should store template resolve errors with too complex interpolation 1`] = `
 Object {
   "end": 219,
-  "message": "This operation or fragment has too complex interpolation to analize.",
+  "message": "This operation or fragment has too complex interpolation to analyze.",
   "start": 207,
 }
 `;
