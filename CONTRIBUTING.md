@@ -47,7 +47,7 @@ yarn test
 
 ### E2E testing
 
-In some cases, it's difficult to cover entire functions by unit testing. For example, we should assert "Out language service extension should react when text editor/IDE send a request". We should make sure the whole feature works together correctly.
+In some cases, it's difficult to cover entire functions by unit testing. For example, we should assert "Our language service extension should react when text editor/IDE send a request". We should make sure the whole feature works together correctly.
 
 In such cases, consider adding E2E test specs.
 
