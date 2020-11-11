@@ -20,19 +20,7 @@ query GitHubQuery($first: Int!) {
 }
 ```
 
-From [src/index.tsx:12:19](src/index.tsx#L12-L24)
-    
-## Fragments
-
-### RepositoryFragment
-
-```graphql
-fragment RepositoryFragment on Repository {
-  description
-}
-```
-
-From [src/index.tsx:6:32](src/index.tsx#L6-L10)
+From [src/index.tsx:11:19](src/index.tsx#L11-L23)
     
 ---
 Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)
