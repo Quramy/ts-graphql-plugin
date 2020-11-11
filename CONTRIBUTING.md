@@ -51,14 +51,22 @@ In some cases, it's difficult to cover entire functions by unit testing. For exa
 
 In such cases, consider adding E2E test specs.
 
-```
+```sh
 yarn compile
-yarn e2e
+yarn e2e all
+```
+
+You can specify test suite name via:
+
+```sh
+yarn e2e cli # Execute only specs under e2e/cli-specs
 ```
 
 ### Manual testing
 
 #### Language service plugin
+
+You can check manually language service plugin features with our example project.
 
 ```sh
 yarn compile
@@ -66,8 +74,10 @@ yarn link
 cd project-fixtures/react-apollo-prj
 yarn install
 yarn link ts-graphql-plugin
-code .
+code . # Or launch editor/IDE what you like
 ```
+
+Of course, you can use other editor which communicates with tsserver .
 
 #### CLI
 
