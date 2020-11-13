@@ -1,30 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`typegen result type generation __typename field should gen __typename type from interface type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     node: {
         __typename: string;
     };
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation __typename field should gen __typename type from object type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     __typename: \\"Query\\";
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation __typename field should gen __typename type from union type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     item: {
         __typename: \\"User\\" | \\"Page\\";
     };
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
@@ -36,50 +42,61 @@ exports[`typegen result type generation definition node pattern should gen type 
 `;
 
 exports[`typegen result type generation definition node pattern should gen type from mutation operation def 1`] = `
-"export type MyMutaion = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyMutaion = {
     like: string;
 };
 export type MyMutaionVariables = {};
+export type MyMutaionDocument = TypedDocumentNode<MyMutaion, MyMutaionVariables>;
 "
 `;
 
 exports[`typegen result type generation definition node pattern should gen type from query operation def 1`] = `
-"export type QueryResult = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type QueryResult = {
     hello: string;
 };
 export type QueryVariables = {};
+export type QueryDocument = TypedDocumentNode<QueryResult, QueryVariables>;
 "
 `;
 
 exports[`typegen result type generation definition node pattern should gen type from subscription operation def 1`] = `
-"export type MySubscription = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MySubscription = {
     issue: string;
 };
 export type MySubscriptionVariables = {};
+export type MySubscriptionDocument = TypedDocumentNode<MySubscription, MySubscriptionVariables>;
 "
 `;
 
 exports[`typegen result type generation fragment spread reference should gen type from inline fragment with type condition 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     id: string;
 } & ({
     hello: string;
 });
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation fragment spread reference should gen type from inline fragment without type condition 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     id: string;
     hello: string;
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation fragment spread reference should gen type reference from fragment spread on field selection 1`] = `
-"export type MyFragment = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyFragment = {
     name: string;
     age: number;
 };
@@ -89,6 +106,7 @@ export type MyQuery = {
     } & MyFragment)[];
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
@@ -103,18 +121,21 @@ export type B = {
 `;
 
 exports[`typegen result type generation fragment spread reference should gen type reference from fragment spread on operation 1`] = `
-"export type MyFragment = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyFragment = {
     hello: string;
 };
 export type MyQuery = {
     bye: string;
 } & MyFragment;
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation fragment spread reference should gen union object literal type from inline fragment concrete type condition 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     item: ({
         id: string;
     }) & (({
@@ -124,11 +145,13 @@ exports[`typegen result type generation fragment spread reference should gen uni
     }));
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation fragment spread reference should gen union of type references from fragment concrete type condition 1`] = `
-"export type NodeFragment = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type NodeFragment = {
     id: string;
 };
 export type UserFragment = {
@@ -141,11 +164,13 @@ export type MyQuery = {
     item: NodeFragment & (UserFragment | PageFragment);
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type from built-in scalar types 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     idField: string;
     stringField: string;
     intField: number;
@@ -153,37 +178,45 @@ exports[`typegen result type generation output types pattern should gen type fro
     boolField: boolean;
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type from enum 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     color: (\\"RED\\" | \\"BLUE\\" | \\"GREEN\\") | null;
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type from interface type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     node: {
         id: string;
     };
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type from object type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     hello: string;
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type with correct list/nonNull modifiers 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     nullableField: string | null;
     strictField: string;
     nullableFieldNullableList: (string | null)[] | null;
@@ -194,39 +227,47 @@ exports[`typegen result type generation output types pattern should gen type wit
     strictNestedList: string[][];
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen result type generation output types pattern should gen type with field alias 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     greeting: string;
 };
 export type MyQueryVariables = {};
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen variable type generation should gen optional type with default value variable 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     hello: string;
 };
 export type MyQueryVariables = {
     count?: number | null;
 };
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen variable type generation should gen type from enum 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     enumInput: string;
 };
 export type MyQueryVariables = {
     color: \\"RED\\" | \\"BLUE\\" | \\"GREEN\\";
 };
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen variable type generation should gen type from input object type 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     lineInput: number;
 };
 export type MyQueryVariables = {
@@ -241,11 +282,13 @@ export type MyQueryVariables = {
         };
     };
 };
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen variable type generation should gen type from scalar types 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     idInput: string;
     strInput: string;
     intInput: string;
@@ -261,11 +304,13 @@ export type MyQueryVariables = {
     boolVar: boolean;
     scalarVar: any;
 };
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;
 
 exports[`typegen variable type generation should gen type with correct list/nonNull modifiers 1`] = `
-"export type MyQuery = {
+"import { TypedDocumentNode } from \\"@graphql-typed-document-node/core\\";
+export type MyQuery = {
     nullableField: string;
     strictField: string;
     nullableFieldNullableList: string;
@@ -285,5 +330,6 @@ export type MyQueryVariables = {
     var7?: ((string | null)[] | null)[] | null;
     var8: string[][];
 };
+export type MyQueryDocument = TypedDocumentNode<MyQuery, MyQueryVariables>;
 "
 `;

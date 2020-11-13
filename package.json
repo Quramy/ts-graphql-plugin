@@ -36,6 +36,7 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
+    "@graphql-typed-document-node/core": "*",
     "graphql-language-service-interface": "^2.4.1",
     "graphql-language-service-types": "^1.6.1"
   },
