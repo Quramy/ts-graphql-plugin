@@ -338,6 +338,57 @@ This option affects all editor supporting functions, results of CLI commands and
 
 If you set this option `false`, this plugin passes through query document without removing duplication.
 
+### `exportTypedQueryDocumentNode`
+
+It's optional and default: `false`. This option enables an experimental feature that requires `graphql` v15.4.0 or
+later. When enabled generated files export a type based on
+[`TypedQueryDocumentNode`](https://github.com/graphql/graphql-js/blob/master/src/utilities/typedQueryDocumentNode.d.ts)
+from GraphQL. The type extends the standard `DocumentNode` AST type but also includes types for result data and
+variables as type arguments.
+
+To use this feature you can apply a type assertion to `gql` template tag expressions that evaluate to a `DocumentNode`
+value.
+
+For example:
+
+```ts
+const query = gql`
+  query MyQuery($take: Int!) {
+    recipes(take: $take) {
+      id
+      title
+    }
+  }
+` as import('./__generated__/my-query.ts').MyQueryDocument;
+```
+
+With that type assertion in place result data and variable types will automatically flow through any function that
+accepts the `TypedQueryDocumentNode` type.
+
+For example here is how you can write a wrapper for the `useQuery` function from Apollo Client:
+
+```ts
+import { gql, QueryHookOptions, QueryResult, useQuery } from '@apollo/client';
+import { TypedQueryDocumentNode } from 'graphql';
+
+function useTypedQuery<ResponseData, Variables>(
+  query: TypedQueryDocumentNode<ResponseData, Variables>,
+  options: QueryHookOptions<ResponseData, Variables>,
+): QueryResult<ResponseData, Variables> {
+  return useQuery(query, options);
+}
+
+// example usage
+const { data } = useTypedQuery(query, { variables: { take: 100 } });
+//      ^                                          ^
+//      inferred type is `MyQuery`                 |
+//                                                 |
+//                                        inferred type is `MyQueryVariables`
+```
+
+The result is that generated types are associated with queries at the point where the query is defined instead of at the
+points where the query is executed.
+
 ## webpack custom transformer
 
 ts-graphql-plugin provides TypeScript custom transformer to static transform from query template strings to GraphQL AST. It's useful if you use https://github.com/apollographql/graphql-tag

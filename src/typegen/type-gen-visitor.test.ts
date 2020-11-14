@@ -1,11 +1,23 @@
-import { TypeGenVisitor, TypeGenError } from './type-gen-visitor';
+import { TypeGenVisitor, TypeGenError, VisitOption } from './type-gen-visitor';
 import ts from 'typescript';
 import { parse, buildSchema } from 'graphql';
 
-function generateAstAndPrint({ schemaSDL, documentContent }: { schemaSDL: string; documentContent: string }) {
+function generateAstAndPrint({
+  schemaSDL,
+  documentContent,
+  visitOptions,
+}: {
+  schemaSDL: string;
+  documentContent: string;
+  visitOptions?: Partial<VisitOption>;
+}) {
   const schema = buildSchema(schemaSDL);
   const documentNode = parse(documentContent);
-  const source = new TypeGenVisitor({ schema }).visit(documentNode, { outputFileName: 'out.ts' });
+  const source = new TypeGenVisitor({ schema }).visit(documentNode, {
+    exportTypedQueryDocumentNode: false,
+    outputFileName: 'out.ts',
+    ...visitOptions,
+  });
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: true });
   return printer.printFile(source);
 }
@@ -711,6 +723,44 @@ describe('typegen', () => {
               node {
                 __typename
               }
+            }
+          `,
+        });
+        expect(result).toMatchSnapshot();
+      });
+    });
+
+    describe('with exportTypedDocumentNode enabled', () => {
+      it('should export an alias of `TypedQueryDocumentNode` for a query', () => {
+        const result = generateAstAndPrint({
+          visitOptions: { exportTypedQueryDocumentNode: true },
+          schemaSDL: `
+            type Query {
+              hello: String!
+              bye: String!
+            }
+          `,
+          documentContent: `
+            query MyQuery {
+              hello
+              bye
+            }
+          `,
+        });
+        expect(result).toMatchSnapshot();
+      });
+
+      it('should not import `TypedQueryDocumentNode` in a module with no query', () => {
+        const result = generateAstAndPrint({
+          visitOptions: { exportTypedQueryDocumentNode: true },
+          schemaSDL: `
+            type Query {
+              hello: String
+            }
+          `,
+          documentContent: `
+            fragment MyFragment on Query {
+              hello
             }
           `,
         });

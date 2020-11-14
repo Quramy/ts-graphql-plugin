@@ -130,7 +130,12 @@ export class Analyzer {
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
+          outputSourceFiles.push(
+            visitor.visit(r.documentNode, {
+              exportTypedQueryDocumentNode: this._pluginConfig.exportTypedQueryDocumentNode ?? false,
+              outputFileName,
+            }),
+          );
           this._debug(
             `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
               this._prjRootPath,

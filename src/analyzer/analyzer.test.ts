@@ -9,8 +9,14 @@ type CreateTestingAnalyzerOptions = {
   sdl: string;
   files: { fileName: string; content: string }[];
   localSchemaExtension?: { fileName: string; content: string };
+  exportTypedQueryDocumentNode?: boolean;
 };
-function createTestingAnalyzer({ files: sourceFiles, sdl, localSchemaExtension }: CreateTestingAnalyzerOptions) {
+function createTestingAnalyzer({
+  files: sourceFiles,
+  sdl,
+  localSchemaExtension,
+  exportTypedQueryDocumentNode,
+}: CreateTestingAnalyzerOptions) {
   const files = [...sourceFiles];
   files.push({ fileName: '/schema.graphql', content: sdl });
   if (localSchemaExtension) {
@@ -21,6 +27,7 @@ function createTestingAnalyzer({ files: sourceFiles, sdl, localSchemaExtension }
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
     localSchemaExtensions: localSchemaExtension ? [localSchemaExtension.fileName] : [],
+    exportTypedQueryDocumentNode,
     removeDuplicatedFragments: true,
     tag: 'gql',
   };
@@ -131,6 +138,21 @@ const complexOperationsPrj = {
   ],
 };
 
+const exportTypedQueryDocumentNode = {
+  sdl: `
+  type Query {
+    hello: String!
+  }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: 'const query = gql`query MyQuery { hello }`;',
+    },
+  ],
+  exportTypedQueryDocumentNode: true,
+};
+
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
@@ -228,6 +250,16 @@ describe(Analyzer, () => {
       expect(outputSourceFiles.length).toBe(0);
       expect(errors.length).toBe(1);
       expect(errors[0].message).toMatchSnapshot();
+    });
+
+    it('should export alias of `TypedQueryDocumentNode`', async () => {
+      const analyzer = createTestingAnalyzer(exportTypedQueryDocumentNode);
+      const { outputSourceFiles } = await analyzer.typegen();
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(1);
+      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      const printer = ts.createPrinter();
+      expect(printer.printFile(outputSourceFiles[0])).toMatchSnapshot();
     });
   });
 });

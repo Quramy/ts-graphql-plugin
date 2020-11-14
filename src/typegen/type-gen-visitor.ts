@@ -1,26 +1,26 @@
-import ts from 'typescript';
 import {
-  GraphQLSchema,
+  ASTNode,
   DocumentNode,
   FieldNode,
   FragmentDefinitionNode,
-  ASTNode,
-  NamedTypeNode,
-  TypeNode,
-  GraphQLScalarType,
   GraphQLEnumType,
-  GraphQLObjectType,
-  GraphQLUnionType,
-  GraphQLInterfaceType,
-  GraphQLInputObjectType,
-  GraphQLList,
-  GraphQLNonNull,
   GraphQLField,
   GraphQLInputField,
+  GraphQLInputObjectType,
   GraphQLInputType,
+  GraphQLInterfaceType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLObjectType,
   GraphQLOutputType,
+  GraphQLScalarType,
+  GraphQLSchema,
+  GraphQLUnionType,
+  NamedTypeNode,
+  TypeNode,
 } from 'graphql';
 import { visit } from 'graphql/language';
+import ts from 'typescript';
 
 class Stack<T> {
   private _array: T[] = [];
@@ -84,6 +84,7 @@ export type TypeGenVisitorOptions = {
 };
 
 export type VisitOption = {
+  exportTypedQueryDocumentNode: boolean;
   outputFileName: string;
 };
 
@@ -92,7 +93,7 @@ export class TypeGenVisitor {
   constructor({ schema }: TypeGenVisitorOptions) {
     this._schema = schema;
   }
-  visit(documentNode: DocumentNode, { outputFileName }: VisitOption) {
+  visit(documentNode: DocumentNode, { exportTypedQueryDocumentNode, outputFileName }: VisitOption) {
     const statements: ts.Statement[] = [];
     const parentTypeStack = new Stack<GraphQLFragmentTypeConditionNamedType>();
     const resultFieldElementStack = new Stack<FieldTypeElement>(() => ({
@@ -141,21 +142,17 @@ export class TypeGenVisitor {
         leave: node => {
           const resultTypeName = node.name ? node.name.value : 'QueryResult';
           const variablesTypeName = node.name ? node.name.value + 'Variables' : 'QueryVariables';
-          const documentTypeName = node.name ? node.name.value + 'Document' : 'QueryDocument';
           statements.push(this._createTsTypeDeclaration(resultTypeName, resultFieldElementStack.consume()));
           statements.push(this._createTsTypeDeclaration(variablesTypeName, variableElementStack.consume()));
-          statements.push(
-            ts.createTypeAliasDeclaration(
-              undefined,
-              ts.createModifiersFromModifierFlags(ts.ModifierFlags.Export),
-              documentTypeName,
-              undefined,
-              ts.createTypeReferenceNode('TypedDocumentNode', [
-                ts.createTypeReferenceNode(resultTypeName),
-                ts.createTypeReferenceNode(variablesTypeName),
-              ]),
-            ),
-          );
+          if (exportTypedQueryDocumentNode) {
+            statements.push(
+              this._createTypedQueryDocumentNodeAliasDeclaration({
+                operationName: node.name?.value,
+                resultTypeName,
+                variablesTypeName,
+              }),
+            );
+          }
           parentTypeStack.consume();
         },
       },
@@ -320,10 +317,13 @@ export class TypeGenVisitor {
       },
     });
 
-    // Prepend `TypedDocumentNode` import to statements if it is referenced in
-    // one of the existing statements.
-    if (statements.some(statement => this._isTypedDocumentNodeAliasDeclaration(statement))) {
-      statements.unshift(this._createTypedDocumentNodeImportDeclaration());
+    // Prepend `TypedQueryDocumentNode` import to statements if it is referenced
+    // in one of the existing statements.
+    if (
+      exportTypedQueryDocumentNode &&
+      statements.some(statement => this._isTypedQueryDocumentNodeAliasDeclaration(statement))
+    ) {
+      statements.unshift(this._createTypedQueryDocumentNodeImportDeclaration());
     }
 
     const sourceFile = ts.createSourceFile(outputFileName, '', ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
@@ -493,17 +493,39 @@ export class TypeGenVisitor {
     return ts.createIntersectionTypeNode(toIntersectionElements);
   }
 
-  private _isTypedDocumentNodeAliasDeclaration(statement: ts.Statement): boolean {
+  private _isTypedQueryDocumentNodeAliasDeclaration(statement: ts.Statement): boolean {
     const type = ts.isTypeAliasDeclaration(statement) && statement.type;
     if (type && ts.isTypeReferenceNode(type)) {
       if (ts.isIdentifier(type.typeName)) {
-        return type.typeName.text === 'TypedDocumentNode';
+        return type.typeName.text === 'TypedQueryDocumentNode';
       }
     }
     return false;
   }
 
-  private _createTypedDocumentNodeImportDeclaration(): ts.Statement {
+  private _createTypedQueryDocumentNodeAliasDeclaration({
+    operationName,
+    resultTypeName,
+    variablesTypeName,
+  }: {
+    operationName: string | undefined;
+    resultTypeName: string;
+    variablesTypeName: string;
+  }): ts.Statement {
+    const documentTypeName = operationName ? operationName + 'Document' : 'QueryDocument';
+    return ts.createTypeAliasDeclaration(
+      undefined,
+      ts.createModifiersFromModifierFlags(ts.ModifierFlags.Export),
+      documentTypeName,
+      undefined,
+      ts.createTypeReferenceNode('TypedQueryDocumentNode', [
+        ts.createTypeReferenceNode(resultTypeName),
+        ts.createTypeReferenceNode(variablesTypeName),
+      ]),
+    );
+  }
+
+  private _createTypedQueryDocumentNodeImportDeclaration(): ts.Statement {
     return ts.factory.createImportDeclaration(
       undefined,
       undefined,
@@ -511,10 +533,10 @@ export class TypeGenVisitor {
         false,
         undefined,
         ts.factory.createNamedImports([
-          ts.factory.createImportSpecifier(undefined, ts.factory.createIdentifier('TypedDocumentNode')),
+          ts.factory.createImportSpecifier(undefined, ts.factory.createIdentifier('TypedQueryDocumentNode')),
         ]),
       ),
-      ts.factory.createStringLiteral('@graphql-typed-document-node/core'),
+      ts.factory.createStringLiteral('graphql'),
     );
   }
 }
