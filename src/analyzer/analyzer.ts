@@ -2,7 +2,7 @@ import ts from 'typescript';
 import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
-import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
+import { createScriptSourceHelper, createSourceWriteHelper } from '../ts-ast-util';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
@@ -131,7 +131,9 @@ export class Analyzer {
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          const outputSourceFile = visitor.visit(extractedResult.documentNode, { outputFileName });
+          // TODO Create type gen addon and pass it visitor.
+          const sourceWriteHelper = createSourceWriteHelper({ outputFileName });
+          const outputSourceFile = visitor.visit(extractedResult.documentNode, { sourceWriteHelper });
           const content = printer.printFile(outputSourceFile);
           outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(
