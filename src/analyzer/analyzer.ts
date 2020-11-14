@@ -108,7 +108,8 @@ export class Analyzer {
     }
     const typegenErrors: TsGqlError[] = [];
     const visitor = new TypeGenVisitor({ schema });
-    const outputSourceFiles: ts.SourceFile[] = [];
+    const outputSourceFiles: { fileName: string; content: string }[] = [];
+    const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
     extractedResults.forEach(r => {
       if (r.documentNode) {
         const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
@@ -130,7 +131,9 @@ export class Analyzer {
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
+          const outputSourceFile = visitor.visit(r.documentNode, { outputFileName });
+          const content = printer.printFile(outputSourceFile);
+          outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(
             `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
               this._prjRootPath,

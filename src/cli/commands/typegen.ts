@@ -39,8 +39,7 @@ export async function typegenCommand({ options }: CommandOptions<typeof cliDefin
     logger.error('No type files to generate.');
     return false;
   }
-  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
-  outputSourceFiles.forEach(source => ts.sys.writeFile(source.fileName, printer.printFile(source)));
+  outputSourceFiles.forEach(source => ts.sys.writeFile(source.fileName, source.content));
   logger.info(`Write ${color.green(outputSourceFiles.length + ' type files')}.`);
   return true;
 }

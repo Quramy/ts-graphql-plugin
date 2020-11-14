@@ -1,4 +1,3 @@
-import ts from 'typescript';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { Analyzer } from './analyzer';
 import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
@@ -208,8 +207,7 @@ describe(Analyzer, () => {
       if (!outputSourceFiles) return fail();
       expect(outputSourceFiles.length).toBe(1);
       expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
-      const printer = ts.createPrinter();
-      expect(printer.printFile(outputSourceFiles[0])).toMatchSnapshot();
+      expect(outputSourceFiles[0].content).toMatchSnapshot();
     });
 
     it('should ignore complex operations document', async () => {
