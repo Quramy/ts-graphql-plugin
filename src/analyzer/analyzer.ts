@@ -110,14 +110,14 @@ export class Analyzer {
     const visitor = new TypeGenVisitor({ schema });
     const outputSourceFiles: { fileName: string; content: string }[] = [];
     const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
-    extractedResults.forEach(r => {
-      if (r.documentNode) {
-        const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
+    extractedResults.forEach(extractedResult => {
+      if (extractedResult.documentNode) {
+        const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(extractedResult);
         if (type === 'complex') {
-          const fileName = r.fileName;
-          const content = r.templateNode.getSourceFile().getFullText();
-          const start = r.templateNode.getStart();
-          const end = r.templateNode.getEnd();
+          const fileName = extractedResult.fileName;
+          const content = extractedResult.templateNode.getSourceFile().getFullText();
+          const start = extractedResult.templateNode.getStart();
+          const end = extractedResult.templateNode.getEnd();
           const errorContent = { fileName, content, start, end };
           const error = new ErrorWithLocation('This document node has complex operations.', errorContent);
           typegenErrors.push(error);
@@ -126,28 +126,28 @@ export class Analyzer {
         const operationOrFragmentName = type === 'fragment' ? fragmentName : operationName;
         if (!operationOrFragmentName) return;
         const outputFileName = path.resolve(
-          path.dirname(r.fileName),
+          path.dirname(extractedResult.fileName),
           '__generated__',
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          const outputSourceFile = visitor.visit(r.documentNode, { outputFileName });
+          const outputSourceFile = visitor.visit(extractedResult.documentNode, { outputFileName });
           const content = printer.printFile(outputSourceFile);
           outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(
             `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
               this._prjRootPath,
-              r.fileName,
+              extractedResult.fileName,
             )}'.`,
           );
         } catch (error) {
           if (error instanceof TypeGenError) {
-            const sourcePosition = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
+            const sourcePosition = extractedResult.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
             if (sourcePosition.isInOtherExpression) return;
-            const fileName = r.fileName;
-            const content = r.templateNode.getSourceFile().getFullText();
+            const fileName = extractedResult.fileName;
+            const content = extractedResult.templateNode.getSourceFile().getFullText();
             const start = sourcePosition.pos;
-            const end = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos;
+            const end = extractedResult.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos;
             const errorContent = { fileName, content, start, end };
             const translatedError = new ErrorWithLocation(error.message, errorContent);
             typegenErrors.push(translatedError);
