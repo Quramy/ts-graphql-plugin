@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createSourceWriteHelper pushImportDeclaration should add statement at first when the helpper has no import statement 1`] = `
+"import \\"typescript\\";
+hoge;
+"
+`;
+
+exports[`createSourceWriteHelper pushImportDeclaration should add statement at next the last import declaration 1`] = `
+"import \\"typescript\\";
+import \\"graphql\\";
+hoge;
+"
+`;
+
+exports[`createSourceWriteHelper writeLeadingComment should comment at the top of file 1`] = `
+"/* foo */
+/* bar */
+hoge;
+"
+`;
+
+exports[`createSourceWriteHelper writeLeadingComment should comment when helper has no statement 1`] = `
+"/* foo */
+hoge;
+"
+`;
