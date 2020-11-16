@@ -1,41 +1,7 @@
 import * as ts from 'typescript';
-import { findNode } from '.';
 import { location2pos, pos2location } from '../string-util';
-
-export type ComputePosition = (
-  innerPosition: number,
-) => {
-  fileName: string;
-  pos: number;
-  isInOtherExpression?: boolean;
-};
-
-/**
- *
- * Serves the following information.
- *
- * - interpolated string
- * - positon converting functions between TS source and GraphQL document
- *
- **/
-export interface ResolvedTemplateInfo {
-  combinedText: string;
-  getInnerPosition: ComputePosition;
-  getSourcePosition: ComputePosition;
-  convertInnerPosition2InnerLocation: (pos: number) => { line: number; character: number };
-  convertInnerLocation2InnerPosition: (location: { line: number; character: number }) => number;
-}
-
-export interface ResolveErrorInfo {
-  fileName: string;
-  start: number;
-  end: number;
-}
-
-export interface ResolveResult {
-  resolvedInfo?: ResolvedTemplateInfo;
-  resolveErrors: ResolveErrorInfo[];
-}
+import { findNode } from './utilily-functions';
+import { ComputePosition, ResolvedTemplateInfo, ResolveResult, ResolveErrorInfo } from './types';
 
 const last: ComputePosition = (pos: number) => {
   throw new Error('invalid range: ' + pos);

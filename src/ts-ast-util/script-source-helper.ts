@@ -1,6 +1,6 @@
 import ts from 'typescript';
-import { findAllNodes, findNode } from './';
 import { ScriptSourceHelper } from './types';
+import { findAllNodes, findNode } from './utilily-functions';
 import { TemplateExpressionResolver } from './template-expression-resolver';
 
 export function createScriptSourceHelper({

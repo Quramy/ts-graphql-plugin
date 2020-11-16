@@ -33,6 +33,62 @@ describe(createSourceWriteHelper, () => {
     });
   });
 
+  describe(Helper.prototype.pushNamedImportIfNeeded, () => {
+    it('should add import statement when there are no imports', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushNamedImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+
+    it('should not add import statement when the same statement exists', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushNamedImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.pushNamedImportIfNeeded('Hoge', './foo')).toBeFalsy();
+      expect(helper.getStatements().length).toBe(1);
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+
+    it('should add import specifier if named import statement for same module already exists', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushNamedImportIfNeeded('Foo', './foo')).toBeTruthy();
+      expect(helper.pushNamedImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.getStatements().length).toBe(1);
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+
+    it('should add import specifier if default import statement for same module already exists', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushDefaultImportIfNeeded('Foo', './foo')).toBeTruthy();
+      expect(helper.pushNamedImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.getStatements().length).toBe(1);
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+  });
+
+  describe(Helper.prototype.pushDefaultImportIfNeeded, () => {
+    it('should add import statement when there are no imports', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushDefaultImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+
+    it('should not add import statement when the same statement exists', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushDefaultImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.pushDefaultImportIfNeeded('Hoge', './foo')).toBeFalsy();
+      expect(helper.getStatements().length).toBe(1);
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+
+    it('should add import specifier if named import statement for same module already exists', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      expect(helper.pushNamedImportIfNeeded('Foo', './foo')).toBeTruthy();
+      expect(helper.pushDefaultImportIfNeeded('Hoge', './foo')).toBeTruthy();
+      expect(helper.getStatements().length).toBe(1);
+      expect(helper.toFileContent().content).toMatchSnapshot();
+    });
+  });
+
   describe(Helper.prototype.writeLeadingComment, () => {
     it('should comment at the top of file', () => {
       const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });

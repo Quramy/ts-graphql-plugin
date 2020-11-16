@@ -7,6 +7,7 @@ import type {
   GraphQLScalarType,
 } from 'graphql/type';
 import type { DocumentNode, OperationDefinitionNode, FragmentDefinitionNode } from 'graphql/language';
+import { SourceWriteHelper } from '../ts-ast-util/types';
 
 type GraphQLFragmentTypeConditionNamedType = GraphQLObjectType | GraphQLUnionType | GraphQLInterfaceType;
 
@@ -22,16 +23,11 @@ export interface TypeGenAddonFactory {
 }
 
 export interface TypeGenVisitorAddonContext {
-  readonly pushImportDeclaration: (importDeclaration: ts.ImportDeclaration) => void;
-  readonly pushStatement: (statement: ts.Statement) => void;
-  readonly writeLeadingComment: (comment: string) => void;
-  readonly getStatements: () => ReadonlyArray<ts.Statement>;
+  readonly source: SourceWriteHelper;
 }
 
 // TODO move this type to other file because type-gen-visitor should not need to know the following info
 export interface TypeGenAddonInfo {
-  readonly outputDir: string;
-  readonly outputFilename: string;
   readonly schema: GraphQLSchema;
   readonly extractedInfo: {
     readonly fileName: string;
