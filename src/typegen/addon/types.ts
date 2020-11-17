@@ -7,7 +7,7 @@ import type {
   GraphQLScalarType,
 } from 'graphql/type';
 import type { DocumentNode, OperationDefinitionNode, FragmentDefinitionNode } from 'graphql/language';
-import { SourceWriteHelper } from '../ts-ast-util/types';
+import { SourceWriteHelper } from '../../ts-ast-util/types';
 
 type GraphQLFragmentTypeConditionNamedType = GraphQLObjectType | GraphQLUnionType | GraphQLInterfaceType;
 
@@ -18,22 +18,21 @@ export interface TypeGenVisitorAddon {
   fragmentDefinition?: (input: FragmentDefinitionInput) => void;
 }
 
+type ToStrict<T> = { [P in keyof T]-?: T[P] };
+export type StrictAddon = ToStrict<TypeGenVisitorAddon>;
+
 export interface TypeGenAddonFactory {
   (context: TypeGenVisitorAddonContext): TypeGenVisitorAddon;
 }
 
 export interface TypeGenVisitorAddonContext {
-  readonly source: SourceWriteHelper;
-}
-
-// TODO move this type to other file because type-gen-visitor should not need to know the following info
-export interface TypeGenAddonInfo {
   readonly schema: GraphQLSchema;
   readonly extractedInfo: {
     readonly fileName: string;
     readonly tsSourceFile: ts.SourceFile;
     readonly tsTemplateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
   };
+  readonly source: SourceWriteHelper;
 }
 
 export interface CustomScalarInput {
