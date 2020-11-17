@@ -56,3 +56,31 @@ export function isImportDeclarationWithCondition(
   }
   return result;
 }
+
+export function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.NamedImportBindings | undefined) {
+  if (!base && !head) return undefined;
+  if (!base) return head;
+  if (!head) return base;
+  // treat namedImports only
+  if (ts.isNamespaceImport(base) || ts.isNamespaceImport(head)) return base;
+  return ts.updateNamedImports(base, [...base.elements, ...head.elements]);
+}
+
+export function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportClause | undefined) {
+  if (!base && !head) return undefined;
+  if (!base) return head;
+  if (!head) return base;
+  const name = head.name || base.name;
+  const namedBindings = mergeNamedBinding(base.namedBindings, head.namedBindings);
+  const isTypeOnly = base.isTypeOnly && head.isTypeOnly;
+  return ts.updateImportClause(base, name, namedBindings, isTypeOnly);
+}
+
+export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaration, head: ts.ImportDeclaration) {
+  if (!ts.isStringLiteralLike(base.moduleSpecifier) || !ts.isStringLiteralLike(head.moduleSpecifier)) return base;
+  if (base.moduleSpecifier.text !== head.moduleSpecifier.text) return base;
+  const decorators = head.decorators || base.decorators;
+  const modifiers = head.modifiers || base.modifiers;
+  const importClause = mergeImportClause(base.importClause, head.importClause);
+  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier);
+}

@@ -5,11 +5,6 @@ exports[`createSourceWriteHelper pushDefaultImportIfNeeded should add import spe
 "
 `;
 
-exports[`createSourceWriteHelper pushDefaultImportIfNeeded should add import statement when there are no imports 1`] = `
-"import Hoge from \\"./foo\\";
-"
-`;
-
 exports[`createSourceWriteHelper pushDefaultImportIfNeeded should not add import statement when the same statement exists 1`] = `
 "import Hoge from \\"./foo\\";
 "
@@ -28,18 +23,8 @@ hoge;
 "
 `;
 
-exports[`createSourceWriteHelper pushNamedImportIfNeeded should add import specifier if default import statement for same module already exists 1`] = `
-"import Foo, { Hoge } from \\"./foo\\";
-"
-`;
-
 exports[`createSourceWriteHelper pushNamedImportIfNeeded should add import specifier if named import statement for same module already exists 1`] = `
 "import { Foo, Hoge } from \\"./foo\\";
-"
-`;
-
-exports[`createSourceWriteHelper pushNamedImportIfNeeded should add import statement when there are no imports 1`] = `
-"import { Hoge } from \\"./foo\\";
 "
 `;
 

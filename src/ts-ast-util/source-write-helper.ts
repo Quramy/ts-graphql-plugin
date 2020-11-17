@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
 import { SourceWriteHelper } from './types';
-import { isImportDeclarationWithCondition } from './utilily-functions';
+import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
 
 const printer = ts.createPrinter();
 
@@ -26,93 +26,42 @@ export class Helper implements SourceWriteHelper {
 
   pushNamedImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from }) !== -1) return false;
+    const importSpecifier = ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName));
+    const namedBinding = ts.createNamedImports([importSpecifier]);
+    const importClause = ts.createImportClause(undefined, namedBinding);
+    const moduleSpecifier = ts.createStringLiteral(from);
+    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
-      this.pushImportDeclaration(
-        ts.createImportDeclaration(
-          undefined,
-          undefined,
-          ts.createImportClause(
-            undefined,
-            ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName))]),
-          ),
-          ts.createStringLiteral(from),
-        ),
-      );
-      return true;
+      this.pushImportDeclaration(importDeclaration);
+    } else {
+      const base = this.getStatements()[indexOfSameModuleImport] as ts.ImportDeclaration;
+      const merged = mergeImportDeclarationsWithSameModules(base, importDeclaration);
+      this._replaceStatement(indexOfSameModuleImport, merged);
     }
-    const statement = this.getStatements()[indexOfSameModuleImport] as ts.ImportDeclaration;
-    const importClause = statement.importClause
-      ? ts.updateImportClause(
-          statement.importClause,
-          statement.importClause.name,
-          statement.importClause.namedBindings && ts.isNamedImports(statement.importClause.namedBindings)
-            ? ts.updateNamedImports(statement.importClause.namedBindings, [
-                ...statement.importClause.namedBindings.elements,
-                ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName)),
-              ])
-            : ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName))]),
-          statement.importClause.isTypeOnly,
-        )
-      : ts.createImportClause(
-          undefined,
-          ts.createNamedImports([ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName))]),
-        );
-    this._replaceStatement(
-      indexOfSameModuleImport,
-      ts.updateImportDeclaration(
-        statement,
-        statement.decorators,
-        statement.modifiers,
-        importClause,
-        statement.moduleSpecifier,
-      ),
-    );
     return true;
   }
 
   pushDefaultImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from, isDefault: true }) !== -1) return false;
+    const importClause = ts.createImportClause(ts.createIdentifier(identifierName), undefined);
+    const moduleSpecifier = ts.createStringLiteral(from);
+    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
-      this.pushImportDeclaration(
-        ts.createImportDeclaration(
-          undefined,
-          undefined,
-          ts.createImportClause(ts.createIdentifier(identifierName), undefined),
-          ts.createStringLiteral(from),
-        ),
-      );
-      return true;
+      this.pushImportDeclaration(importDeclaration);
+    } else {
+      const base = this.getStatements()[indexOfSameModuleImport] as ts.ImportDeclaration;
+      const merged = mergeImportDeclarationsWithSameModules(base, importDeclaration);
+      this._replaceStatement(indexOfSameModuleImport, merged);
     }
-    const statement = this.getStatements()[indexOfSameModuleImport] as ts.ImportDeclaration;
-    const importClause = statement.importClause
-      ? ts.updateImportClause(
-          statement.importClause,
-          ts.createIdentifier(identifierName),
-          statement.importClause.namedBindings,
-          statement.importClause.isTypeOnly,
-        )
-      : ts.createImportClause(ts.createIdentifier(identifierName), undefined);
-    this._replaceStatement(
-      indexOfSameModuleImport,
-      ts.updateImportDeclaration(
-        statement,
-        statement.decorators,
-        statement.modifiers,
-        importClause,
-        statement.moduleSpecifier,
-      ),
-    );
     return true;
   }
 
   pushImportDeclaration(declaration: ts.ImportDeclaration) {
     let i = this._statements.length - 1;
     for (; i >= 0; i--) {
-      if (ts.isImportDeclaration(this._statements[i])) {
-        break;
-      }
+      if (ts.isImportDeclaration(this._statements[i])) break;
     }
     this._insertStatement(i, declaration);
   }
