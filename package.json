@@ -14,7 +14,7 @@
   },
   "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib e2e/*.log",
+    "clean": "rimraf lib \"e2e/*.log\" \"*.tsbuildinfo\"",
     "compile": "tsc -p .",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "jest": "jest",
