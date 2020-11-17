@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { registerTypeScript } from '../register-hooks';
 import { createParser } from './parser';
 import { cliDefinition as typegenOptions, typegenCommand } from './commands/typegen';
 import { cliDefinition as extractOptions, extractCommand } from './commands/extract';
@@ -64,6 +65,7 @@ async function main() {
 
   let result: boolean = false;
   try {
+    registerTypeScript();
     if (cli.command.typegen) {
       result = await typegenCommand(cli.command.typegen);
     } else if (cli.command.extract) {
