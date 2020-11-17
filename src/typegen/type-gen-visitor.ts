@@ -1,26 +1,26 @@
+import ts from 'typescript';
 import {
-  ASTNode,
+  GraphQLSchema,
   DocumentNode,
   FieldNode,
   FragmentDefinitionNode,
-  GraphQLEnumType,
-  GraphQLField,
-  GraphQLInputField,
-  GraphQLInputObjectType,
-  GraphQLInputType,
-  GraphQLInterfaceType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLObjectType,
-  GraphQLOutputType,
-  GraphQLScalarType,
-  GraphQLSchema,
-  GraphQLUnionType,
+  ASTNode,
   NamedTypeNode,
   TypeNode,
+  GraphQLScalarType,
+  GraphQLEnumType,
+  GraphQLObjectType,
+  GraphQLUnionType,
+  GraphQLInterfaceType,
+  GraphQLInputObjectType,
+  GraphQLList,
+  GraphQLNonNull,
+  GraphQLField,
+  GraphQLInputField,
+  GraphQLInputType,
+  GraphQLOutputType,
 } from 'graphql';
 import { visit } from 'graphql/language';
-import ts from 'typescript';
 
 class Stack<T> {
   private _array: T[] = [];
