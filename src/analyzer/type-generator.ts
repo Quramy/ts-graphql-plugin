@@ -4,27 +4,54 @@ import { GraphQLSchema } from 'graphql/type';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
 import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
-import { ExtractResult, Extractor } from './extractor';
+import { ExtractResult, Extractor, ExtractSucceededResult } from './extractor';
 import { dasherize } from '../string-util/case-converter';
-import { createSourceWriteHelper } from '../ts-ast-util';
+import { SourceWriteHelper, createSourceWriteHelper } from '../ts-ast-util';
+import { TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen/addon/types';
+import { mergeAddons } from '../typegen/addon/merge-addons';
 
 export type TypeGeneratorOptions = {
   prjRootPath: string;
   extractor: Extractor;
   debug: (msg: string) => void;
+  addonFactories: TypeGenAddonFactory[];
 };
 
 export class TypeGenerator {
   private readonly _prjRootPath: string;
   private readonly _extractor: Extractor;
+  private readonly _addonFactories: TypeGenAddonFactory[];
   private readonly _debug: (msg: string) => void;
   private readonly _printer: ts.Printer;
 
-  constructor({ prjRootPath, extractor, debug }: TypeGeneratorOptions) {
+  constructor({ prjRootPath, extractor, addonFactories, debug }: TypeGeneratorOptions) {
     this._prjRootPath = prjRootPath;
     this._extractor = extractor;
+    this._addonFactories = addonFactories;
     this._debug = debug;
     this._printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
+  }
+
+  createAddon({
+    schema,
+    extractedResult,
+    sourceWriteHelper,
+  }: {
+    schema: GraphQLSchema;
+    extractedResult: ExtractSucceededResult;
+    sourceWriteHelper: SourceWriteHelper;
+  }) {
+    const context: TypeGenVisitorAddonContext = {
+      schema,
+      source: sourceWriteHelper,
+      extractedInfo: {
+        fileName: extractedResult.fileName,
+        tsTemplateNode: extractedResult.templateNode,
+        tsSourceFile: extractedResult.templateNode.getSourceFile(),
+      },
+    };
+    const addons = this._addonFactories.map(factory => factory(context));
+    return { addon: mergeAddons(addons), context };
   }
 
   generateTypes({ extractedResults, schema }: { extractedResults: ExtractResult[]; schema: GraphQLSchema }) {
@@ -52,9 +79,9 @@ export class TypeGenerator {
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          // TODO Create type gen addon and pass it visitor.
           const sourceWriteHelper = createSourceWriteHelper({ outputFileName });
-          const outputSourceFile = visitor.visit(extractedResult.documentNode, { sourceWriteHelper });
+          const { addon } = this.createAddon({ schema, sourceWriteHelper, extractedResult });
+          const outputSourceFile = visitor.visit(extractedResult.documentNode, { sourceWriteHelper, addon });
           const content = this._printer.printFile(outputSourceFile);
           outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(

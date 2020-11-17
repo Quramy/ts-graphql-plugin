@@ -1,27 +1,31 @@
-import { TsGraphQLPluginConfigOptions } from '../types';
 import { Analyzer } from './analyzer';
 import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
 import { createTestingSchemaManagerHost } from '../schema-manager/testing/testing-schema-manager-host';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
+import { TsGraphQLPluginConfig } from './types';
 
 type CreateTestingAnalyzerOptions = {
   sdl: string;
-  files: { fileName: string; content: string }[];
+  files?: { fileName: string; content: string }[];
   localSchemaExtension?: { fileName: string; content: string };
 };
-function createTestingAnalyzer({ files: sourceFiles, sdl, localSchemaExtension }: CreateTestingAnalyzerOptions) {
+
+function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtension }: CreateTestingAnalyzerOptions) {
   const files = [...sourceFiles];
   files.push({ fileName: '/schema.graphql', content: sdl });
   if (localSchemaExtension) {
     files.push(localSchemaExtension);
   }
   const { languageServiceHost } = createTestingLanguageServiceAndHost({ files: sourceFiles });
-  const pluginConfig: TsGraphQLPluginConfigOptions = {
+  const pluginConfig: TsGraphQLPluginConfig = {
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
     localSchemaExtensions: localSchemaExtension ? [localSchemaExtension.fileName] : [],
     removeDuplicatedFragments: true,
     tag: 'gql',
+    typegen: {
+      addonFactories: [],
+    },
   };
   const schemaManagerHost = createTestingSchemaManagerHost({
     ...pluginConfig,

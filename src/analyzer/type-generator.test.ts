@@ -1,0 +1,49 @@
+import { buildSchema } from 'graphql';
+import { TypeGenerator } from './type-generator';
+import { createTesintExtractor } from './testing/testing-extractor';
+import { ExtractSucceededResult } from './extractor';
+import { createSourceWriteHelper } from '../ts-ast-util/source-write-helper';
+import { TypeGenAddonFactory } from '../typegen/addon/types';
+
+function createTestingTypeGenerator({
+  files = [],
+  addonFactories = [],
+}: {
+  files?: { fileName: string; content: string }[];
+  addonFactories?: TypeGenAddonFactory[];
+}) {
+  const extractor = createTesintExtractor(files, true);
+  const generator = new TypeGenerator({
+    prjRootPath: '',
+    addonFactories,
+    extractor,
+    debug: () => {},
+  });
+  return { generator, extractor };
+}
+
+describe(TypeGenerator, () => {
+  describe(TypeGenerator.prototype.createAddon, () => {
+    it('should create context for type-generator add on', () => {
+      const { generator, extractor } = createTestingTypeGenerator({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: 'export query = `query MyQuery { hello }`;',
+          },
+        ],
+      });
+      const result = extractor.extract(['main.ts']) as ExtractSucceededResult[];
+      const schema = buildSchema(`type Query { hello: String! }`);
+      const { addon, context } = generator.createAddon({
+        extractedResult: result[0],
+        schema,
+        sourceWriteHelper: createSourceWriteHelper({ outputFileName: 'my-query.ts' }),
+      });
+      expect(context.extractedInfo.fileName).toBe('main.ts');
+      expect(context.extractedInfo.tsSourceFile).toBeTruthy();
+      expect(context.source.outputFileName).toBe('my-query.ts');
+      expect(addon).toBeTruthy();
+    });
+  });
+});

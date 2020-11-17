@@ -3,14 +3,21 @@ import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
 import { createScriptSourceHelper } from '../ts-ast-util';
-import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { location2pos } from '../string-util';
 import { validate } from './validator';
-import { ManifestOutput } from './types';
+import { ManifestOutput, TsGraphQLPluginConfig } from './types';
 import { MarkdownReporter } from './markdown-reporter';
 import { TypeGenerator } from './type-generator';
+
+class TsGqlConfigError extends ErrorWithoutLocation {
+  constructor() {
+    const message =
+      'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.';
+    super(message);
+  }
+}
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   const fileName = errorInfo.fileName;
@@ -34,7 +41,7 @@ export class Analyzer {
   private _typeGenerator: TypeGenerator;
 
   constructor(
-    private readonly _pluginConfig: TsGraphQLPluginConfigOptions,
+    private readonly _pluginConfig: TsGraphQLPluginConfig,
     private readonly _prjRootPath: string,
     private readonly _languageServiceHost: ts.LanguageServiceHost,
     private readonly _schemaManager: SchemaManager,
@@ -53,6 +60,7 @@ export class Analyzer {
     this._typeGenerator = new TypeGenerator({
       prjRootPath: this._prjRootPath,
       extractor: this._extractor,
+      addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
   }
@@ -123,10 +131,7 @@ export class Analyzer {
       schemaBuildErrors.forEach(info => errors.push(convertSchemaBuildErrorsToErrorWithLocation(info)));
     }
     if (!schema && !errors.length) {
-      const error = new ErrorWithoutLocation(
-        'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.',
-      );
-      errors.push(error);
+      errors.push(new TsGqlConfigError());
     }
     return [errors, schema] as const;
   }
