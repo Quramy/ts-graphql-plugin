@@ -57,6 +57,8 @@ export interface SourceWriteHelper {
   readonly pushDefaultImportIfNeeded: (identifierName: string, from: string) => boolean;
   readonly pushNamedImportIfNeeded: (identifierName: string, from: string) => boolean;
   readonly pushStatement: (statement: ts.Statement) => void;
+  readonly replaceStatement: (statement: ts.Statement, newStatement: ts.Statement) => boolean;
+  readonly removeStatement: (statement: ts.Statement) => boolean;
   readonly writeLeadingComment: (comment: string) => void;
   readonly toSourceFile: () => ts.SourceFile;
 }

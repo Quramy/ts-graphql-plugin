@@ -9,6 +9,45 @@ describe(createSourceWriteHelper, () => {
       expect(helper.getStatements().length).toBe(1);
     });
   });
+  describe(Helper.prototype.replaceStatement, () => {
+    it('should replace exsiting statement to new statement', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      const st = ts.createExpressionStatement(ts.createIdentifier('hoge'));
+      const newSt = ts.createExpressionStatement(ts.createIdentifier('foo'));
+      helper.pushStatement(st);
+      expect(helper.replaceStatement(st, newSt)).toBeTruthy();
+      expect(helper.toFileContent().content.trim()).toBe('foo;');
+    });
+
+    it('should return false when the statement is not foundt', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      const st = ts.createExpressionStatement(ts.createIdentifier('hoge'));
+      const newSt = ts.createExpressionStatement(ts.createIdentifier('foo'));
+      const st2 = ts.createExpressionStatement(ts.createIdentifier('bar'));
+      helper.pushStatement(st2);
+      expect(helper.replaceStatement(st, newSt)).toBeFalsy();
+      expect(helper.toFileContent().content.trim()).toBe('bar;');
+    });
+  });
+
+  describe(Helper.prototype.removeStatement, () => {
+    it('should remove exsiting statement', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      const st = ts.createExpressionStatement(ts.createIdentifier('hoge'));
+      helper.pushStatement(st);
+      expect(helper.removeStatement(st)).toBeTruthy();
+      expect(helper.getStatements().length).toBe(0);
+    });
+
+    it('should return false when the statement is not found ', () => {
+      const helper = createSourceWriteHelper({ outputFileName: 'out.ts' });
+      const st = ts.createExpressionStatement(ts.createIdentifier('hoge'));
+      helper.pushStatement(st);
+      const st2 = ts.createExpressionStatement(ts.createIdentifier('hoge'));
+      expect(helper.removeStatement(st2)).toBeFalsy();
+      expect(helper.getStatements().length).toBe(1);
+    });
+  });
 
   describe(Helper.prototype.pushImportDeclaration, () => {
     it('should add statement at first when the helpper has no import statement', () => {

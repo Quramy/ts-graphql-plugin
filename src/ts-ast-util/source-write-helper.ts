@@ -75,6 +75,20 @@ export class Helper implements SourceWriteHelper {
     this._insertStatement(this._statements.length, statement);
   }
 
+  replaceStatement(statement: ts.Statement, newStatement: ts.Statement) {
+    const idx = this._findIndex(statement);
+    if (idx === -1) return false;
+    this._replaceStatement(idx, newStatement);
+    return true;
+  }
+
+  removeStatement(statement: ts.Statement) {
+    const idx = this._findIndex(statement);
+    if (idx === -1) return false;
+    this._statements = [...this._statements.slice(0, idx), ...this._statements.slice(idx + 1)];
+    return true;
+  }
+
   writeLeadingComment(comment: string) {
     if (this._statements.length > 0) {
       ts.addSyntheticLeadingComment(this._statements[0], ts.SyntaxKind.MultiLineCommentTrivia, ` ${comment} `, true);
@@ -95,6 +109,10 @@ export class Helper implements SourceWriteHelper {
   toFileContent() {
     const content = printer.printFile(this.toSourceFile());
     return { fileName: this._filename, content };
+  }
+
+  private _findIndex(statement: ts.Statement) {
+    return this._statements.findIndex(st => st === statement);
   }
 
   private _insertStatement(index: number, statement: ts.Statement) {

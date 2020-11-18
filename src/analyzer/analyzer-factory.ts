@@ -27,7 +27,7 @@ class TypegenAddonLoadError extends ErrorWithoutLocation {
 
 function loadAddonFactories(pluginConfig: TsGraphQLPluginConfigOptions, prjRootPath: string) {
   if (!pluginConfig.typegen?.addons || !Array.isArray(pluginConfig.typegen?.addons)) return [];
-  return pluginConfig.typegen.addons.map(addonName => {
+  const factories = pluginConfig.typegen.addons.map(addonName => {
     const addonPath =
       !path.isAbsolute(addonName) && addonName.startsWith('.')
         ? path.resolve(prjRootPath, addonName)
@@ -39,6 +39,7 @@ function loadAddonFactories(pluginConfig: TsGraphQLPluginConfigOptions, prjRootP
     }
     return require(addonPath) as TypeGenAddonFactory;
   });
+  return [...new Set(factories)];
 }
 
 export class ScriptHost implements ts.LanguageServiceHost {
