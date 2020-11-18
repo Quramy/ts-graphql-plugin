@@ -1,24 +1,29 @@
 import path from 'path';
 import ts from 'typescript';
-import { TypeGenAddonFactory } from '../../lib';
+import { TypeGenAddonFactory, TypeGenVisitorAddon } from '../../lib';
 
-// `addonFactory` function is called by each output file
-const addonFactory: TypeGenAddonFactory = ({ source, extractedInfo }) => {
-  const typeModuleRelativePath = path.relative(source.outputDirName, path.join(__dirname, 'types'));
+// `addonFactory` function is called for each output ts file 
+// and should return an object which implements `TypeGenVisitorAddon` interface.
+const addonFactory: TypeGenAddonFactory = typegenContext => {
+  const { source, extractedInfo } = typegenContext;
 
-  return {
+  const typesModuleRelativePath = path.relative(source.outputDirName, path.join(__dirname, 'types'));
+
+  const addon: TypeGenVisitorAddon = {
 
     // `document` callback reacts GraphQL Document (Root) AST node.
     document() {
-      source.writeLeadingComment(`This query is extracted from ${path.relative(__dirname, extractedInfo.fileName)}`);
+      source.writeLeadingComment(`The following types are extracted from ${path.relative(__dirname, extractedInfo.fileName)}`);
     },
 
-    // `customScalar` callback can
+    // `customScalar` is called back when processing GraphQL Scalar field.
+    // And it can return corresponding TypeScript TypeNode such as:
+    // `ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)`, `ts.createTypeReferenceNode('SomeType')`
     customScalar({ scalarType }) {
       switch (scalarType.name) {
         case 'URL': {
           // Write `import { GqlURL } from '../../types';
-          source.pushNamedImportIfNeeded('GqlURL', typeModuleRelativePath);
+          source.pushNamedImportIfNeeded('GqlURL', typesModuleRelativePath);
 
           // Set this field as TypeScript `GqlURL` type
           return ts.createTypeReferenceNode('GqlURL');
@@ -32,6 +37,8 @@ const addonFactory: TypeGenAddonFactory = ({ source, extractedInfo }) => {
       }
     },
   };
+
+  return addon;
 };
 
 module.exports = addonFactory;
