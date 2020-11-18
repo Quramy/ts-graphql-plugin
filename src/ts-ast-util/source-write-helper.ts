@@ -1,3 +1,4 @@
+import path from 'path';
 import ts from 'typescript';
 
 import { SourceWriteHelper } from './types';
@@ -18,6 +19,10 @@ export class Helper implements SourceWriteHelper {
 
   get outputFileName() {
     return this._filename;
+  }
+
+  get outputDirName() {
+    return path.dirname(this._filename);
   }
 
   findImportDeclarationIndex({ isDefault, name, from }: { isDefault?: boolean; name?: string; from?: string }) {

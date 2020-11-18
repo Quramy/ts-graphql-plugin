@@ -52,6 +52,7 @@ export interface ScriptSourceHelper {
 
 export interface SourceWriteHelper {
   readonly outputFileName: string;
+  readonly outputDirName: string;
   readonly getStatements: () => ReadonlyArray<ts.Statement>;
   readonly pushDefaultImportIfNeeded: (identifierName: string, from: string) => boolean;
   readonly pushNamedImportIfNeeded: (identifierName: string, from: string) => boolean;
