@@ -168,7 +168,7 @@ export class AnalyzerFactory {
     if (!plugins || !Array.isArray(plugins)) {
       throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
-    const found = (plugins as any[]).find((p: any) => p.name === 'ts-graphql-plugin');
+    const found = (plugins as any[]).find((p: any) => (p._name || p.name) === 'ts-graphql-plugin');
     if (!found) {
       throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
