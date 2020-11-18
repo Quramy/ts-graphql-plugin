@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2015",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "plugins": [
+      {
+        "name": "../../lib",
+        "_name": "ts-graphql-plugin",
+        "tag": "gql",
+        "schema": "schema.graphql",
+        "typegen": {
+          "addons": ["./addon"]
+        }
+      }
+    ]
+  }
+}
