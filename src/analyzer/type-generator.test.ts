@@ -23,6 +23,7 @@ function createTestingTypeGenerator({
 }
 
 describe(TypeGenerator, () => {
+  const schema = buildSchema(`type Query { hello: String! }`);
   describe(TypeGenerator.prototype.createAddon, () => {
     it('should create context for type-generator add on', () => {
       const { generator, extractor } = createTestingTypeGenerator({
@@ -34,7 +35,6 @@ describe(TypeGenerator, () => {
         ],
       });
       const result = extractor.extract(['main.ts']) as ExtractSucceededResult[];
-      const schema = buildSchema(`type Query { hello: String! }`);
       const { addon, context } = generator.createAddon({
         extractedResult: result[0],
         schema,
@@ -44,6 +44,74 @@ describe(TypeGenerator, () => {
       expect(context.extractedInfo.tsSourceFile).toBeTruthy();
       expect(context.source.outputFileName).toBe('my-query.ts');
       expect(addon).toBeTruthy();
+    });
+  });
+
+  describe(TypeGenerator.prototype.generateTypes, () => {
+    it('should create type files', () => {
+      const { generator, extractor } = createTestingTypeGenerator({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: 'const query = gql`query MyQuery { hello }`;',
+          },
+        ],
+      });
+      const { outputSourceFiles } = generator.generateTypes({
+        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        schema,
+      });
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(1);
+      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      expect(outputSourceFiles[0].content).toMatchSnapshot();
+    });
+
+    it('should ignore complex operations document', () => {
+      const { generator, extractor } = createTestingTypeGenerator({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: `
+              const query = gql\`
+                query MyQuery {
+                  hello
+                }
+                mutation MyMutaion {
+                  bye
+                }
+              \`;
+            `,
+          },
+        ],
+      });
+      const { outputSourceFiles, errors } = generator.generateTypes({
+        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        schema,
+      });
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(0);
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
+    });
+
+    it('should report errors occuring in typegen visitor', async () => {
+      const { generator, extractor } = createTestingTypeGenerator({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: 'const query = gql`query MyQuery { goodBye }`;',
+          },
+        ],
+      });
+      const { outputSourceFiles, errors } = generator.generateTypes({
+        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        schema,
+      });
+      if (!outputSourceFiles) return fail();
+      expect(outputSourceFiles.length).toBe(0);
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
     });
   });
 });

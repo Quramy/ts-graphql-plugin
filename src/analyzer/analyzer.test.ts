@@ -111,29 +111,6 @@ const semanticWarningPrj = {
   ],
 };
 
-const complexOperationsPrj = {
-  sdl: `
-  type Query {
-    hello: String!
-  }
-  `,
-  files: [
-    {
-      fileName: 'main.ts',
-      content: `
-        const query = gql\`
-          query MyQuery {
-            hello
-          }
-          mutation MyMutaion {
-            bye
-          }
-        \`;
-      `,
-    },
-  ],
-};
-
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
@@ -212,24 +189,6 @@ describe(Analyzer, () => {
       expect(outputSourceFiles.length).toBe(1);
       expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
       expect(outputSourceFiles[0].content).toMatchSnapshot();
-    });
-
-    it('should ignore complex operations document', async () => {
-      const analyzer = createTestingAnalyzer(complexOperationsPrj);
-      const { errors, outputSourceFiles } = await analyzer.typegen();
-      if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(0);
-      expect(errors.length).toBe(1);
-      expect(errors[0].message).toMatchSnapshot();
-    });
-
-    it('should report errors occuring in typegen visitor', async () => {
-      const analyzer = createTestingAnalyzer(semanticErrorPrj);
-      const { errors, outputSourceFiles } = await analyzer.typegen();
-      if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(0);
-      expect(errors.length).toBe(1);
-      expect(errors[0].message).toMatchSnapshot();
     });
   });
 });
