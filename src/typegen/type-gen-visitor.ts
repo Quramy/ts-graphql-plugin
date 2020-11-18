@@ -152,7 +152,7 @@ export class TypeGenVisitor {
           );
           sourceWriteHelper.pushStatement(tsVariableNode);
           const operationType = parentTypeStack.consume() as GraphQLObjectType;
-          addon.operationDefiniton({ graqhqlNode: node, operationType, tsResultNode, tsVariableNode });
+          addon.operationDefinition({ graqhqlNode: node, operationType, tsResultNode, tsVariableNode });
         },
       },
       VariableDefinition: {

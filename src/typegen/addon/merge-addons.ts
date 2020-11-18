@@ -20,8 +20,8 @@ export function mergeAddons(addonList: (TypeGenVisitorAddon | undefined)[]) {
       return addonList.forEach(addon => addon?.document?.(input));
     },
 
-    operationDefiniton(input: OperationDefinionInput) {
-      return addonList.forEach(addon => addon?.operationDefiniton?.(input));
+    operationDefinition(input: OperationDefinionInput) {
+      return addonList.forEach(addon => addon?.operationDefinition?.(input));
     },
 
     fragmentDefinition(input: FragmentDefinitionInput) {
