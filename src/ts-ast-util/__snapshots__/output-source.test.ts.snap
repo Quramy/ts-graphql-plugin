@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createOutputSource pushDefaultImportIfNeeded should add import specifier if named import statement for same module already exists 1`] = `
+"import Hoge, { Foo } from \\"./foo\\";
+"
+`;
+
+exports[`createOutputSource pushDefaultImportIfNeeded should not add import statement when the same statement exists 1`] = `
+"import Hoge from \\"./foo\\";
+"
+`;
+
+exports[`createOutputSource pushImportDeclaration should add statement at first when the helpper has no import statement 1`] = `
+"import \\"typescript\\";
+hoge;
+"
+`;
+
+exports[`createOutputSource pushImportDeclaration should add statement at next the last import declaration 1`] = `
+"import \\"typescript\\";
+import \\"graphql\\";
+hoge;
+"
+`;
+
+exports[`createOutputSource pushNamedImportIfNeeded should add import specifier if named import statement for same module already exists 1`] = `
+"import { Foo, Hoge } from \\"./foo\\";
+"
+`;
+
+exports[`createOutputSource pushNamedImportIfNeeded should not add import statement when the same statement exists 1`] = `
+"import { Hoge } from \\"./foo\\";
+"
+`;
+
+exports[`createOutputSource writeLeadingComment should comment at the top of file 1`] = `
+"/* foo */
+/* bar */
+hoge;
+"
+`;
+
+exports[`createOutputSource writeLeadingComment should comment when outputSource has no statement 1`] = `
+"/* foo */
+hoge;
+"
+`;

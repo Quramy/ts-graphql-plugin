@@ -7,7 +7,7 @@ import type {
   GraphQLScalarType,
 } from 'graphql/type';
 import type { DocumentNode, OperationDefinitionNode, FragmentDefinitionNode } from 'graphql/language';
-import { SourceWriteHelper } from '../../ts-ast-util/types';
+import { OutputSource } from '../../ts-ast-util/types';
 
 type GraphQLFragmentTypeConditionNamedType = GraphQLObjectType | GraphQLUnionType | GraphQLInterfaceType;
 
@@ -41,10 +41,10 @@ export interface TypeGenVisitorAddonContext {
   /**
    *
    * Utility object to mutate output source file.
-   * @see SourceWriteHelper
+   * @see OutputSource
    *
    */
-  readonly source: SourceWriteHelper;
+  readonly source: OutputSource;
 
   /**
    *

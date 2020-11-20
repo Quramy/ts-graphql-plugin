@@ -50,7 +50,7 @@ export interface ScriptSourceHelper {
   ) => ResolvedTemplateInfo;
 }
 
-export interface SourceWriteHelper {
+export interface OutputSource {
   readonly outputFileName: string;
   readonly outputDirName: string;
   readonly getStatements: () => ReadonlyArray<ts.Statement>;

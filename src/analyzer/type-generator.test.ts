@@ -2,8 +2,8 @@ import { buildSchema } from 'graphql';
 import { TypeGenerator } from './type-generator';
 import { createTesintExtractor } from './testing/testing-extractor';
 import { ExtractSucceededResult } from './extractor';
-import { createSourceWriteHelper } from '../ts-ast-util/source-write-helper';
 import { TypeGenAddonFactory } from '../typegen/addon/types';
+import { createOutputSource } from '../ts-ast-util';
 
 function createTestingTypeGenerator({
   files = [],
@@ -38,7 +38,7 @@ describe(TypeGenerator, () => {
       const { addon, context } = generator.createAddon({
         extractedResult: result[0],
         schema,
-        sourceWriteHelper: createSourceWriteHelper({ outputFileName: 'my-query.ts' }),
+        outputSource: createOutputSource({ outputFileName: 'my-query.ts' }),
       });
       expect(context.extractedInfo.fileName).toBe('main.ts');
       expect(context.extractedInfo.tsSourceFile).toBeTruthy();

@@ -6,7 +6,7 @@ import { TsGqlError, ErrorWithLocation } from '../errors';
 import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
 import { ExtractResult, Extractor, ExtractSucceededResult } from './extractor';
 import { dasherize } from '../string-util/case-converter';
-import { SourceWriteHelper, createSourceWriteHelper } from '../ts-ast-util';
+import { OutputSource, createOutputSource } from '../ts-ast-util';
 import { TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen/addon/types';
 import { mergeAddons } from '../typegen/addon/merge-addons';
 
@@ -35,15 +35,15 @@ export class TypeGenerator {
   createAddon({
     schema,
     extractedResult,
-    sourceWriteHelper,
+    outputSource,
   }: {
     schema: GraphQLSchema;
     extractedResult: ExtractSucceededResult;
-    sourceWriteHelper: SourceWriteHelper;
+    outputSource: OutputSource;
   }) {
     const context: TypeGenVisitorAddonContext = {
       schema,
-      source: sourceWriteHelper,
+      source: outputSource,
       extractedInfo: {
         fileName: extractedResult.fileName,
         tsTemplateNode: extractedResult.templateNode,
@@ -79,9 +79,9 @@ export class TypeGenerator {
           dasherize(operationOrFragmentName) + '.ts',
         );
         try {
-          const sourceWriteHelper = createSourceWriteHelper({ outputFileName });
-          const { addon } = this.createAddon({ schema, sourceWriteHelper, extractedResult });
-          const outputSourceFile = visitor.visit(extractedResult.documentNode, { sourceWriteHelper, addon });
+          const outputSource = createOutputSource({ outputFileName });
+          const { addon } = this.createAddon({ schema, outputSource, extractedResult });
+          const outputSourceFile = visitor.visit(extractedResult.documentNode, { outputSource, addon });
           const content = this._printer.printFile(outputSourceFile);
           outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(

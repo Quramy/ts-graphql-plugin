@@ -1,7 +1,7 @@
 import path from 'path';
 import ts from 'typescript';
 
-import { SourceWriteHelper } from './types';
+import { OutputSource } from './types';
 import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
 
 const printer = ts.createPrinter();
@@ -11,7 +11,7 @@ const printer = ts.createPrinter();
  * @internal
  *
  */
-export class Helper implements SourceWriteHelper {
+export class DefaultOutputSource implements OutputSource {
   private _unmergedComment: string[] = [];
   private _statements: ts.Statement[] = [];
 
@@ -129,6 +129,6 @@ export class Helper implements SourceWriteHelper {
   }
 }
 
-export function createSourceWriteHelper({ outputFileName }: { outputFileName: string }) {
-  return new Helper(outputFileName);
+export function createOutputSource({ outputFileName }: { outputFileName: string }) {
+  return new DefaultOutputSource(outputFileName);
 }
