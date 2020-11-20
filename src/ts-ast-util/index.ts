@@ -37,3 +37,8 @@ export function isTagged(node: ts.Node, condition: TagCondition) {
   const tagNode = node.parent;
   return tagNode.tag.getText() === condition;
 }
+
+export function isTemplateLiteralTypeNode(node: ts.Node): node is ts.TemplateLiteralTypeNode {
+  // ts.isNoSubstitutionTemplateLiteral exists TypeScript >= 4.1
+  return typeof ts.isTemplateLiteralTypeNode === 'function' && ts.isTemplateLiteralTypeNode(node);
+}

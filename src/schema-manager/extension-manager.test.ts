@@ -66,7 +66,7 @@ describe(ExtensionManager, () => {
     const { extensionManager, host } = createManagerWithHost({
       localSchemaExtensions: ['./testing/resources/normal.graphql'],
     });
-    const called = new Promise(res => extensionManager.startWatch(() => res()));
+    const called = new Promise<void>(res => extensionManager.startWatch(res));
     host.updateFile(path.join(__dirname, 'testing/resources/normal.graphql'), '');
     await called;
   });
