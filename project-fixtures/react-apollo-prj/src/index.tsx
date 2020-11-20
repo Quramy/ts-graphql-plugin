@@ -1,6 +1,5 @@
 import React from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from '@apollo/client/react/hooks';
+import { gql, useQuery } from '@apollo/client';
 import { GitHubQuery, GitHubQueryVariables } from './__generated__/git-hub-query';
 
 const repositoryFragment = gql`
@@ -29,7 +28,7 @@ export default () => {
   return (
     <ul>
       {data.viewer?.repositories?.nodes?.map(repo => (
-        <li key={repo!.id}>
+        <li key={repo?.id}>
           <span>{repo?.description}</span>
         </li>
       ))}

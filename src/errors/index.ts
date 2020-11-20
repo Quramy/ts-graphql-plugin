@@ -38,7 +38,7 @@ export const ERROR_CODES = {
   },
   templateIsTooComplex: {
     code: 51010,
-    message: 'This operation or fragment has too complex interpolation to analize.',
+    message: 'This operation or fragment has too complex interpolation to analyze.',
   },
   errorInOtherInterpolation: {
     code: 51011,
