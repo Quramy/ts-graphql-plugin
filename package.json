@@ -22,7 +22,7 @@
     "e2e": "node e2e/run.js",
     "e2e:ci": "c8 -o e2e_coverage -x e2e -r json -i \"src/**/*\" node e2e/run.js",
     "test": "yarn format:check && yarn lint && yarn jest:ci && yarn e2e:ci",
-    "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\" \"e2e/**/*\"",
+    "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\" \"e2e/**/*\" \"docs/**/*\"",
     "format": "yarn prettier --write",
     "format:check": "yarn prettier --check",
     "watch:compile": "tsc --watch -p .",
