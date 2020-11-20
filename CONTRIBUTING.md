@@ -2,6 +2,20 @@
 
 We're always welcome to issues / PRs :smile:
 
+<!-- toc -->
+
+- [Setup](#setup)
+- [Code format](#code-format)
+- [Testing](#testing)
+  - [Unit testing](#unit-testing)
+  - [E2E testing](#e2e-testing)
+  - [Manual testing](#manual-testing)
+    - [Language service plugin](#language-service-plugin)
+    - [CLI](#cli)
+- [Adding New Dependencies](#adding-new-dependencies)
+
+<!-- tocstop -->
+
 ## Setup
 
 1. Clone this repository

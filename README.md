@@ -24,6 +24,8 @@ This plugin has the following features:
 
 ## ToC
 
+<!-- toc -->
+
 - [Getting started](#getting-started)
 - [CLI Usage](#cli-usage)
   - [`typegen` command](#typegen-command)
@@ -34,6 +36,7 @@ This plugin has the following features:
   - [`schema`](#schema)
   - [`tag`](#tag)
   - [`localSchemaExtensions`](#localschemaextensions)
+  - [`typegen.addons`](#typegenaddons)
   - [`removeDuplicatedFragments`](#removeduplicatedfragments)
 - [webpack custom transformer](#webpack-custom-transformer)
   - [webpack plugin options](#webpack-plugin-options)
@@ -43,7 +46,10 @@ This plugin has the following features:
     - [`documentTransformers` optional](#documenttransformers-optional)
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
+- [GraphQL version compatibility](#graphql-version-compatibility)
 - [License](#license)
+
+<!-- tocstop -->
 
 ## Getting started
 
@@ -312,6 +318,52 @@ const query = gql`
   }
 `;
 ```
+
+### `typegen.addons`
+
+It's optional. You can extend CLI's [`typegen` command](#typegen-command) with this option.
+
+For example, the following configuration loads `my-addon.ts`, which is an Addon to map `URL` custom GraphQL scalar field to TypeScript string type.
+
+```js
+/* tsconfig.json */
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "schema": "schema.graphql",
+        "typegen": {
+          "addons": [
+            "./my-addon"
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+```ts
+/* my-addon.ts */
+
+import ts from 'typescript';
+import { TypeGenAddonFactory } from 'ts-graphql-plguin';
+
+const addonFactory: TypeGenAddonFactory = () => ({
+  customScalar({ scalarType }) {
+    if (scalarType.name === 'URL') {
+      return ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+    }
+  },
+});
+
+module.exports = addonFactory;
+```
+
+The `addons` property accepts an array of strings. And each string should point Node.js module which implements `TypeGenAddonFactory` interface. You can pass not only ".js" files but also ".ts" files.
+
+See [type generator customization guide](docs/CUSTOMIZE_TYPE_GEN.md) for more details.
 
 ### `removeDuplicatedFragments`
 
