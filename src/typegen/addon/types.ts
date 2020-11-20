@@ -40,16 +40,14 @@ export interface TypeGenVisitorAddonContext {
 
   /**
    *
-   * Utility object to mutate output source file.
-   * @see OutputSource
+   * Utility object to mutate output source file. @see OutputSource
    *
    */
   readonly source: OutputSource;
 
   /**
    *
-   * Where the template string is located.
-   * @see ExtractedInfo
+   * Where the GraphQL template string is located. @see ExtractedInfo
    *
    */
   readonly extractedInfo: ExtractedInfo;
@@ -77,12 +75,20 @@ export interface ExtractedInfo {
 
   /**
    *
-   * Template string AST node correspondig the GraphQL operation or fragments.
+   * Template string AST node corresponding the GraphQL operation or fragments.
    *
    */
   readonly tsTemplateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
 }
 
+/**
+ *
+ * The addon object's methods are called back during the core type generator visits each GraphQL node in the template string.
+ * And one addon object is generated for one template string.
+ *
+ * You don't have to implement all methods.
+ *
+ */
 export interface TypeGenVisitorAddon {
   /**
    *
@@ -90,13 +96,13 @@ export interface TypeGenVisitorAddon {
    * This function can return corresponding TypeScript type node.
    *
    * @remarks
-   * This function can not how to serialize/desirialize the custom scalar but how to map scalar to TypeScript type only.
-   * You should consistence beteween runtime serialize behavior and type mapping.
+   * This function can not how to serialize/deserialize the custom scalar but how to map scalar to TypeScript type only.
+   * You should consistence between runtime serialize behavior and type mapping.
    *
    * @example
    *
    * If your schema has a custom scalar type `Date` and your GraphQL client deserializes it to JavaScript native string,
-   * you can implment this type mapping as the following:
+   * you can implement this type mapping as the following:
    *
    * ```graphql
    * scalar Date
@@ -133,7 +139,7 @@ export interface TypeGenVisitorAddon {
 
   /**
    *
-   * Reacts when the type generator visits GraphQL operation difinition node.
+   * Reacts when the type generator visits GraphQL operation definition node.
    * It's useful if you want to process query or variables types.
    *
    * @example
@@ -154,7 +160,7 @@ export interface TypeGenVisitorAddon {
 
   /**
    *
-   * Reacts when the type generator visits GraphQL fragment difinition node.
+   * Reacts when the type generator visits GraphQL fragment definition node.
    *
    * @param input - contains fragment TypeScript type declaration node. @see FragmentDefinitionInput
    *
@@ -162,25 +168,100 @@ export interface TypeGenVisitorAddon {
   fragmentDefinition?: (input: FragmentDefinitionInput) => void;
 }
 
+/**
+ *
+ * Input object for `TypeGenVisitorAddon.customScalar` callback.
+ *
+ */
 export interface CustomScalarInput {
+  /**
+   *
+   * Definition of type scalar type.
+   *
+   */
   readonly scalarType: GraphQLScalarType;
 }
 
+/**
+ *
+ * Output object for `TypeGenVisitorAddon.customScalar` callback.
+ *
+ */
 export type CustomScalarOutput = void | ts.TypeNode;
 
+/**
+ *
+ * Input object for `TypeGenVisitorAddon.document` callback.
+ *
+ */
 export interface DocumentInput {
+  /**
+   *
+   * GraphQL document AST node.
+   *
+   */
   readonly graphqlNode: DocumentNode;
 }
 
+/**
+ *
+ * Input object for `TypeGenVisitorAddon.operationDefinition` callback.
+ *
+ */
 export interface OperationDefinionInput {
+  /**
+   *
+   * GraphQL AST node of this operation.
+   *
+   */
   readonly graqhqlNode: OperationDefinitionNode;
+
+  /**
+   *
+   * Definition of the operation. One of Query or Mutation or Subscription
+   *
+   */
   readonly operationType: GraphQLObjectType;
+
+  /**
+   *
+   * TypeScript AST node which represents the result type of this operation.
+   *
+   */
   readonly tsResultNode: ts.TypeAliasDeclaration;
+
+  /**
+   *
+   * TypeScript AST node which represents the variable type of this operation.
+   *
+   */
   readonly tsVariableNode: ts.TypeAliasDeclaration;
 }
 
+/**
+ *
+ * Input object for `TypeGenVisitorAddon.fragmentDefinition` callback.
+ *
+ */
 export interface FragmentDefinitionInput {
+  /**
+   *
+   * GraphQL AST node of this fragment
+   *
+   */
   readonly graphqlNode: FragmentDefinitionNode;
-  readonly fragmentType: GraphQLFragmentTypeConditionNamedType;
+
+  /**
+   *
+   * Named type(object or interface or union type) this fragment is specified on.
+   *
+   */
+  readonly conditionType: GraphQLFragmentTypeConditionNamedType;
+
+  /**
+   *
+   * TypeScript AST node which represents this fragment type.
+   *
+   */
   readonly tsNode: ts.TypeAliasDeclaration;
 }

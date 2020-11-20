@@ -216,10 +216,10 @@ export class TypeGenVisitor {
           resultFieldElementStack.stack();
         },
         leave: node => {
-          const fragmentType = parentTypeStack.consume();
+          const conditionType = parentTypeStack.consume();
           const tsNode = this._createTsTypeDeclaration(node.name.value, resultFieldElementStack.consume());
           outputSource.pushStatement(tsNode);
-          addon.fragmentDefinition({ fragmentType, graphqlNode: node, tsNode });
+          addon.fragmentDefinition({ conditionType, graphqlNode: node, tsNode });
         },
       },
       FragmentSpread: {
