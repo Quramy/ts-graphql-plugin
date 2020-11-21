@@ -7,9 +7,8 @@
         "name": "../../lib",
         "tag": "gql",
         "schema": "schema.graphql",
-        "localSchemaExtensions": ["local-extension.graphql"],
         "typegen": {
-          "addons": ["./addon"]
+          "addons": ["invalid-module"]
         }
       }
     ]

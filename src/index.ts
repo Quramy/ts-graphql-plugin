@@ -1,2 +1,14 @@
 import moduleFactory from './plugin-module-factory';
-export = moduleFactory;
+
+export {
+  TypeGenAddonFactory,
+  TypeGenVisitorAddon,
+  TypeGenVisitorAddonContext,
+  CustomScalarInput,
+  CustomScalarOutput,
+  DocumentInput,
+  FragmentDefinitionInput,
+  OperationDefinionInput,
+} from './typegen/addon/types';
+
+module.exports = moduleFactory;

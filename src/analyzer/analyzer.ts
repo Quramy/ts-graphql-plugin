@@ -2,15 +2,22 @@ import ts from 'typescript';
 import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
-import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
-import { TsGraphQLPluginConfigOptions } from '../types';
+import { createScriptSourceHelper } from '../ts-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
-import { location2pos, dasherize } from '../string-util';
+import { location2pos } from '../string-util';
 import { validate } from './validator';
-import { ManifestOutput } from './types';
+import { ManifestOutput, TsGraphQLPluginConfig } from './types';
 import { MarkdownReporter } from './markdown-reporter';
-import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
+import { TypeGenerator } from './type-generator';
+
+class TsGqlConfigError extends ErrorWithoutLocation {
+  constructor() {
+    const message =
+      'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.';
+    super(message);
+  }
+}
 
 export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBuildErrorInfo) {
   const fileName = errorInfo.fileName;
@@ -31,9 +38,10 @@ export function convertSchemaBuildErrorsToErrorWithLocation(errorInfo: SchemaBui
 export class Analyzer {
   private _extractor: Extractor;
   private _scriptSourceHelper: ScriptSourceHelper;
+  private _typeGenerator: TypeGenerator;
 
   constructor(
-    private readonly _pluginConfig: TsGraphQLPluginConfigOptions,
+    private readonly _pluginConfig: TsGraphQLPluginConfig,
     private readonly _prjRootPath: string,
     private readonly _languageServiceHost: ts.LanguageServiceHost,
     private readonly _schemaManager: SchemaManager,
@@ -47,6 +55,12 @@ export class Analyzer {
     this._extractor = new Extractor({
       removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
       scriptSourceHelper: this._scriptSourceHelper,
+      debug: this._debug,
+    });
+    this._typeGenerator = new TypeGenerator({
+      prjRootPath: this._prjRootPath,
+      extractor: this._extractor,
+      addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
   }
@@ -106,55 +120,8 @@ export class Analyzer {
     if (extractedErrors.length) {
       this._debug(`Found ${extractedErrors.length} extraction errors.`);
     }
-    const typegenErrors: TsGqlError[] = [];
-    const visitor = new TypeGenVisitor({ schema });
-    const outputSourceFiles: ts.SourceFile[] = [];
-    extractedResults.forEach(r => {
-      if (r.documentNode) {
-        const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(r);
-        if (type === 'complex') {
-          const fileName = r.fileName;
-          const content = r.templateNode.getSourceFile().getFullText();
-          const start = r.templateNode.getStart();
-          const end = r.templateNode.getEnd();
-          const errorContent = { fileName, content, start, end };
-          const error = new ErrorWithLocation('This document node has complex operations.', errorContent);
-          typegenErrors.push(error);
-          return;
-        }
-        const operationOrFragmentName = type === 'fragment' ? fragmentName : operationName;
-        if (!operationOrFragmentName) return;
-        const outputFileName = path.resolve(
-          path.dirname(r.fileName),
-          '__generated__',
-          dasherize(operationOrFragmentName) + '.ts',
-        );
-        try {
-          outputSourceFiles.push(visitor.visit(r.documentNode, { outputFileName }));
-          this._debug(
-            `Create type source file '${path.relative(this._prjRootPath, outputFileName)}' from '${path.relative(
-              this._prjRootPath,
-              r.fileName,
-            )}'.`,
-          );
-        } catch (error) {
-          if (error instanceof TypeGenError) {
-            const sourcePosition = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
-            if (sourcePosition.isInOtherExpression) return;
-            const fileName = r.fileName;
-            const content = r.templateNode.getSourceFile().getFullText();
-            const start = sourcePosition.pos;
-            const end = r.resolevedTemplateInfo.getSourcePosition(error.node.loc!.end).pos;
-            const errorContent = { fileName, content, start, end };
-            const translatedError = new ErrorWithLocation(error.message, errorContent);
-            typegenErrors.push(translatedError);
-          } else {
-            throw error;
-          }
-        }
-      }
-    });
-    return { errors: [...schemaErrors, ...extractedErrors, ...typegenErrors], outputSourceFiles };
+    const { errors, outputSourceFiles } = this._typeGenerator.generateTypes({ schema, extractedResults });
+    return { errors: [...schemaErrors, ...extractedErrors, ...errors], outputSourceFiles };
   }
 
   private async _getSchema() {
@@ -164,10 +131,7 @@ export class Analyzer {
       schemaBuildErrors.forEach(info => errors.push(convertSchemaBuildErrorsToErrorWithLocation(info)));
     }
     if (!schema && !errors.length) {
-      const error = new ErrorWithoutLocation(
-        'No GraphQL schema. Confirm your ts-graphql-plugin\'s "schema" configuration at tsconfig.json\'s compilerOptions.plugins section.',
-      );
-      errors.push(error);
+      errors.push(new TsGqlConfigError());
     }
     return [errors, schema] as const;
   }

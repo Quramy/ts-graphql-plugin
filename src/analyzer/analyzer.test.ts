@@ -1,28 +1,31 @@
-import ts from 'typescript';
-import { TsGraphQLPluginConfigOptions } from '../types';
 import { Analyzer } from './analyzer';
 import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
 import { createTestingSchemaManagerHost } from '../schema-manager/testing/testing-schema-manager-host';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
+import { TsGraphQLPluginConfig } from './types';
 
 type CreateTestingAnalyzerOptions = {
   sdl: string;
-  files: { fileName: string; content: string }[];
+  files?: { fileName: string; content: string }[];
   localSchemaExtension?: { fileName: string; content: string };
 };
-function createTestingAnalyzer({ files: sourceFiles, sdl, localSchemaExtension }: CreateTestingAnalyzerOptions) {
+
+function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtension }: CreateTestingAnalyzerOptions) {
   const files = [...sourceFiles];
   files.push({ fileName: '/schema.graphql', content: sdl });
   if (localSchemaExtension) {
     files.push(localSchemaExtension);
   }
   const { languageServiceHost } = createTestingLanguageServiceAndHost({ files: sourceFiles });
-  const pluginConfig: TsGraphQLPluginConfigOptions = {
+  const pluginConfig: TsGraphQLPluginConfig = {
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
     localSchemaExtensions: localSchemaExtension ? [localSchemaExtension.fileName] : [],
     removeDuplicatedFragments: true,
     tag: 'gql',
+    typegen: {
+      addonFactories: [],
+    },
   };
   const schemaManagerHost = createTestingSchemaManagerHost({
     ...pluginConfig,
@@ -108,29 +111,6 @@ const semanticWarningPrj = {
   ],
 };
 
-const complexOperationsPrj = {
-  sdl: `
-  type Query {
-    hello: String!
-  }
-  `,
-  files: [
-    {
-      fileName: 'main.ts',
-      content: `
-        const query = gql\`
-          query MyQuery {
-            hello
-          }
-          mutation MyMutaion {
-            bye
-          }
-        \`;
-      `,
-    },
-  ],
-};
-
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
@@ -208,26 +188,7 @@ describe(Analyzer, () => {
       if (!outputSourceFiles) return fail();
       expect(outputSourceFiles.length).toBe(1);
       expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
-      const printer = ts.createPrinter();
-      expect(printer.printFile(outputSourceFiles[0])).toMatchSnapshot();
-    });
-
-    it('should ignore complex operations document', async () => {
-      const analyzer = createTestingAnalyzer(complexOperationsPrj);
-      const { errors, outputSourceFiles } = await analyzer.typegen();
-      if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(0);
-      expect(errors.length).toBe(1);
-      expect(errors[0].message).toMatchSnapshot();
-    });
-
-    it('should report errors occuring in typegen visitor', async () => {
-      const analyzer = createTestingAnalyzer(semanticErrorPrj);
-      const { errors, outputSourceFiles } = await analyzer.typegen();
-      if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(0);
-      expect(errors.length).toBe(1);
-      expect(errors[0].message).toMatchSnapshot();
+      expect(outputSourceFiles[0].content).toMatchSnapshot();
     });
   });
 });

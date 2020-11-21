@@ -1,11 +1,16 @@
 import { TypeGenVisitor, TypeGenError } from './type-gen-visitor';
 import ts from 'typescript';
 import { parse, buildSchema } from 'graphql';
+import { mergeAddons } from './addon/merge-addons';
+import { createOutputSource } from '../ts-ast-util';
 
 function generateAstAndPrint({ schemaSDL, documentContent }: { schemaSDL: string; documentContent: string }) {
   const schema = buildSchema(schemaSDL);
   const documentNode = parse(documentContent);
-  const source = new TypeGenVisitor({ schema }).visit(documentNode, { outputFileName: 'out.ts' });
+  const source = new TypeGenVisitor({ schema }).visit(documentNode, {
+    outputSource: createOutputSource({ outputFileName: 'out.ts' }),
+    addon: mergeAddons([]),
+  });
   const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: true });
   return printer.printFile(source);
 }

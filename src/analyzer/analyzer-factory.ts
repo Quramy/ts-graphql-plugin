@@ -4,6 +4,8 @@ import { Analyzer } from './analyzer';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
 import { SchemaManagerHost, SchemaConfig } from '../schema-manager/types';
+import { ErrorWithoutLocation } from '../errors';
+import { TypeGenAddonFactory } from '../typegen/addon/types';
 
 const NO_PLUGCN_SETTING_ERROR_MESSAGE = `tsconfig.json should have ts-graphql-plugin setting. Add the following:
   "compilerOptions": {
@@ -15,6 +17,30 @@ const NO_PLUGCN_SETTING_ERROR_MESSAGE = `tsconfig.json should have ts-graphql-pl
       }
     ]
   }`;
+
+class TypegenAddonLoadError extends ErrorWithoutLocation {
+  constructor(addonName: string) {
+    const message = `Fail to load typegen add-on. Confirm "${addonName}" points correct add-on script.`;
+    super(message);
+  }
+}
+
+function loadAddonFactories(pluginConfig: TsGraphQLPluginConfigOptions, prjRootPath: string) {
+  if (!pluginConfig.typegen?.addons || !Array.isArray(pluginConfig.typegen?.addons)) return [];
+  const factories = pluginConfig.typegen.addons.map(addonName => {
+    const addonPath =
+      !path.isAbsolute(addonName) && addonName.startsWith('.')
+        ? path.resolve(prjRootPath, addonName)
+        : path.normalize(addonName);
+    try {
+      require.resolve(addonPath);
+    } catch {
+      throw new TypegenAddonLoadError(addonName);
+    }
+    return require(addonPath) as TypeGenAddonFactory;
+  });
+  return [...new Set(factories)];
+}
 
 export class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string>();
@@ -98,9 +124,16 @@ export class AnalyzerFactory {
     debug: (msg: string) => void = () => {},
     currentDirectory = process.cwd(),
   ) {
-    const { pluginConfig, tsconfig, prjRootPath } = this._readTsconfig(projectPath);
+    const { pluginConfigOptions, tsconfig, prjRootPath } = this._readTsconfig(projectPath);
     const scriptHost = new ScriptHost(currentDirectory, tsconfig.options);
     tsconfig.fileNames.forEach(fileName => scriptHost.readFile(fileName));
+    const addonFactories = loadAddonFactories(pluginConfigOptions, prjRootPath);
+    const pluginConfig = {
+      ...pluginConfigOptions,
+      typegen: {
+        addonFactories,
+      },
+    };
     const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
     const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
     const analyzer = new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager, debug);
@@ -136,14 +169,14 @@ export class AnalyzerFactory {
     if (!plugins || !Array.isArray(plugins)) {
       throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
-    const found = (plugins as any[]).find((p: any) => p.name === 'ts-graphql-plugin');
+    const found = (plugins as any[]).find((p: any) => (p._name || p.name) === 'ts-graphql-plugin');
     if (!found) {
       throw new Error(NO_PLUGCN_SETTING_ERROR_MESSAGE);
     }
-    const pluginConfig = found as TsGraphQLPluginConfigOptions;
+    const pluginConfigOptions = found as TsGraphQLPluginConfigOptions;
     return {
       tsconfig,
-      pluginConfig,
+      pluginConfigOptions,
       prjRootPath,
     };
   }

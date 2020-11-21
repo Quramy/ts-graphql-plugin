@@ -1,21 +1,10 @@
 import { print } from 'graphql';
 import { Extractor, ExtractSucceededResult } from './extractor';
-import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
-import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
-
-function createExtractor(files: { fileName: string; content: string }[], removeDuplicatedFragments = false) {
-  const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({ files });
-  const extractor = new Extractor({
-    removeDuplicatedFragments,
-    scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
-    debug: () => {},
-  });
-  return extractor;
-}
+import { createTesintExtractor } from './testing/testing-extractor';
 
 describe(Extractor, () => {
   it('should extract GraphQL documents', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: 'main.ts',
         content: `
@@ -40,7 +29,7 @@ describe(Extractor, () => {
   });
 
   it('should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: true', () => {
-    const extractor = createExtractor(
+    const extractor = createTesintExtractor(
       [
         {
           fileName: 'main.ts',
@@ -67,7 +56,7 @@ describe(Extractor, () => {
   });
 
   it('should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: false', () => {
-    const extractor = createExtractor(
+    const extractor = createTesintExtractor(
       [
         {
           fileName: 'main.ts',
@@ -94,7 +83,7 @@ describe(Extractor, () => {
   });
 
   it('should store template resolve errors with too complex interpolation', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: 'main.ts',
         content: `
@@ -120,7 +109,7 @@ describe(Extractor, () => {
   });
 
   it('should store GraphQL syntax errors with invalid document', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: 'main.ts',
         content: `
@@ -137,7 +126,7 @@ describe(Extractor, () => {
   });
 
   it('should convert results to manifest JSON', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: 'main.ts',
         content: `
@@ -163,7 +152,7 @@ describe(Extractor, () => {
 
   describe('getDominantDefiniton', () => {
     it('should detect query type when document has only query', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -186,7 +175,7 @@ describe(Extractor, () => {
     });
 
     it('should detect mutation type when document has only mutation', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -208,7 +197,7 @@ describe(Extractor, () => {
     });
 
     it('should detect subscription type when document has only subscription', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -230,7 +219,7 @@ describe(Extractor, () => {
     });
 
     it('should return complex type with complex operations', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -257,7 +246,7 @@ describe(Extractor, () => {
     });
 
     it('should detect fragment type when document has fragment and does not have any operations', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -277,7 +266,7 @@ describe(Extractor, () => {
     });
 
     it('should detect fragment name to be exported', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `
@@ -301,7 +290,7 @@ describe(Extractor, () => {
     });
 
     it('should return the last fragments which are not referenced from others', () => {
-      const extractor = createExtractor([
+      const extractor = createTesintExtractor([
         {
           fileName: 'main.ts',
           content: `

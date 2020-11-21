@@ -8,6 +8,7 @@
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
+    "stripInternal": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
@@ -17,5 +18,5 @@
       }
     ]
   },
-  "exclude": ["lib", "e2e", "types", "typedef", "node_modules", "project-fixtures"]
+  "exclude": ["lib", "e2e", "types", "typedef", "node_modules", "project-fixtures", "tools"]
 }

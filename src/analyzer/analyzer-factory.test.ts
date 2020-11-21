@@ -53,5 +53,13 @@ describe(AnalyzerFactory, () => {
         ),
       ).toThrowError();
     });
+
+    it('should throw an error when config.plugins.typegen.addons includes invalid modules', () => {
+      expect(() =>
+        new AnalyzerFactory().createAnalyzerFromProjectPath(
+          path.resolve(__dirname, '../../project-fixtures/simple-prj/tsconfig.invalid-addon.json'),
+        ),
+      ).toThrowError();
+    });
   });
 });
