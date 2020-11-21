@@ -25,11 +25,16 @@ export function findAllNodes(sourceFile: ts.SourceFile, cond: (n: ts.Node) => bo
   return result;
 }
 
-export function isTagged(node: ts.Node, condition: TagCondition) {
-  if (!node || !node.parent) return false;
-  if (!ts.isTaggedTemplateExpression(node.parent)) return false;
-  const tagNode = node.parent;
+export function hasTagged(node: ts.Node | undefined, condition: TagCondition) {
+  if (!node) return;
+  if (!ts.isTaggedTemplateExpression(node)) return false;
+  const tagNode = node;
   return tagNode.tag.getText() === condition;
+}
+
+export function isTagged(node: ts.Node | undefined, condition: TagCondition) {
+  if (!node) return false;
+  return hasTagged(node.parent, condition);
 }
 
 export function isTemplateLiteralTypeNode(node: ts.Node): node is ts.TemplateLiteralTypeNode {

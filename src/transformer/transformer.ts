@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { DocumentNode, print } from 'graphql';
+import { hasTagged } from '../ts-ast-util';
 
 export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;
 
@@ -67,7 +68,7 @@ export function getTransformer({
         return ts.updateImportClause(ret, undefined, ret.namedBindings, false);
       }
 
-      if (ts.isTaggedTemplateExpression(node) && (!tag || (ts.isIdentifier(node.tag) && node.tag.text === tag))) {
+      if (ts.isTaggedTemplateExpression(node) && (!tag || hasTagged(node, tag))) {
         templateNode = node.template;
       } else if (!tag && ts.isNoSubstitutionTemplateLiteral(node)) {
         templateNode = node;
