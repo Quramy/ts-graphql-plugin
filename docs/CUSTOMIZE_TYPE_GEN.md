@@ -8,7 +8,7 @@
   - [Template String and Addon Factory](#template-string-and-addon-factory)
   - [GraphQL AST hooks](#graphql-ast-hooks)
   - [Custom Scalar hook](#custom-scalar-hook)
-  - [Write using `ctx.source`](#write-using-ctxsource)
+  - [Change output files' content using `ctx.source`](#change-output-files-content-using-ctxsource)
     - [Add TypeScript statement](#add-typescript-statement)
     - [Add import statement](#add-import-statement)
 - [Addon example](#addon-example)
@@ -178,7 +178,7 @@ The above example maps `URL` custom scalar field to TypeScript string type.
 
 If `customScalar` function returns `undefined`, the core generator determines mapping result.
 
-### Write using `ctx.source`
+### Change output files' content using `ctx.source`
 
 `source` in the addon factory context is an utility object to help to change output type file's content.
 
