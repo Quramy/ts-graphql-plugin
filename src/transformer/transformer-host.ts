@@ -43,7 +43,7 @@ export type GetTransformerOptions = {
   getEnabled?: () => boolean;
 };
 
-export class TransformServer {
+export class TransformerHost {
   private readonly _analyzer: Analyzer;
   private readonly _scriptHost: ScriptHost;
   private readonly _documentNodeRegistory = new DocumentNodeRegistory();

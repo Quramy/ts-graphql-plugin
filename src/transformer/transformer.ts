@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import { DocumentNode, print } from 'graphql';
+import { hasTagged, removeAliasFromImportDeclaration } from '../ts-ast-util';
 
 export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;
 
@@ -45,38 +46,20 @@ export function getTransformer({
       if (!getEnabled()) return node;
       let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined = undefined;
 
-      if (ts.isImportDeclaration(node)) {
-        const ret = ts.visitEachChild(node, visit, ctx);
-        let hasIdentifier = false;
-        const find = (n: ts.Node) => {
-          hasIdentifier = hasIdentifier || ts.isIdentifier(n);
-          ts.forEachChild(n, find);
-        };
-        ts.forEachChild(ret, find);
-        if (!hasIdentifier) return undefined;
-        return ret;
-      }
-      if (ts.isImportSpecifier(node)) {
-        const removed = !!tag && node.name.text === tag;
-        return removed ? undefined : node;
-      }
-      if (ts.isImportClause(node) && !!node.name) {
-        const removed = !!tag && node.name?.text === tag;
-        const ret = ts.visitEachChild(node, visit, ctx);
-        if (!removed) return ret;
-        return ts.updateImportClause(ret, undefined, ret.namedBindings, false);
+      if (tag && ts.isImportDeclaration(node)) {
+        return removeAliasFromImportDeclaration(node, tag);
       }
 
-      if (ts.isTaggedTemplateExpression(node) && (!tag || (ts.isIdentifier(node.tag) && node.tag.text === tag))) {
+      if (ts.isTaggedTemplateExpression(node) && (!tag || hasTagged(node, tag))) {
         templateNode = node.template;
       } else if (!tag && ts.isNoSubstitutionTemplateLiteral(node)) {
         templateNode = node;
       } else if (!tag && ts.isTemplateExpression(node)) {
         templateNode = node;
-      } else {
-        return ts.visitEachChild(node, visit, ctx);
       }
+
       if (!templateNode) return ts.visitEachChild(node, visit, ctx);
+
       const originalDocumentNode = getDocumentNode(templateNode);
       if (!originalDocumentNode) return ts.visitEachChild(node, visit, ctx);
       const documentNode = documentTransformers.reduce((doc, dt) => dt(doc), originalDocumentNode);

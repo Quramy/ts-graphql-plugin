@@ -5,6 +5,7 @@ import {
   isTagged,
   isImportDeclarationWithCondition,
   mergeImportDeclarationsWithSameModules,
+  removeAliasFromImportDeclaration,
 } from './utilily-functions';
 import { printNode } from './testing/print-node';
 
@@ -268,5 +269,50 @@ describe(mergeImportDeclarationsWithSameModules, () => {
     `;
       expect(mergeFromImportStatements(text)).toBe('import Hoge from "./hoge";');
     });
+  });
+});
+
+describe(removeAliasFromImportDeclaration, () => {
+  function remove(text: string, name: string) {
+    const inputSource = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest);
+    const statements = inputSource.statements as ts.NodeArray<ts.ImportDeclaration>;
+    const out = removeAliasFromImportDeclaration(statements[0], name);
+    if (!out) return undefined;
+    return printNode(removeAliasFromImportDeclaration(statements[0], name)).trim();
+  }
+
+  it('should return base statement when name does not match', () => {
+    const text = `import Hoge, { Foo, Bar as BarBar } from "./hoge";`;
+    expect(remove(text, 'Bar')).toBe(text);
+  });
+
+  it('should return undefined when the statement has only default import and name matches', () => {
+    const text = `import Hoge from "./hoge";`;
+    expect(remove(text, 'Hoge')).toBeUndefined();
+  });
+
+  it('should return undefined when the statement has only one named import and name matches', () => {
+    const text = `import { Hoge } from "./hoge";`;
+    expect(remove(text, 'Hoge')).toBeUndefined();
+  });
+
+  it('should return base import when the statement is namespace import', () => {
+    const text = `import * as Hoge from "./hoge";`;
+    expect(remove(text, 'Hoge')).toBe(text);
+  });
+
+  it('should remove default import name when name matches this', () => {
+    const text = `import Hoge, { Foo, Bar as BarBar } from "./hoge";`;
+    expect(remove(text, 'Hoge')).toBe(`import { Foo, Bar as BarBar } from "./hoge";`);
+  });
+
+  it('should remove named import name when name matches this', () => {
+    const text = `import Hoge, { Foo, Bar as BarBar } from "./hoge";`;
+    expect(remove(text, 'BarBar')).toBe(`import Hoge, { Foo } from "./hoge";`);
+  });
+
+  it('should remove named bindings when the bindings includes only one element and name matches this', () => {
+    const text = `import Hoge, { Foo } from "./hoge";`;
+    expect(remove(text, 'Foo')).toBe(`import Hoge from "./hoge";`);
   });
 });

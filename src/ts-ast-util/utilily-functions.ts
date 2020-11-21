@@ -1,5 +1,41 @@
 import ts from 'typescript';
 
+function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.NamedImportBindings | undefined) {
+  if (!base && !head) return undefined;
+  if (!base) return head;
+  if (!head) return base;
+  // treat namedImports only
+  if (ts.isNamespaceImport(base) || ts.isNamespaceImport(head)) return base;
+  return ts.updateNamedImports(base, [...base.elements, ...head.elements]);
+}
+
+function removeFromNamedBinding(base: ts.NamedImportBindings | undefined, name: string) {
+  if (!base) return undefined;
+  // treat namedImports only
+  if (ts.isNamespaceImport(base)) return base;
+  const elements = base.elements.filter(elm => elm.name.text !== name);
+  if (elements.length === 0) return undefined;
+  return ts.updateNamedImports(base, elements);
+}
+
+function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportClause | undefined) {
+  if (!base && !head) return undefined;
+  if (!base) return head;
+  if (!head) return base;
+  const name = head.name || base.name;
+  const namedBindings = mergeNamedBinding(base.namedBindings, head.namedBindings);
+  const isTypeOnly = base.isTypeOnly && head.isTypeOnly;
+  return ts.updateImportClause(base, name, namedBindings, isTypeOnly);
+}
+
+function removeFromImportClause(base: ts.ImportClause | undefined, name: string) {
+  if (!base) return undefined;
+  const namedBindings = removeFromNamedBinding(base.namedBindings, name);
+  const nameId = base.name?.text !== name ? base.name : undefined;
+  if (!nameId && !namedBindings) return undefined;
+  return ts.updateImportClause(base, nameId, namedBindings, base.isTypeOnly);
+}
+
 export type TagCondition = string;
 
 export function findNode(sourceFile: ts.SourceFile, position: number): ts.Node | undefined {
@@ -25,11 +61,16 @@ export function findAllNodes(sourceFile: ts.SourceFile, cond: (n: ts.Node) => bo
   return result;
 }
 
-export function isTagged(node: ts.Node, condition: TagCondition) {
-  if (!node || !node.parent) return false;
-  if (!ts.isTaggedTemplateExpression(node.parent)) return false;
-  const tagNode = node.parent;
+export function hasTagged(node: ts.Node | undefined, condition: TagCondition) {
+  if (!node) return;
+  if (!ts.isTaggedTemplateExpression(node)) return false;
+  const tagNode = node;
   return tagNode.tag.getText() === condition;
+}
+
+export function isTagged(node: ts.Node | undefined, condition: TagCondition) {
+  if (!node) return false;
+  return hasTagged(node.parent, condition);
 }
 
 export function isTemplateLiteralTypeNode(node: ts.Node): node is ts.TemplateLiteralTypeNode {
@@ -62,30 +103,19 @@ export function isImportDeclarationWithCondition(
   return result;
 }
 
-export function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.NamedImportBindings | undefined) {
-  if (!base && !head) return undefined;
-  if (!base) return head;
-  if (!head) return base;
-  // treat namedImports only
-  if (ts.isNamespaceImport(base) || ts.isNamespaceImport(head)) return base;
-  return ts.updateNamedImports(base, [...base.elements, ...head.elements]);
-}
-
-export function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportClause | undefined) {
-  if (!base && !head) return undefined;
-  if (!base) return head;
-  if (!head) return base;
-  const name = head.name || base.name;
-  const namedBindings = mergeNamedBinding(base.namedBindings, head.namedBindings);
-  const isTypeOnly = base.isTypeOnly && head.isTypeOnly;
-  return ts.updateImportClause(base, name, namedBindings, isTypeOnly);
-}
-
 export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaration, head: ts.ImportDeclaration) {
   if (!ts.isStringLiteralLike(base.moduleSpecifier) || !ts.isStringLiteralLike(head.moduleSpecifier)) return base;
   if (base.moduleSpecifier.text !== head.moduleSpecifier.text) return base;
   const decorators = head.decorators || base.decorators;
   const modifiers = head.modifiers || base.modifiers;
   const importClause = mergeImportClause(base.importClause, head.importClause);
+  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier);
+}
+
+export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, name: string) {
+  const decorators = base.decorators;
+  const modifiers = base.modifiers;
+  const importClause = removeFromImportClause(base.importClause, name);
+  if (!importClause) return undefined;
   return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier);
 }
