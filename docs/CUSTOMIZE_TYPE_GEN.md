@@ -9,6 +9,7 @@
   - [GraphQL AST hooks](#graphql-ast-hooks)
   - [Custom Scalar hook](#custom-scalar-hook)
   - [Write using `ctx.source`](#write-using-ctxsource)
+    - [Add TypeScript statement](#add-typescript-statement)
     - [Add import statement](#add-import-statement)
 - [Addon example](#addon-example)
 - [API reference](#api-reference)
@@ -80,7 +81,7 @@ Run `ts-graphql-plugin typegen` command. Then, the head of each generated .ts fi
 
 ### Template String and Addon Factory
 
-The core type generator generates type files for each GraphQL template string.
+The core type generator generates type files for each GraphQL template string in your TypeScript source files.
 
 For example, the following `query` template string generates a type file, `__generated__/repository-query.ts` .
 
@@ -124,8 +125,8 @@ And `TypeGenAddonFactory` function is called once for each GraphQL template stri
 
 ### GraphQL AST hooks
 
-Addon can implement method to be called back for top-level GraphQL AST node, `FragmentDefinition` and `OperationDefinition`.
-You can access type declaration statements the core generator created from the fragments or operations in these callback methods. They're useful to create some complex type from query result types or fragment object types.
+Addon can implement methods to be called back for top-level GraphQL AST node, `FragmentDefinition` and `OperationDefinition`.
+You can access the type declaration statements the core generator created from the fragments or operations in these callback methods. They're useful to create some complex types from query result types or fragment object types.
 
 ```ts
 const addonFactory: TypeGenAddonFactory = ctx => {
@@ -157,7 +158,7 @@ const addonFactory: TypeGenAddonFactory = ctx => {
 
 ### Custom Scalar hook
 
-`customScalar` is special callback method to customize mapping GraphQL scalar field to TypeScript types.
+`customScalar` is a special callback method to customize mapping GraphQL scalar field to TypeScript types.
 
 The core generator outputs `any` for custom scalr fields because the generator does not know which TypeScript type should they be mapped to.
 
@@ -173,13 +174,36 @@ const addonFactory: TypeGenAddonFactory = ctx => {
 };
 ```
 
-The above example maps `URL` custom scalar to TypeScript string type.
+The above example maps `URL` custom scalar field to TypeScript string type.
 
 If `customScalar` function returns `undefined`, the core generator determines mapping result.
 
 ### Write using `ctx.source`
 
-`source` in factory context is an utility object to help to change output type file's content.
+`source` in the addon factory context is an utility object to help to change output type file's content.
+
+#### Add TypeScript statement
+
+You can add TypeScript statements to the output file with `pushStatement` function. This function accepts `ts.Statement` AST node object.
+
+```ts
+const addonFactory: TypeGenAddonFactory = ctx => {
+  return {
+    document() {
+      const statement = ts.factory.createTypeAliasDeclaration(
+        undefined,
+        [ts.createModifier(ts.SyntaxKind.ExportKeyword)],
+        ts.factory.createIdentifier('Hoge'),
+        undefined,
+        ts.factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      );
+      ctx.source.pushStatement(statement);
+    },
+  };
+};
+```
+
+Tips: [TypeScript AST Viewer](https://ts-ast-viewer.com) is much useful to inspect or create TypeScript AST.
 
 #### Add import statement
 
@@ -229,4 +253,4 @@ There is working example of Type Generator Addon under the [project-fixtures/typ
 
 ## API reference
 
-See ts-graphql-plugin's .d.ts files.
+See ts-graphql-plugin's .d.ts files or [definition in this repository](../src/typegen/addon/types.ts).
