@@ -4,7 +4,7 @@ import { GraphQLSchema } from 'graphql/type';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
 import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
-import { ExtractResult, Extractor, ExtractSucceededResult } from './extractor';
+import { Extractor, ExtractSucceededResult } from './extractor';
 import { dasherize } from '../string-util/case-converter';
 import { OutputSource, createOutputSource } from '../ts-ast-util';
 import { TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen/addon/types';
@@ -14,19 +14,22 @@ export type TypeGeneratorOptions = {
   prjRootPath: string;
   extractor: Extractor;
   debug: (msg: string) => void;
+  tag: string | undefined;
   addonFactories: TypeGenAddonFactory[];
 };
 
 export class TypeGenerator {
   private readonly _prjRootPath: string;
   private readonly _extractor: Extractor;
+  private readonly _tag: string | undefined;
   private readonly _addonFactories: TypeGenAddonFactory[];
   private readonly _debug: (msg: string) => void;
   private readonly _printer: ts.Printer;
 
-  constructor({ prjRootPath, extractor, addonFactories, debug }: TypeGeneratorOptions) {
+  constructor({ prjRootPath, extractor, tag, addonFactories, debug }: TypeGeneratorOptions) {
     this._prjRootPath = prjRootPath;
     this._extractor = extractor;
+    this._tag = tag;
     this._addonFactories = addonFactories;
     this._debug = debug;
     this._printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
@@ -54,7 +57,12 @@ export class TypeGenerator {
     return { addon: mergeAddons(addons), context };
   }
 
-  generateTypes({ extractedResults, schema }: { extractedResults: ExtractResult[]; schema: GraphQLSchema }) {
+  generateTypes({ files, schema }: { files: string[]; schema: GraphQLSchema }) {
+    const extractedResults = this._extractor.extract(files, this._tag);
+    const extractedErrors = this._extractor.pickupErrors(extractedResults);
+    if (extractedErrors.length) {
+      this._debug(`Found ${extractedErrors.length} extraction errors.`);
+    }
     const typegenErrors: TsGqlError[] = [];
     const visitor = new TypeGenVisitor({ schema });
     const outputSourceFiles: { fileName: string; content: string }[] = [];
@@ -107,6 +115,6 @@ export class TypeGenerator {
         }
       }
     });
-    return { errors: typegenErrors, outputSourceFiles };
+    return { errors: [...extractedErrors, ...typegenErrors], outputSourceFiles };
   }
 }

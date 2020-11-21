@@ -38,6 +38,8 @@ This plugin has the following features:
   - [`localSchemaExtensions`](#localschemaextensions)
   - [`typegen.addons`](#typegenaddons)
   - [`removeDuplicatedFragments`](#removeduplicatedfragments)
+- [Built-in Type Generator Addons](#built-in-type-generator-addons)
+  - [`typed-query-document`](#typed-query-document)
 - [webpack custom transformer](#webpack-custom-transformer)
   - [webpack plugin options](#webpack-plugin-options)
     - [`tsconfigPath` optional](#tsconfigpath-optional)
@@ -363,7 +365,9 @@ module.exports = addonFactory;
 
 The `addons` property accepts an array of strings. And each string should point Node.js module which implements `TypeGenAddonFactory` interface. You can pass not only ".js" files but also ".ts" files.
 
-See [type generator customization guide](docs/CUSTOMIZE_TYPE_GEN.md) for more details.
+If you learn how to create your Addon, see [type generator customization guide](docs/CUSTOMIZE_TYPE_GEN.md) for more details.
+
+ts-graphql-plugin also provides built-in Addons. See also the [Built-in Type Generator Addons](#built-in-type-generator-addons) section.
 
 ### `removeDuplicatedFragments`
 
@@ -389,6 +393,71 @@ const query = gql`
 This option affects all editor supporting functions, results of CLI commands and results of transformation.
 
 If you set this option `false`, this plugin passes through query document without removing duplication.
+
+## Built-in Type Generator Addons
+
+### `typed-query-document`
+
+This Addon requires `graphql` v15.4.0 or later. To enable this feature, configure as the following:
+
+```js
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "tag": "gql",
+        "schema": "schema.graphql",
+        "typegen": {
+          "addons": [
+            "ts-graphql-plugin/addons/typed-query-document"
+          ]
+        }
+      }
+    ]
+  }
+}
+```
+
+When enabled generated files export a type based on [`TypedQueryDocumentNode`](https://github.com/graphql/graphql-js/blob/master/src/utilities/typedQueryDocumentNode.d.ts) from GraphQL. The type extends the standard `DocumentNode` AST type but also includes types for result data and variables as type arguments.
+
+To use this feature you can apply a type assertion to `gql` template tag expressions that evaluate to a `DocumentNode` value.
+
+For example:
+
+```ts
+const query = gql`
+  query MyQuery($take: Int!) {
+    recipes(take: $take) {
+      id
+      title
+    }
+  }
+` as import('./__generated__/my-query.ts').MyQueryDocument;
+```
+
+With that type assertion in place result data and variable types will automatically flow through any function that accepts the `TypedQueryDocumentNode` type.
+
+For example here is how you can write a wrapper for the `useQuery` function from Apollo Client:
+
+```ts
+import { gql, QueryHookOptions, QueryResult, useQuery } from '@apollo/client';
+import { TypedQueryDocumentNode } from 'graphql';
+function useTypedQuery<ResponseData, Variables>(
+  query: TypedQueryDocumentNode<ResponseData, Variables>,
+  options: QueryHookOptions<ResponseData, Variables>,
+): QueryResult<ResponseData, Variables> {
+  return useQuery(query, options);
+}
+// example usage
+const { data } = useTypedQuery(query, { variables: { take: 100 } });
+//      ^                                          ^
+//      inferred type is `MyQuery`                 |
+//                                                 |
+//                                        inferred type is `MyQueryVariables`
+```
+
+The result is that generated types are associated with queries at the point where the query is defined instead of at the points where the query is executed.
 
 ## webpack custom transformer
 

@@ -11,7 +11,10 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
-        "tag": "gql"
+        "tag": "gql",
+        "typegen": {
+          "addons": ["../../addons/typed-query-document"]
+        }
       }
     ]
   }
