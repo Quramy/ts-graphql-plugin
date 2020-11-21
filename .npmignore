@@ -12,3 +12,4 @@ __snapshots__/
 project-fixtures/
 coverage/
 e2e_coverage/
+*.tsbuildinfo
