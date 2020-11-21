@@ -38,7 +38,7 @@ export type CreateTransformServerOptions = {
 
 export type GetTransformerOptions = {
   target?: 'object' | 'text';
-  removeFragmentDefinitons?: boolean;
+  removeFragmentDefinitions?: boolean;
   documentTransformers?: string[];
   getEnabled?: () => boolean;
 };
@@ -79,7 +79,7 @@ export class TransformServer {
 
   getTransformer({
     target = 'object',
-    removeFragmentDefinitons = true,
+    removeFragmentDefinitions = true,
     documentTransformers = [],
     getEnabled = () => true,
   }: GetTransformerOptions = {}) {
@@ -95,7 +95,7 @@ export class TransformServer {
       getEnabled,
       tag,
       target,
-      removeFragmentDefinitons,
+      removeFragmentDefinitions,
       getDocumentNode: node => this._documentNodeRegistory.getDocumentNode(node),
       documentTransformers: documentTransformerModules,
     });

@@ -68,7 +68,7 @@ export class TypeGenerator {
     const outputSourceFiles: { fileName: string; content: string }[] = [];
     extractedResults.forEach(extractedResult => {
       if (extractedResult.documentNode) {
-        const { type, fragmentName, operationName } = this._extractor.getDominantDefiniton(extractedResult);
+        const { type, fragmentName, operationName } = this._extractor.getDominantDefinition(extractedResult);
         if (type === 'complex') {
           const fileName = extractedResult.fileName;
           const content = extractedResult.templateNode.getSourceFile().getFullText();

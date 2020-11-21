@@ -44,7 +44,7 @@ This plugin has the following features:
   - [webpack plugin options](#webpack-plugin-options)
     - [`tsconfigPath` optional](#tsconfigpath-optional)
   - [Transformer options](#transformer-options)
-    - [`removeFragmentDefinitons` optional](#removefragmentdefinitons-optional)
+    - [`removeFragmentDefinitions` optional](#removefragmentdefinitions-optional)
     - [`documentTransformers` optional](#documenttransformers-optional)
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
@@ -504,7 +504,7 @@ Set your project tsconfig json's file path. Default value: `tsconfig.json`.
 
 ### Transformer options
 
-#### `removeFragmentDefinitons` optional
+#### `removeFragmentDefinitions` optional
 
 Default: `true`. If set, the transformer transforms template strings which include only GraphQL fragment definitions to empty string literal.
 
