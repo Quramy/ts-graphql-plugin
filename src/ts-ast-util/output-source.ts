@@ -64,11 +64,13 @@ export class DefaultOutputSource implements OutputSource {
   }
 
   pushImportDeclaration(declaration: ts.ImportDeclaration) {
-    let i = this._statements.length - 1;
-    for (; i >= 0; i--) {
-      if (ts.isImportDeclaration(this._statements[i])) break;
+    for (let i = 0; i < this._statements.length; i++) {
+      if (!ts.isImportDeclaration(this._statements[i])) {
+        this._insertStatement(i, declaration);
+        return;
+      }
     }
-    this._insertStatement(i, declaration);
+    this._insertStatement(0, declaration);
   }
 
   pushStatement(statement: ts.Statement) {
