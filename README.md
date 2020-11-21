@@ -49,6 +49,7 @@ This plugin has the following features:
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
 - [GraphQL version compatibility](#graphql-version-compatibility)
+- [Contributing](#contributing)
 - [License](#license)
 
 <!-- tocstop -->
@@ -596,6 +597,10 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 ## GraphQL version compatibility
 
 - If you use `graphql < 15.x`, install `ts-graphql-plugin@^1.x.x`.
+
+## Contributing
+
+See [contribution guide](CONTRIBUTING.md).
 
 ## License
 
