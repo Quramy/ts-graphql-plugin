@@ -60,6 +60,7 @@ export class Analyzer {
     this._typeGenerator = new TypeGenerator({
       prjRootPath: this._prjRootPath,
       extractor: this._extractor,
+      tag: this._pluginConfig.tag,
       addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
@@ -116,12 +117,11 @@ export class Analyzer {
   async typegen() {
     const [schemaErrors, schema] = await this._getSchema();
     if (!schema) return { errors: schemaErrors };
-    const [extractedErrors, extractedResults] = this.extract();
-    if (extractedErrors.length) {
-      this._debug(`Found ${extractedErrors.length} extraction errors.`);
-    }
-    const { errors, outputSourceFiles } = this._typeGenerator.generateTypes({ schema, extractedResults });
-    return { errors: [...schemaErrors, ...extractedErrors, ...errors], outputSourceFiles };
+    const { errors, outputSourceFiles } = this._typeGenerator.generateTypes({
+      schema,
+      files: this._languageServiceHost.getScriptFileNames(),
+    });
+    return { errors: [...schemaErrors, ...errors], outputSourceFiles };
   }
 
   private async _getSchema() {

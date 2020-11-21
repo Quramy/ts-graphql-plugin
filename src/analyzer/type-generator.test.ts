@@ -15,6 +15,7 @@ function createTestingTypeGenerator({
   const extractor = createTesintExtractor(files, true);
   const generator = new TypeGenerator({
     prjRootPath: '',
+    tag: undefined,
     addonFactories,
     extractor,
     debug: () => {},
@@ -49,7 +50,7 @@ describe(TypeGenerator, () => {
 
   describe(TypeGenerator.prototype.generateTypes, () => {
     it('should create type files', () => {
-      const { generator, extractor } = createTestingTypeGenerator({
+      const { generator } = createTestingTypeGenerator({
         files: [
           {
             fileName: 'main.ts',
@@ -58,7 +59,7 @@ describe(TypeGenerator, () => {
         ],
       });
       const { outputSourceFiles } = generator.generateTypes({
-        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        files: ['main.ts'],
         schema,
       });
       if (!outputSourceFiles) return fail();
@@ -68,7 +69,7 @@ describe(TypeGenerator, () => {
     });
 
     it('should ignore complex operations document', () => {
-      const { generator, extractor } = createTestingTypeGenerator({
+      const { generator } = createTestingTypeGenerator({
         files: [
           {
             fileName: 'main.ts',
@@ -86,7 +87,7 @@ describe(TypeGenerator, () => {
         ],
       });
       const { outputSourceFiles, errors } = generator.generateTypes({
-        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        files: ['main.ts'],
         schema,
       });
       if (!outputSourceFiles) return fail();
@@ -96,7 +97,7 @@ describe(TypeGenerator, () => {
     });
 
     it('should report errors occuring in typegen visitor', async () => {
-      const { generator, extractor } = createTestingTypeGenerator({
+      const { generator } = createTestingTypeGenerator({
         files: [
           {
             fileName: 'main.ts',
@@ -105,7 +106,7 @@ describe(TypeGenerator, () => {
         ],
       });
       const { outputSourceFiles, errors } = generator.generateTypes({
-        extractedResults: extractor.extract(['main.ts']) as ExtractSucceededResult[],
+        files: ['main.ts'],
         schema,
       });
       if (!outputSourceFiles) return fail();
