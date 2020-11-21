@@ -8,7 +8,7 @@ function transformAndPrint({
   target,
   docContent,
   tsContent,
-  removeFragmentDefinitons = true,
+  removeFragmentDefinitions = true,
   documentTransformers = [],
   enabled = true,
 }: {
@@ -16,7 +16,7 @@ function transformAndPrint({
   target: 'text' | 'object';
   docContent: string;
   tsContent: string;
-  removeFragmentDefinitons?: boolean;
+  removeFragmentDefinitions?: boolean;
   documentTransformers?: ((doc: DocumentNode) => DocumentNode)[];
   enabled?: boolean;
 }) {
@@ -26,7 +26,7 @@ function transformAndPrint({
     tag,
     target,
     getDocumentNode,
-    removeFragmentDefinitons,
+    removeFragmentDefinitions,
     documentTransformers,
     getEnabled: () => enabled,
   });
@@ -152,7 +152,7 @@ describe('transformer', () => {
       ).toMatchSnapshot();
     });
 
-    it('should transform to 0 literal when removeFragmentDefinitons: true and document has only fragments', () => {
+    it('should transform to 0 literal when removeFragmentDefinitions: true and document has only fragments', () => {
       expect(
         transformAndPrint({
           tsContent: `
@@ -164,7 +164,7 @@ describe('transformer', () => {
             }
           `,
           target: 'object',
-          removeFragmentDefinitons: true,
+          removeFragmentDefinitions: true,
         }),
       ).toMatchSnapshot();
     });
@@ -185,7 +185,7 @@ describe('transformer', () => {
       ).toMatchSnapshot();
     });
 
-    it('should transform to empty string when removeFragmentDefinitons: true and document has only fragments, text target', () => {
+    it('should transform to empty string when removeFragmentDefinitions: true and document has only fragments, text target', () => {
       expect(
         transformAndPrint({
           tsContent: `
@@ -197,7 +197,7 @@ describe('transformer', () => {
             }
           `,
           target: 'text',
-          removeFragmentDefinitons: true,
+          removeFragmentDefinitions: true,
         }),
       ).toMatchSnapshot();
     });

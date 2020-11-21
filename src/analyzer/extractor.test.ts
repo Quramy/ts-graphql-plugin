@@ -150,7 +150,7 @@ describe(Extractor, () => {
     expect(extractor.toManifest(result)).toMatchSnapshot();
   });
 
-  describe('getDominantDefiniton', () => {
+  describe('getDominantDefinition', () => {
     it('should detect query type when document has only query', () => {
       const extractor = createTesintExtractor([
         {
@@ -169,7 +169,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, operationName } = extractor.getDominantDefiniton(result[0]);
+      const { type, operationName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('query');
       expect(operationName).toBe('MyQuery');
     });
@@ -191,7 +191,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, operationName } = extractor.getDominantDefiniton(result[0]);
+      const { type, operationName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('mutation');
       expect(operationName).toBe('MyMutation');
     });
@@ -213,7 +213,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, operationName } = extractor.getDominantDefiniton(result[0]);
+      const { type, operationName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('subscription');
       expect(operationName).toBe('MySubscription');
     });
@@ -240,7 +240,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, operationName } = extractor.getDominantDefiniton(result[0]);
+      const { type, operationName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('complex');
       expect(operationName).toBe('MULTIPLE_OPERATIONS');
     });
@@ -260,7 +260,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
+      const { type, fragmentName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('fragment');
       expect(fragmentName).toBe('MyFragment');
     });
@@ -284,7 +284,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
+      const { type, fragmentName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('fragment');
       expect(fragmentName).toBe('MyFragment');
     });
@@ -312,7 +312,7 @@ describe(Extractor, () => {
         },
       ]);
       const result = extractor.extract(['main.ts'], 'gql') as ExtractSucceededResult[];
-      const { type, fragmentName } = extractor.getDominantDefiniton(result[0]);
+      const { type, fragmentName } = extractor.getDominantDefinition(result[0]);
       expect(type).toBe('fragment');
       expect(fragmentName).toBe('MyFragment2');
     });

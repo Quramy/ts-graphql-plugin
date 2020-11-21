@@ -144,12 +144,12 @@ exports[`transformer GraphQL document transformation should transform inner docu
 "
 `;
 
-exports[`transformer GraphQL document transformation should transform to 0 literal when removeFragmentDefinitons: true and document has only fragments 1`] = `
+exports[`transformer GraphQL document transformation should transform to 0 literal when removeFragmentDefinitions: true and document has only fragments 1`] = `
 "const fragment = 0;
 "
 `;
 
-exports[`transformer GraphQL document transformation should transform to empty string when removeFragmentDefinitons: true and document has only fragments, text target 1`] = `
+exports[`transformer GraphQL document transformation should transform to empty string when removeFragmentDefinitions: true and document has only fragments, text target 1`] = `
 "const fragment = \\"\\";
 "
 `;

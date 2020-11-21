@@ -175,7 +175,7 @@ export class Extractor {
     return errors;
   }
 
-  getDominantDefiniton(result: ExtractSucceededResult) {
+  getDominantDefinition(result: ExtractSucceededResult) {
     let type: OperationType | undefined;
     const definedFragmentNames: string[] = [];
     const referencedFragmentNames: string[] = [];
@@ -214,7 +214,7 @@ export class Extractor {
       .filter(r => !!r.documentNode)
       .map(result => {
         const r = result as ExtractSucceededResult;
-        const { type, operationName, fragmentName } = this.getDominantDefiniton(r);
+        const { type, operationName, fragmentName } = this.getDominantDefinition(r);
         return {
           fileName: r.fileName,
           type: type || 'other',

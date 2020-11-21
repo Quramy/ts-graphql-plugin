@@ -6,7 +6,7 @@ export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;
 export type TransformOptions = {
   tag?: string;
   documentTransformers: DocumentTransformer[];
-  removeFragmentDefinitons: boolean;
+  removeFragmentDefinitions: boolean;
   target: 'text' | 'object';
   getDocumentNode: (node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) => DocumentNode | undefined;
   getEnabled: () => boolean;
@@ -36,7 +36,7 @@ export function getTransformer({
   tag,
   target,
   getDocumentNode,
-  removeFragmentDefinitons,
+  removeFragmentDefinitions,
   documentTransformers,
   getEnabled,
 }: TransformOptions) {
@@ -82,7 +82,7 @@ export function getTransformer({
       const documentNode = documentTransformers.reduce((doc, dt) => dt(doc), originalDocumentNode);
       if (!documentNode) return ts.visitEachChild(node, visit, ctx);
       const toBeRemoved =
-        removeFragmentDefinitons && documentNode.definitions.every(def => def.kind === 'FragmentDefinition');
+        removeFragmentDefinitions && documentNode.definitions.every(def => def.kind === 'FragmentDefinition');
       if (target === 'text') {
         if (toBeRemoved) return ts.createStringLiteral('');
         return ts.createStringLiteral(print(documentNode));
