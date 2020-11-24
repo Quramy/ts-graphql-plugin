@@ -1,22 +1,20 @@
 import ts from 'typescript';
 
 export class ScriptHost implements ts.LanguageServiceHost {
-  private readonly _fileMap = new Map<string, string>();
+  private readonly _fileMap = new Map<string, string | undefined>();
   private readonly _fileVersionMap = new Map<string, number>();
 
   constructor(private readonly _currentDirectory: string, private readonly _compilerOptions: ts.CompilerOptions) {}
 
   readFile(fileName: string) {
     const hit = this._fileMap.get(fileName);
-    if (hit) return hit;
-    return this.updateFile(fileName);
+    if (hit != null) return hit;
+    return this.loadFromFileSystem(fileName);
   }
 
-  updateFile(fileName: string) {
+  loadFromFileSystem(fileName: string) {
     const content = ts.sys.readFile(fileName, 'uts8');
-    if (content) this._fileMap.set(fileName, content);
-    const currentVersion = this._fileVersionMap.get(fileName) || 0;
-    this._fileVersionMap.set(fileName, currentVersion + 1);
+    this._updateFile(fileName, content);
     return content;
   }
 
@@ -26,7 +24,7 @@ export class ScriptHost implements ts.LanguageServiceHost {
 
   getScriptSnapshot(fileName: string) {
     const file = this._fileMap.get(fileName);
-    if (!file) return;
+    if (file == null) return;
     return ts.ScriptSnapshot.fromString(file);
   }
 
@@ -46,5 +44,11 @@ export class ScriptHost implements ts.LanguageServiceHost {
 
   getDefaultLibFileName(opt: ts.CompilerOptions) {
     return ts.getDefaultLibFileName(opt);
+  }
+
+  protected _updateFile(fileName: string, content: string | undefined) {
+    this._fileMap.set(fileName, content);
+    const currentVersion = this._fileVersionMap.get(fileName) || 0;
+    this._fileVersionMap.set(fileName, currentVersion + 1);
   }
 }

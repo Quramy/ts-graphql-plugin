@@ -1,6 +1,8 @@
 import ts from 'typescript';
 import path from 'path';
 
+import { ScriptHost } from '../script-host';
+
 type Options = {
   files?: {
     fileName: string;
@@ -8,58 +10,24 @@ type Options = {
   }[];
 };
 
-export class TestingLanguageServiceHost implements ts.LanguageServiceHost {
-  public files: { fileName: string; content: string; version: number }[];
-
+export class TestingLanguageServiceHost extends ScriptHost implements ts.LanguageServiceHost {
   constructor(options: Options) {
-    this.files = (options.files || []).map(f => ({ ...f, version: 0 }));
-  }
-
-  getCurrentDirectory() {
-    return path.resolve(__dirname, '../../');
-  }
-
-  getScriptSnapshot(fileName: string) {
-    const file = this.getFile(fileName);
-    if (!file) return;
-    return ts.ScriptSnapshot.fromString(file.content);
-  }
-
-  getScriptVersion(fileName: string) {
-    const file = this.getFile(fileName);
-    if (!file) return '';
-    return `${file.version}`;
-  }
-
-  getScriptFileNames() {
-    return this.files.map(file => file.fileName);
-  }
-
-  getCompilationSettings() {
-    return ts.getDefaultCompilerOptions();
-  }
-
-  getDefaultLibFileName(opt: ts.CompilerOptions) {
-    return ts.getDefaultLibFileName(opt);
+    super(path.resolve(__dirname, '../../'), ts.getDefaultCompilerOptions());
+    (options.files || []).forEach(({ fileName, content }) => this._updateFile(fileName, content));
   }
 
   getFile(fileName: string) {
-    const file = this.files.find(file => file.fileName === fileName);
-    return file;
+    const content = this.readFile(fileName);
+    if (!content) return undefined;
+    return { fileName, content };
+  }
+
+  loadFromFileSystem(_fileName: string) {
+    return undefined;
   }
 
   updateFile(fileName: string, content: string) {
-    const file = this.getFile(fileName);
-    if (!file) {
-      this.files.push({
-        fileName,
-        content,
-        version: 0,
-      });
-    } else {
-      file.content = content;
-      file.version = file.version + 1;
-    }
+    this._updateFile(fileName, content);
   }
 }
 
