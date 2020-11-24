@@ -13,3 +13,4 @@ project-fixtures/
 coverage/
 e2e_coverage/
 *.tsbuildinfo
+tools/
