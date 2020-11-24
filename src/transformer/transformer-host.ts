@@ -1,7 +1,5 @@
 import { DocumentNode } from 'graphql';
-import { Analyzer } from '../analyzer/analyzer';
-import { ExtractResult } from '../analyzer/extractor';
-import { AnalyzerFactory, ScriptHost } from '../analyzer/analyzer-factory';
+import { Analyzer, AnalyzerFactory, ExtractResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';
 
 class DocumentNodeRegistory {
@@ -45,7 +43,7 @@ export type GetTransformerOptions = {
 
 export class TransformerHost {
   private readonly _analyzer: Analyzer;
-  private readonly _scriptHost: ScriptHost;
+  private readonly _scriptHost: { updateFile: (fileName: string) => void };
   private readonly _documentNodeRegistory = new DocumentNodeRegistory();
 
   constructor({ projectPath }: CreateTransformServerOptions) {

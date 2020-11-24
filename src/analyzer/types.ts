@@ -1,5 +1,5 @@
 import { TsGraphQLPluginConfigOptions } from '../types';
-import { TypeGenAddonFactory } from '../typegen/addon/types';
+import { TypeGenAddonFactory } from '../typegen';
 
 export type OperationType = 'query' | 'mutation' | 'subscription' | 'fragment' | 'complex' | 'other';
 

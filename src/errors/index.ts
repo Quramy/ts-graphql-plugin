@@ -1,3 +1,5 @@
+export { ErrorReporter } from './error-reporter';
+
 export type ErrorRange = {
   fileName: string;
   start: number;

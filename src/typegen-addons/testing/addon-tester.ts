@@ -1,7 +1,8 @@
-import { TypeGenAddonFactory } from '../../typegen/addon/types';
+import { buildSchema } from 'graphql';
+
+import { TypeGenAddonFactory } from '../../typegen';
 import { createTesintExtractor } from '../../analyzer/testing/testing-extractor';
 import { TypeGenerator } from '../../analyzer/type-generator';
-import { buildSchema } from 'graphql/utilities/buildASTSchema';
 
 function createTestingTypeGenerator({
   files = [],
