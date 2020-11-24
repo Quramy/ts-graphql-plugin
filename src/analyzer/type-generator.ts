@@ -3,12 +3,10 @@ import ts from 'typescript';
 import { GraphQLSchema } from 'graphql/type';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
-import { TypeGenVisitor, TypeGenError } from '../typegen/type-gen-visitor';
-import { Extractor, ExtractSucceededResult } from './extractor';
-import { dasherize } from '../string-util/case-converter';
+import { mergeAddons, TypeGenVisitor, TypeGenError, TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen';
+import { dasherize } from '../string-util';
 import { OutputSource, createOutputSource } from '../ts-ast-util';
-import { TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen/addon/types';
-import { mergeAddons } from '../typegen/addon/merge-addons';
+import { Extractor, ExtractSucceededResult } from './extractor';
 
 export type TypeGeneratorOptions = {
   prjRootPath: string;

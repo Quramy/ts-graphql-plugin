@@ -1,4 +1,4 @@
-import { SchemaConfig } from './schema-manager/types';
+import { SchemaConfig } from './schema-manager';
 
 export type TsGraphQLPluginConfigOptions = SchemaConfig & {
   name: string;

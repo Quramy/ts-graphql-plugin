@@ -36,10 +36,8 @@ export const cliDefinition = {
 
 export async function reportCommand({ options }: CommandOptions<typeof cliDefinition>) {
   const ts = require('typescript') as typeof import('typescript');
-  const {
-    AnalyzerFactory,
-  } = require('../../analyzer/analyzer-factory') as typeof import('../../analyzer/analyzer-factory');
-  const { ErrorReporter } = require('../../errors/error-reporter') as typeof import('../../errors/error-reporter');
+  const { AnalyzerFactory } = require('../../analyzer') as typeof import('../../analyzer');
+  const { ErrorReporter } = require('../../errors/error-reporter') as typeof import('../../errors');
   const { color } = require('../../string-util') as typeof import('../../string-util');
 
   const logger = new ConsoleLogger(options.verbose ? 'debug' : 'info');

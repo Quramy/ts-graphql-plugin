@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { TypeGenAddonFactory } from '../typegen/addon/types';
+import { TypeGenAddonFactory } from '../typegen';
 
 export const TypedQueryDocumentAddonFactory: TypeGenAddonFactory = ({ source }) => ({
   operationDefinition({ tsResultNode, tsVariableNode }) {

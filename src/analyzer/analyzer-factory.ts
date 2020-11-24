@@ -2,10 +2,10 @@ import path from 'path';
 import ts from 'typescript';
 import { Analyzer } from './analyzer';
 import { TsGraphQLPluginConfigOptions } from '../types';
-import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
-import { SchemaManagerHost, SchemaConfig } from '../schema-manager/types';
+import { ScriptHost } from '../ts-ast-util';
+import { SchemaManagerFactory, createSchemaManagerHostFromTSGqlPluginConfig } from '../schema-manager';
 import { ErrorWithoutLocation } from '../errors';
-import { TypeGenAddonFactory } from '../typegen/addon/types';
+import { TypeGenAddonFactory } from '../typegen';
 
 const NO_PLUGCN_SETTING_ERROR_MESSAGE = `tsconfig.json should have ts-graphql-plugin setting. Add the following:
   "compilerOptions": {
@@ -42,82 +42,6 @@ function loadAddonFactories(pluginConfig: TsGraphQLPluginConfigOptions, prjRootP
   return [...new Set(factories)];
 }
 
-export class ScriptHost implements ts.LanguageServiceHost {
-  private readonly _fileMap = new Map<string, string>();
-  private readonly _fileVersionMap = new Map<string, number>();
-
-  constructor(private readonly _currentDirectory: string, private readonly _compilerOptions: ts.CompilerOptions) {}
-
-  readFile(fileName: string) {
-    const hit = this._fileMap.get(fileName);
-    if (hit) return hit;
-    return this.updateFile(fileName);
-  }
-
-  updateFile(fileName: string) {
-    const content = ts.sys.readFile(fileName, 'uts8');
-    if (content) this._fileMap.set(fileName, content);
-    const currentVersion = this._fileVersionMap.get(fileName) || 0;
-    this._fileVersionMap.set(fileName, currentVersion + 1);
-    return content;
-  }
-
-  getCurrentDirectory() {
-    return this._currentDirectory;
-  }
-
-  getScriptSnapshot(fileName: string) {
-    const file = this._fileMap.get(fileName);
-    if (!file) return;
-    return ts.ScriptSnapshot.fromString(file);
-  }
-
-  getScriptVersion(fileName: string) {
-    const version = this._fileVersionMap.get(fileName);
-    if (!version) return '0';
-    return version + '';
-  }
-
-  getScriptFileNames() {
-    return [...this._fileMap.keys()];
-  }
-
-  getCompilationSettings() {
-    return this._compilerOptions;
-  }
-
-  getDefaultLibFileName(opt: ts.CompilerOptions) {
-    return ts.getDefaultLibFileName(opt);
-  }
-}
-
-class SystemSchemaManagerHost implements SchemaManagerHost {
-  constructor(
-    private readonly _pluginConfig: TsGraphQLPluginConfigOptions,
-    private readonly _prjRootPath: string,
-    private readonly _debug: (msg: string) => void,
-  ) {}
-
-  log(msg: string): void {
-    return this._debug(msg);
-  }
-  watchFile(path: string, cb: (fileName: string) => void, interval: number): { close(): void } {
-    return ts.sys.watchFile!(path, cb, interval);
-  }
-  readFile(path: string, encoding?: string | undefined): string | undefined {
-    return ts.sys.readFile(path, encoding);
-  }
-  fileExists(path: string): boolean {
-    return ts.sys.fileExists(path);
-  }
-  getConfig(): SchemaConfig {
-    return this._pluginConfig;
-  }
-  getProjectRootPath(): string {
-    return this._prjRootPath;
-  }
-}
-
 export class AnalyzerFactory {
   createAnalyzerAndScriptHostFromProjectPath(
     projectPath: string,
@@ -134,7 +58,7 @@ export class AnalyzerFactory {
         addonFactories,
       },
     };
-    const schemaManagerHost = new SystemSchemaManagerHost(pluginConfig, prjRootPath, debug);
+    const schemaManagerHost = createSchemaManagerHostFromTSGqlPluginConfig(pluginConfig, prjRootPath, debug);
     const schemaManager = new SchemaManagerFactory(schemaManagerHost).create();
     const analyzer = new Analyzer(pluginConfig, prjRootPath, scriptHost, schemaManager, debug);
     return { analyzer, scriptHost };

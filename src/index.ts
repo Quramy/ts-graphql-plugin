@@ -1,4 +1,4 @@
-import moduleFactory from './plugin-module-factory';
+import { pluginModuleFactory } from './language-service-plugin';
 
 export {
   TypeGenAddonFactory,
@@ -11,4 +11,4 @@ export {
   OperationDefinionInput,
 } from './typegen/addon/types';
 
-module.exports = moduleFactory;
+module.exports = pluginModuleFactory;

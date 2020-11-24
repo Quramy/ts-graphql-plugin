@@ -1,8 +1,8 @@
+import { SchemaManagerHost } from './types';
 import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
 import { HttpSchemaManager } from './http-schema-manager';
 import { ScriptedHttpSchemaManager } from './scripted-http-schema-manager';
-import { SchemaManagerHost } from './types';
 import { RequestSetup } from './request-introspection-query';
 
 interface FileSchemaConfigOptions {

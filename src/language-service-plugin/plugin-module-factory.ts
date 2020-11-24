@@ -1,15 +1,14 @@
 import ts from 'typescript/lib/tsserverlibrary';
-import { TsGraphQLPluginConfigOptions } from './types';
-import { GraphQLLanguageServiceAdapter } from './graphql-language-service-adapter';
+import { TsGraphQLPluginConfigOptions } from '../types';
+import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
-import { SchemaManagerFactory } from './schema-manager/schema-manager-factory';
-import { createSchemaManagerHostFromPluginInfo } from './schema-manager/schema-manager-host';
-import { createScriptSourceHelper } from './ts-ast-util/script-source-helper';
+import { SchemaManagerFactory, createSchemaManagerHostFromLSPluginInfo } from '../schema-manager';
+import { createScriptSourceHelper } from '../ts-ast-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
   logger('config: ' + JSON.stringify(info.config));
-  const schemaManager = new SchemaManagerFactory(createSchemaManagerHostFromPluginInfo(info)).create();
+  const schemaManager = new SchemaManagerFactory(createSchemaManagerHostFromLSPluginInfo(info)).create();
   const { schema, errors: schemaErrors } = schemaManager.getSchema();
   const config = info.config as TsGraphQLPluginConfigOptions;
   const tag = config.tag;
@@ -34,8 +33,6 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   return proxy;
 }
 
-const moduleFactory: ts.server.PluginModuleFactory = () => {
+export const pluginModuleFactory: ts.server.PluginModuleFactory = () => {
   return { create };
 };
-
-export default moduleFactory;

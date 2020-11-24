@@ -1,7 +1,5 @@
 import { DocumentNode } from 'graphql';
-import { Analyzer } from '../analyzer/analyzer';
-import { ExtractResult } from '../analyzer/extractor';
-import { AnalyzerFactory, ScriptHost } from '../analyzer/analyzer-factory';
+import { Analyzer, AnalyzerFactory, ExtractResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';
 
 class DocumentNodeRegistory {
@@ -45,13 +43,13 @@ export type GetTransformerOptions = {
 
 export class TransformerHost {
   private readonly _analyzer: Analyzer;
-  private readonly _scriptHost: ScriptHost;
+  private readonly _scriptHost: { reloadFile: (fileName: string) => void };
   private readonly _documentNodeRegistory = new DocumentNodeRegistory();
 
   constructor({ projectPath }: CreateTransformServerOptions) {
     const { analyzer, scriptHost } = new AnalyzerFactory().createAnalyzerAndScriptHostFromProjectPath(projectPath);
     this._analyzer = analyzer;
-    this._scriptHost = scriptHost;
+    this._scriptHost = { reloadFile: scriptHost.loadFromFileSystem.bind(scriptHost) };
   }
 
   loadProject() {
@@ -60,7 +58,7 @@ export class TransformerHost {
   }
 
   updateFiles(fileNameList: string[]) {
-    fileNameList.forEach(fileName => this._scriptHost.updateFile(fileName));
+    fileNameList.forEach(fileName => this._scriptHost.reloadFile(fileName));
 
     // Note:
     // We need re-extract from not only changed .ts files but other files already opened
