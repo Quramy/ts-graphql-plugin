@@ -169,6 +169,28 @@ describe('typegen', () => {
       });
       expect(result).toMatchSnapshot();
     });
+
+    it('should work even if the input types have circular references', () => {
+      const result = generateAstAndPrint({
+        schemaSDL: `
+          input User {
+            posts: [Post!]!
+          }
+          input Post {
+            author: User!
+          }
+          type Mutation {
+            addPost(post: Post!): Boolean
+          }
+        `,
+        documentContent: `
+          mutation AddPost($post: Post!) {
+            addPost(post: $post)
+          }
+        `,
+      });
+      expect(result).toMatchSnapshot();
+    });
   });
 
   describe('result type generation', () => {

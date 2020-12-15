@@ -112,6 +112,7 @@ export class TypeGenVisitor {
         fragmentMap.set(def.name.value, def);
       }
     });
+    const processedInputObjectSet = new WeakSet<GraphQLInputObjectType>();
 
     visit(documentNode, {
       OperationDefinition: {
@@ -179,12 +180,18 @@ export class TypeGenVisitor {
             } else if (variableType instanceof GraphQLEnumType) {
               typeNode = this._createTsTypeNodeFromEnum(variableType);
             } else if (variableType instanceof GraphQLInputObjectType) {
-              variableElementStack.stack();
-              Object.entries(variableType.getFields()).forEach(([fieldName, v]) => {
-                const { fieldType, structureStack } = this._getFieldMetadataFromFieldTypeInstance(v);
-                visitVariableType(fieldName, fieldType, structureStack, false);
-              });
-              typeNode = this._createTsFieldTypeNode(variableElementStack.consume());
+              const tsTypeRefName = variableType.name + 'InputType';
+              if (!processedInputObjectSet.has(variableType)) {
+                processedInputObjectSet.add(variableType);
+                variableElementStack.stack();
+                Object.entries(variableType.getFields()).forEach(([fieldName, v]) => {
+                  const { fieldType, structureStack } = this._getFieldMetadataFromFieldTypeInstance(v);
+                  visitVariableType(fieldName, fieldType, structureStack, false);
+                });
+                const declaration = this._createTsTypeDeclaration(tsTypeRefName, variableElementStack.consume(), false);
+                outputSource.pushStatement(declaration);
+              }
+              typeNode = ts.createTypeReferenceNode(tsTypeRefName, undefined);
             }
             if (!typeNode) {
               throw new Error('Unknown variable input type. ' + variableType.toJSON());
@@ -441,10 +448,11 @@ export class TypeGenVisitor {
     }
   }
 
-  private _createTsTypeDeclaration(name: string, fieldTypeElement: FieldTypeElement) {
+  private _createTsTypeDeclaration(name: string, fieldTypeElement: FieldTypeElement, shouldExport = true) {
+    const modifiers = shouldExport ? ts.createModifiersFromModifierFlags(ts.ModifierFlags.Export) : undefined;
     return ts.createTypeAliasDeclaration(
       undefined,
-      ts.createModifiersFromModifierFlags(ts.ModifierFlags.Export),
+      modifiers,
       name,
       undefined,
       this._createTsFieldTypeNode(fieldTypeElement),
