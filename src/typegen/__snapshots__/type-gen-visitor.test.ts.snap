@@ -226,20 +226,19 @@ export type MyQueryVariables = {
 `;
 
 exports[`typegen variable type generation should gen type from input object type 1`] = `
-"export type MyQuery = {
+"type VectorInputType = {
+    x: number;
+    y: number;
+};
+type LineInputType = {
+    start: VectorInputType;
+    end: VectorInputType;
+};
+export type MyQuery = {
     lineInput: number;
 };
 export type MyQueryVariables = {
-    line: {
-        start: {
-            x: number;
-            y: number;
-        };
-        end: {
-            x: number;
-            y: number;
-        };
-    };
+    line: LineInputType;
 };
 "
 `;
@@ -284,6 +283,22 @@ export type MyQueryVariables = {
     var6: string[];
     var7?: ((string | null)[] | null)[] | null;
     var8: string[][];
+};
+"
+`;
+
+exports[`typegen variable type generation should work even if the input types have circular references 1`] = `
+"type UserInputType = {
+    posts: PostInputType[];
+};
+type PostInputType = {
+    author: UserInputType;
+};
+export type AddPost = {
+    addPost: boolean | null;
+};
+export type AddPostVariables = {
+    post: PostInputType;
 };
 "
 `;
