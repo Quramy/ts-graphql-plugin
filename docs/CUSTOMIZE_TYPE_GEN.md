@@ -235,7 +235,7 @@ const addonFactory: TypeGenAddonFactory = ctx => {
         ts.factory.createTypeAliasDeclaration(
           undefined,
           [ts.createModifier(ts.SyntaxKind.ExportKeyword)],
-          ts.factory.createIdentifier(`Wrapts${ResultNode.name.text}`),
+          ts.factory.createIdentifier(`Wrap${tsResultNode.name.text}`),
           undefined,
           ts.factory.createTypeReferenceNode(ts.factory.createIdentifier('AwesomeType'), [
             ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(tsResultNode.name.text), undefined),
