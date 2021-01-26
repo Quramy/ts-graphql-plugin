@@ -38,7 +38,7 @@ export function requestIntrospectionQuery(options: RequestSetup) {
   return new Promise<GraphQLSchema>((resolve, reject) => {
     const uri = parse(options.url);
 
-    const { method } = options;
+    const { method = 'POST' } = options;
     const { hostname, protocol, path } = uri;
     const port = uri.port && Number.parseInt(uri.port, 10);
     const reqParam = { hostname, protocol, path, port, headers, method };
