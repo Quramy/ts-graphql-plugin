@@ -28,7 +28,10 @@
     "doc:toc": "ts-node -P tools/tsconfig.json tools/add-toc.ts",
     "watch:compile": "tsc --watch -p .",
     "watch:jest": "jest --watch",
-    "watch": "yarn run clean  && run-p watch:*"
+    "watch": "yarn run clean  && run-p watch:*",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "author": "Quramy",
   "license": "MIT",
@@ -57,11 +60,12 @@
     "glob": "7.1.6",
     "graphql": "15.5.0",
     "graphql-config": "3.2.0",
-    "husky": "4.3.8",
+    "husky": "5.0.9",
     "jest": "26.6.3",
     "markdown-toc": "1.2.0",
     "node-fetch": "2.6.1",
     "npm-run-all": "4.1.5",
+    "pinst": "2.1.4",
     "prettier": "2.2.1",
     "pretty-quick": "3.1.0",
     "rimraf": "3.0.2",
@@ -80,11 +84,6 @@
   "peerDependencies": {
     "graphql": "^15.0.0",
     "typescript": "^2.3.0 || ^3.0.0 || ^4.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
   },
   "jest": {
     "globals": {
