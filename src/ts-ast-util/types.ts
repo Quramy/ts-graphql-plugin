@@ -114,9 +114,7 @@ export interface OutputSource {
   readonly toSourceFile: () => ts.SourceFile;
 }
 
-export type ComputePosition = (
-  innerPosition: number,
-) => {
+export type ComputePosition = (innerPosition: number) => {
   fileName: string;
   pos: number;
   isInOtherExpression?: boolean;
