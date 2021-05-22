@@ -52,7 +52,7 @@
     "@typescript-eslint/eslint-plugin": "4.24.0",
     "@typescript-eslint/parser": "4.24.0",
     "c8": "7.7.2",
-    "eslint": "7.26.0",
+    "eslint": "7.27.0",
     "eslint-config-prettier": "8.3.0",
     "express": "4.17.1",
     "express-graphql": "0.12.0",
