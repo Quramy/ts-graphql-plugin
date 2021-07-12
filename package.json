@@ -48,7 +48,7 @@
     "@types/graphql": "14.5.0",
     "@types/jest": "26.0.23",
     "@types/node": "14.17.5",
-    "@types/node-fetch": "2.5.10",
+    "@types/node-fetch": "2.5.11",
     "@typescript-eslint/eslint-plugin": "4.28.0",
     "@typescript-eslint/parser": "4.28.0",
     "c8": "7.7.3",
