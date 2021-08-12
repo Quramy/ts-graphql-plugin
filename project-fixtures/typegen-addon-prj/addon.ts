@@ -1,5 +1,5 @@
 import path from 'path';
-import {template }from 'talt';
+import { template } from 'talt';
 import { TypeGenAddonFactory, TypeGenVisitorAddon } from '../../lib';
 
 // `addonFactory` function is called for each output ts file
@@ -28,11 +28,9 @@ const addonFactory: TypeGenAddonFactory = typegenContext => {
 
           // Set this field as TypeScript `GqlURL` type
           return template.typeNode`GqlURL`();
-          // return ts.createTypeReferenceNode('GqlURL');
         }
         case 'Date': {
           return template.typeNode`Date`();
-          // return ts.createTypeReferenceNode('Date');
         }
         default:
           // If return undefined, this scalar field type is determined by the core type generator.
