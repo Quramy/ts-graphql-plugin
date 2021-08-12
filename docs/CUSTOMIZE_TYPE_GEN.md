@@ -203,7 +203,19 @@ const addonFactory: TypeGenAddonFactory = ctx => {
 };
 ```
 
-Tips: [TypeScript AST Viewer](https://ts-ast-viewer.com) is much useful to inspect or create TypeScript AST.
+Tips: Using `template` function provided from [Talt](https://github.com/Quramy/talt), the above code is equivalent to the following:
+
+```ts
+import { template } from 'talt';
+
+const addonFactory: TypeGenAddonFactory = ctx => {
+  return {
+    document() {
+      ctx.source.pushStatement(template.statement`export type Hoge = string`());
+    },
+  };
+};
+```
 
 #### Add import statement
 
@@ -226,21 +238,20 @@ export type WrapRepositoryQuery = AwesomeType<RepositoryQuery>;
 ```ts
 /* my-addon.ts */
 
+import { template } from 'talt';
+
 const addonFactory: TypeGenAddonFactory = ctx => {
   return {
     operationDefinition({ tsResultNode }) {
       ctx.source.pushNamedImportIfNeeded('AwesomeType', '../../util/types');
 
       ctx.source.pushStatement(
-        ts.factory.createTypeAliasDeclaration(
-          undefined,
-          [ts.createModifier(ts.SyntaxKind.ExportKeyword)],
-          ts.factory.createIdentifier(`Wrap${tsResultNode.name.text}`),
-          undefined,
-          ts.factory.createTypeReferenceNode(ts.factory.createIdentifier('AwesomeType'), [
-            ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(tsResultNode.name.text), undefined),
-          ]),
-        ),
+        template.statement`
+          export type WRAPPED_TYPE_ID = AwesomeType<RESULT_TYPE_ID>
+        `({
+          WRAPPED_TYPE_ID: ts.factory.createIdentifier(`Wrap${tsResultNode.name.text}`),
+          RESULT_TYPE_ID: ts.factory.createIdentifier(tsResultNode.name.text),
+        }),
       );
     },
   };
