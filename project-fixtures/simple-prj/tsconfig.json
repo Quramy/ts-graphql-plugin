@@ -4,7 +4,7 @@
     "module": "commonjs",
     "plugins": [
       {
-        "name": "../../lib",
+        "name": "ts-graphql-plugin",
         "tag": "gql",
         "schema": "schema.graphql",
         "localSchemaExtensions": ["local-extension.graphql"],
