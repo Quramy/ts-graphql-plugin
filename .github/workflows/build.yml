@@ -26,10 +26,8 @@ jobs:
       - uses: codecov/codecov-action@v2
         with:
           name: jest
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage/coverage-final.json
+          files: ./coverage/coverage-final.json
       - uses: codecov/codecov-action@v2
         with:
           name: e2e
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./e2e_coverage/coverage-final.json
+          files: ./e2e_coverage/coverage-final.json
