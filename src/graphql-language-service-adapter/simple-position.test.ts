@@ -1,6 +1,20 @@
 import { SimplePosition } from './simple-position';
 
 describe(SimplePosition, () => {
+  describe('setter methods', () => {
+    test(SimplePosition.prototype.setLine.name, () => {
+      const p = new SimplePosition({ line: 0, character: 0 });
+      p.setLine(1);
+      expect(p.line).toBe(1);
+    });
+
+    test(SimplePosition.prototype.setCharacter.name, () => {
+      const p = new SimplePosition({ line: 0, character: 0 });
+      p.setCharacter(1);
+      expect(p.character).toBe(1);
+    });
+  });
+
   describe(SimplePosition.prototype.lessThanOrEqualTo, () => {
     it('should return compared result to another position', () => {
       const p1 = new SimplePosition({ line: 1, character: 10 });
