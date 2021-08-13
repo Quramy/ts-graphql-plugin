@@ -1,14 +1,14 @@
 # ts-graphql-plugin
 
 [![github actions](https://github.com/Quramy/ts-graphql-plugin/workflows/build/badge.svg)](https://github.com/Quramy/ts-graphql-plugin/actions)
-[![codecov](https://codecov.io/gh/Quramy/ts-graphql-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/Quramy/ts-graphql-plugin)
+[![codecov](https://codecov.io/gh/Quramy/ts-graphql-plugin/branch/main/graph/badge.svg)](https://codecov.io/gh/Quramy/ts-graphql-plugin)
 [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin)
 ![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/LICENSE.txt)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/main/LICENSE.txt)
 
 Provides functions to help TypeScript GraphQL client development including auto completion, query validation, type generation and so on.
 
-![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/master/capture.gif)
+![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/main/capture.gif)
 
 This plugin has the following features:
 
@@ -96,7 +96,7 @@ Available commands are `typegen`, `extract`, `validate` and `report`. If you wan
 
 ### `typegen` command
 
-Generate TypeScript types from GraphQL operations or fragments in your .ts source files. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/master/project-fixtures/react-apollo-prj/src/__generated__/git-hub-query.ts).
+Generate TypeScript types from GraphQL operations or fragments in your .ts source files. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/main/project-fixtures/react-apollo-prj/src/__generated__/git-hub-query.ts).
 
 ### `extract` command
 
@@ -108,7 +108,7 @@ Validates your GraphQL operations and fragments in your ts files and report synt
 
 ### `report` command
 
-Extracts GraphQL operations and fragments from ts files and report them to a Markdown file. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/master/project-fixtures/react-apollo-prj/GRAPHQL_OPERATIONS.md).
+Extracts GraphQL operations and fragments from ts files and report them to a Markdown file. [Here is an output example](https://github.com/Quramy/ts-graphql-plugin/blob/main/project-fixtures/react-apollo-prj/GRAPHQL_OPERATIONS.md).
 
 ## Plugin options
 
