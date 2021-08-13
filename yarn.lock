@@ -6040,10 +6040,10 @@ table@^6.0.9:
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
 
-talt@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/talt/-/talt-2.2.1.tgz#3e0bb5728299689a3bfd0729cb7eb24dd3b45984"
-  integrity sha512-+yj01EuJmiLulCwUz0yYJQFRhm8jbCQbcsNSvhH1T6coyr7+0D0dj/BpExjdkzEIs166mkaj78edeUjKIg1CnA==
+talt@2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/talt/-/talt-2.2.2.tgz#2629dcd81a3547c4222f79c1417d215e287f4baf"
+  integrity sha512-425bKEGhmVFlsLnVGs+V5QhVC9xdlLxW3u5cu3tiECEY8zY9W5B6WsAqF7c/tluLBF5RdcVGQo0HDftOx4Bt4A==
 
 tapable@^2.1.1:
   version "2.1.1"
