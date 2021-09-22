@@ -105,7 +105,7 @@ export class Extractor {
           return {
             ...result,
             documentNode: rawDocumentNode,
-          };
+          } as ExtractSucceededResult;
         }
         const duplicatedInfo = detectDuplicatedFragments(rawDocumentNode);
         const updatedResolvedInfo = duplicatedInfo.reduce(
@@ -117,12 +117,16 @@ export class Extractor {
           ...result,
           documentNode,
           resolevedTemplateInfo: updatedResolvedInfo,
-        };
+        } as ExtractSucceededResult;
       } catch (error) {
-        return {
-          ...result,
-          graphqlError: error,
-        };
+        if (error instanceof GraphQLError) {
+          return {
+            ...result,
+            graphqlError: error,
+          } as ExtractGraphQLErrorResult;
+        } else {
+          throw error;
+        }
       }
     });
   }
