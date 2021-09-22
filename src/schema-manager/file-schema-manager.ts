@@ -42,9 +42,9 @@ export class FileSchemaManager extends SchemaManager {
           ? buildClientSchema(extractIntrospectionContentFromJson(JSON.parse(introspectionContents)))
           : null;
       }
-    } catch (e) {
+    } catch (err) {
       this.log('Fail to read schema file...');
-      this.log(e.message);
+      this.log(err instanceof Error ? err.message : `Unknown error: ${err}`);
       return null;
     }
   }
