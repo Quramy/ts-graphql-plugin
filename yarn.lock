@@ -5319,10 +5319,10 @@ table@^6.0.9:
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
 
-talt@2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/talt/-/talt-2.2.2.tgz#2629dcd81a3547c4222f79c1417d215e287f4baf"
-  integrity sha512-425bKEGhmVFlsLnVGs+V5QhVC9xdlLxW3u5cu3tiECEY8zY9W5B6WsAqF7c/tluLBF5RdcVGQo0HDftOx4Bt4A==
+talt@2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/talt/-/talt-2.2.3.tgz#bd4365ff89d8d50b109f50ee77e0af81770bc5b7"
+  integrity sha512-VJCKeanzrSFRR/GfFP+bl3jTWE3ZE6mWSiK6PzfKF3LceERDlqAbWQwRT4TWX4ghR8tBy5N8L0txHKOiz1EDSw==
 
 tapable@^2.1.1, tapable@^2.2.0:
   version "2.2.0"
