@@ -2,7 +2,11 @@ import path from 'path';
 import ts from 'typescript';
 
 import { OutputSource } from './types';
-import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
+import {
+  createImportSpecifier,
+  isImportDeclarationWithCondition,
+  mergeImportDeclarationsWithSameModules,
+} from './utilily-functions';
 
 const printer = ts.createPrinter();
 
@@ -31,7 +35,7 @@ export class DefaultOutputSource implements OutputSource {
 
   pushNamedImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from }) !== -1) return false;
-    const importSpecifier = ts.createImportSpecifier(undefined, ts.createIdentifier(identifierName));
+    const importSpecifier = createImportSpecifier(false, undefined, ts.createIdentifier(identifierName));
     const namedBinding = ts.createNamedImports([importSpecifier]);
     const importClause = ts.createImportClause(undefined, namedBinding);
     const moduleSpecifier = ts.createStringLiteral(from);

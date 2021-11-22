@@ -109,7 +109,7 @@ export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaratio
   const decorators = head.decorators || base.decorators;
   const modifiers = head.modifiers || base.modifiers;
   const importClause = mergeImportClause(base.importClause, head.importClause);
-  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier);
+  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
 }
 
 export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, name: string) {
@@ -117,5 +117,25 @@ export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, nam
   const modifiers = base.modifiers;
   const importClause = removeFromImportClause(base.importClause, name);
   if (!importClause) return undefined;
-  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier);
+  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
 }
+
+export function isTsVersionLaterThanOrEqualTo(major: number, minor: number): boolean {
+  const m = ts.versionMajorMinor.match(/(?<major>\d+)\.(?<minor>\d+)/);
+  const actualMajor = parseInt(m?.groups?.major ?? '0', 10);
+  const actualMinor = parseInt(m?.groups?.minor ?? '0', 10);
+  return actualMajor > major || (actualMajor === major && actualMinor >= minor);
+}
+
+/**
+ * Typescript 4.5 adds an `isTypeOnly` argument as the first argument to
+ * `ts.createImportSpecifier`. To avoid breaking compatibility with earlier
+ * Typescript versions this helper checks the Typescript version to decide which
+ * set of arguments to pass along.
+ */
+export const createImportSpecifier: typeof ts.createImportSpecifier = (isTypeOnly, ...rest) => {
+  return isTsVersionLaterThanOrEqualTo(4, 5)
+    ? ts.createImportSpecifier(isTypeOnly, ...rest)
+    : // @ts-ignore
+      ts.createImportSpecifier(...rest);
+};
