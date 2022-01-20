@@ -5697,10 +5697,10 @@ typescript-eslint-language-service@5.0.0:
   resolved "https://registry.yarnpkg.com/typescript-eslint-language-service/-/typescript-eslint-language-service-5.0.0.tgz#c8a77b109a25d9908ad2d0c994a282c7494318c3"
   integrity sha512-QB3YsL+lDOpKwblXuqD9GkzpHhJC2D02e/3OIj38kIe6LSL97cEsUtnsVPqIaofnOsV2glj2T5VLxp5gmLTERQ==
 
-typescript@4.5.4:
-  version "4.5.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.4.tgz#a17d3a0263bf5c8723b9c52f43c5084edf13c2e8"
-  integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
+typescript@4.5.5:
+  version "4.5.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
+  integrity sha512-TCTIul70LyWe6IJWT8QSYeA54WQe8EjQFU4wY52Fasj5UKx88LNYKCgBEHcOMOrFF1rKGbD8v/xcNWVUq9SymA==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
