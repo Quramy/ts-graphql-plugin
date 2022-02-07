@@ -71,7 +71,7 @@
     "talt": "2.2.3",
     "ts-jest": "27.1.3",
     "ts-loader": "9.2.6",
-    "ts-node": "10.4.0",
+    "ts-node": "10.5.0",
     "typescript": "4.5.5",
     "typescript-eslint-language-service": "5.0.0",
     "vscode-languageserver-types": "3.16.0",
