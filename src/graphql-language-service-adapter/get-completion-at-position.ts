@@ -28,7 +28,8 @@ export function getCompletionAtPosition(
   delegate: GetCompletionAtPosition,
   fileName: string,
   position: number,
-  options?: ts.GetCompletionsAtPositionOptions,
+  options: ts.GetCompletionsAtPositionOptions | undefined,
+  formattingSettings?: ts.FormatCodeSettings | undefined,
 ) {
   const schema = ctx.getSchema();
   if (!schema) return delegate(fileName, position, options);
@@ -36,7 +37,7 @@ export function getCompletionAtPosition(
   if (!node) return delegate(fileName, position, options);
   const { resolvedInfo } = ctx.resolveTemplateInfo(fileName, node);
   if (!resolvedInfo) {
-    return delegate(fileName, position, options);
+    return delegate(fileName, position, options, formattingSettings);
   }
   const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedInfo;
   // NOTE: The getAutocompleteSuggestions function does not return if missing '+1' shift
