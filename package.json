@@ -56,7 +56,7 @@
     "express": "4.18.1",
     "express-graphql": "0.12.0",
     "fretted-strings": "1.0.1",
-    "glob": "8.0.1",
+    "glob": "8.0.3",
     "graphql": "15.8.0",
     "graphql-config": "4.3.0",
     "husky": "8.0.0",
