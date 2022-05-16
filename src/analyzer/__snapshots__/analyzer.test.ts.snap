@@ -8,8 +8,7 @@ Array [
       Object {
         "body": "query MyQuery {
   hello
-}
-",
+}",
         "documentEnd": Object {
           "character": 41,
           "line": 0,

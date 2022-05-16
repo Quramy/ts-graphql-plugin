@@ -6,8 +6,7 @@ Object {
     Object {
       "body": "query MyQuery {
   hello
-}
-",
+}",
       "documentEnd": Object {
         "character": 8,
         "line": 6,
@@ -35,8 +34,7 @@ Object {
   greeting {
     reply
   }
-}
-",
+}",
       "documentEnd": Object {
         "character": 8,
         "line": 13,
@@ -67,14 +65,12 @@ exports[`Extractor should extract GraphQL documents 1`] = `
 Array [
   "query MyQuery {
   hello
-}
-",
+}",
   "mutation Greeting {
   greeting {
     reply
   }
-}
-",
+}",
 ]
 `;
 
@@ -90,8 +86,7 @@ fragment A on Query {
 
 query MyQuery {
   ...A
-}
-",
+}",
 ]
 `;
 
@@ -103,8 +98,7 @@ Array [
 
 query MyQuery {
   ...A
-}
-",
+}",
 ]
 `;
 

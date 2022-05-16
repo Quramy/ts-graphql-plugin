@@ -35,7 +35,7 @@ describe(FileSchemaManager, () => {
         hello: String!
       }
     `;
-    const introspectionResult = await graphql(buildSchema(sdl), getIntrospectionQuery());
+    const introspectionResult = await graphql({ schema: buildSchema(sdl), source: getIntrospectionQuery() });
     const { manager } = createManagerWithHost('schema.json', JSON.stringify(introspectionResult.data));
     expect(await manager.waitBaseSchema()).toBeInstanceOf(GraphQLSchema);
   });
@@ -46,7 +46,7 @@ describe(FileSchemaManager, () => {
         hello: String!
       }
     `;
-    const introspectionResult = await graphql(buildSchema(sdl), getIntrospectionQuery());
+    const introspectionResult = await graphql({ schema: buildSchema(sdl), source: getIntrospectionQuery() });
     const { manager } = createManagerWithHost('schema.json', JSON.stringify(introspectionResult));
     expect(await manager.waitBaseSchema()).toBeInstanceOf(GraphQLSchema);
   });
