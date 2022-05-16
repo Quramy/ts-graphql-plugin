@@ -8,8 +8,7 @@ exports[`ExtensionManager should parse and extend base schema 1`] = `
 
 type User {
   name: String!
-}
-"
+}"
 `;
 
 exports[`ExtensionManager should store parser errors with invalid extension 1`] = `

@@ -155,7 +155,7 @@ exports[`transformer GraphQL document transformation should transform to empty s
 `;
 
 exports[`transformer GraphQL document transformation should transform to string literal when target is text 1`] = `
-"const query = \\"query MyQuery {\\\\n  hello\\\\n}\\\\n\\";
+"const query = \\"query MyQuery {\\\\n  hello\\\\n}\\";
 "
 `;
 
