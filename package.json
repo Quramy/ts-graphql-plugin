@@ -59,7 +59,7 @@
     "glob": "8.0.3",
     "graphql": "15.8.0",
     "graphql-config": "4.3.0",
-    "husky": "8.0.0",
+    "husky": "8.0.1",
     "jest": "27.5.1",
     "markdown-toc": "1.2.0",
     "node-fetch": "3.2.4",
