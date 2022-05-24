@@ -58,7 +58,7 @@
     "fretted-strings": "1.0.1",
     "glob": "8.0.3",
     "graphql": "16.5.0",
-    "graphql-config": "4.3.0",
+    "graphql-config": "4.3.1",
     "husky": "8.0.1",
     "jest": "28.1.0",
     "markdown-toc": "1.2.0",
