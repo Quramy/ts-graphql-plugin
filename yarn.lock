@@ -2991,7 +2991,24 @@ graceful-fs@^4.2.9:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.9.tgz#041b05df45755e587a24942279b9d113146e1c96"
   integrity sha512-NtNxqUcXgpW2iMrfqSfR73Glt39K+BLwWsPs94yR63v45T0Wbej7eRmL5cWfwEgqXnmjQp3zaJTshdRW/qC2ZQ==
 
-graphql-config@4.3.0, graphql-config@^4.1.0:
+graphql-config@4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-4.3.1.tgz#636b539b1acc06fb48012d0e0f228014ccb0325f"
+  integrity sha512-czBWzJSGaLJfOHBLuUTZVRTjfgohPfvlaeN1B5nXBVptFARpiFuS7iI4FnRhCGwm6qt1h2j1g05nkg0OIGA6bg==
+  dependencies:
+    "@endemolshinegroup/cosmiconfig-typescript-loader" "3.0.2"
+    "@graphql-tools/graphql-file-loader" "^7.3.7"
+    "@graphql-tools/json-file-loader" "^7.3.7"
+    "@graphql-tools/load" "^7.5.5"
+    "@graphql-tools/merge" "^8.2.6"
+    "@graphql-tools/url-loader" "^7.9.7"
+    "@graphql-tools/utils" "^8.6.5"
+    cosmiconfig "7.0.1"
+    cosmiconfig-toml-loader "1.0.0"
+    minimatch "4.2.1"
+    string-env-interpolation "1.0.1"
+
+graphql-config@^4.1.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/graphql-config/-/graphql-config-4.3.0.tgz#b9bb7bf9c892a90e66ea937e8d7ed170eb1fd5e2"
   integrity sha512-Uiu3X7+s5c056WyrvdZVz2vG1fhAipMlYmtiCU/4Z2mX79OXDr1SqIon2MprC/pExIWJfAQZCcjYDY76fPBUQg==
