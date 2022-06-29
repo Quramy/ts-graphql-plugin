@@ -22,6 +22,14 @@ const query = gql`
   }
 `;
 
+const mutation = gql`
+  mutation UpdateMyRepository($repositoryId: ID!) {
+    updateRepository(input: { repositoryId: $repositoryId } ) {
+      clientMutationId
+    }
+  }
+`;
+
 export default () => {
   const { data } = useQuery<GitHubQuery, GitHubQueryVariables>(query, { variables: { first: 100 } });
   if (!data) return null;
