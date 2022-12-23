@@ -8,6 +8,8 @@ import {
   mergeImportDeclarationsWithSameModules,
 } from './utilily-functions';
 
+import { astf } from './ast-factory-alias';
+
 const printer = ts.createPrinter();
 
 /**
@@ -35,11 +37,11 @@ export class DefaultOutputSource implements OutputSource {
 
   pushNamedImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from }) !== -1) return false;
-    const importSpecifier = createImportSpecifier(false, undefined, ts.createIdentifier(identifierName));
-    const namedBinding = ts.createNamedImports([importSpecifier]);
-    const importClause = ts.createImportClause(undefined, namedBinding);
-    const moduleSpecifier = ts.createStringLiteral(from);
-    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importSpecifier = createImportSpecifier(false, undefined, astf.createIdentifier(identifierName));
+    const namedBinding = astf.createNamedImports([importSpecifier]);
+    const importClause = astf.createImportClause(false, undefined, namedBinding);
+    const moduleSpecifier = astf.createStringLiteral(from);
+    const importDeclaration = astf.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
@@ -53,9 +55,9 @@ export class DefaultOutputSource implements OutputSource {
 
   pushDefaultImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from, isDefault: true }) !== -1) return false;
-    const importClause = ts.createImportClause(ts.createIdentifier(identifierName), undefined);
-    const moduleSpecifier = ts.createStringLiteral(from);
-    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importClause = astf.createImportClause(false, astf.createIdentifier(identifierName), undefined);
+    const moduleSpecifier = astf.createStringLiteral(from);
+    const importDeclaration = astf.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
