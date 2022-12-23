@@ -46,10 +46,8 @@ export class ScriptHost implements ts.LanguageServiceHost {
     return ts.getDefaultLibFileName(opt);
   }
 
-  // Sinse ts 4.7, imeplement required.
-  // Delegating to `ts.sys.fileExists(path)` is not for me, but I don't know whether the following implementation is correct.
-  fileExists() {
-    return false;
+  fileExists(path: string) {
+    return ts.sys.fileExists(path);
   }
 
   protected _updateFile(fileName: string, content: string | undefined) {
