@@ -31,7 +31,7 @@ class SystemSchemaManagerHost implements SchemaManagerHost {
 }
 
 export function createSchemaManagerHostFromTSGqlPluginConfig(
-  pluginConfig: TsGraphQLPluginConfigOptions,
+  pluginConfig: Omit<TsGraphQLPluginConfigOptions, 'typegen'>,
   prjRootPath: string,
   debug: (msg: string) => void = () => {},
 ) {
