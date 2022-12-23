@@ -48,7 +48,7 @@ This plugin has the following features:
     - [`documentTransformers` optional](#documenttransformers-optional)
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
-- [GraphQL version compatibility](#graphql-version-compatibility)
+- [Version compatibility](#version-compatibility)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -56,7 +56,7 @@ This plugin has the following features:
 
 ## Getting started
 
-First, confirm that your project has typescript(v2.3.x or later) and graphql(v15.x.0 or later).
+First, confirm that your project has TypeScript and graphql(v15.x.0 or later).
 
 To install this plugin, execute the following:
 
@@ -594,9 +594,10 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Sublime text
 - Eclipse
 
-## GraphQL version compatibility
+## Version compatibility
 
 - If you use `graphql < 15.x`, install `ts-graphql-plugin@^1.x.x`.
+- If you use `typescript < 4.8.x`, install `ts-graphql-plugin@^2.x.x`.
 
 ## Contributing
 
