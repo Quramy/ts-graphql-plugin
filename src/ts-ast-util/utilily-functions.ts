@@ -118,23 +118,3 @@ export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, nam
   if (!importClause) return undefined;
   return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
-
-export function isTsVersionLaterThanOrEqualTo(major: number, minor: number): boolean {
-  const m = ts.versionMajorMinor.match(/(?<major>\d+)\.(?<minor>\d+)/);
-  const actualMajor = parseInt(m?.groups?.major ?? '0', 10);
-  const actualMinor = parseInt(m?.groups?.minor ?? '0', 10);
-  return actualMajor > major || (actualMajor === major && actualMinor >= minor);
-}
-
-/**
- * Typescript 4.5 adds an `isTypeOnly` argument as the first argument to
- * `ts.createImportSpecifier`. To avoid breaking compatibility with earlier
- * Typescript versions this helper checks the Typescript version to decide which
- * set of arguments to pass along.
- */
-export const createImportSpecifier: typeof ts.createImportSpecifier = (isTypeOnly, ...rest) => {
-  return isTsVersionLaterThanOrEqualTo(4, 5)
-    ? astf.createImportSpecifier(isTypeOnly, ...rest)
-    : // @ts-ignore
-      ts.createImportSpecifier(...rest);
-};

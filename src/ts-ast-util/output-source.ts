@@ -2,11 +2,7 @@ import path from 'path';
 import ts from 'typescript';
 
 import { OutputSource } from './types';
-import {
-  createImportSpecifier,
-  isImportDeclarationWithCondition,
-  mergeImportDeclarationsWithSameModules,
-} from './utilily-functions';
+import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
 
 import { astf } from './ast-factory-alias';
 
@@ -37,7 +33,7 @@ export class DefaultOutputSource implements OutputSource {
 
   pushNamedImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from }) !== -1) return false;
-    const importSpecifier = createImportSpecifier(false, undefined, astf.createIdentifier(identifierName));
+    const importSpecifier = astf.createImportSpecifier(false, undefined, astf.createIdentifier(identifierName));
     const namedBinding = astf.createNamedImports([importSpecifier]);
     const importClause = astf.createImportClause(false, undefined, namedBinding);
     const moduleSpecifier = astf.createStringLiteral(from);
