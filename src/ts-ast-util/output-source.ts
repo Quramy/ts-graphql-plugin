@@ -2,11 +2,9 @@ import path from 'path';
 import ts from 'typescript';
 
 import { OutputSource } from './types';
-import {
-  createImportSpecifier,
-  isImportDeclarationWithCondition,
-  mergeImportDeclarationsWithSameModules,
-} from './utilily-functions';
+import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
+
+import { astf } from './ast-factory-alias';
 
 const printer = ts.createPrinter();
 
@@ -35,11 +33,11 @@ export class DefaultOutputSource implements OutputSource {
 
   pushNamedImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from }) !== -1) return false;
-    const importSpecifier = createImportSpecifier(false, undefined, ts.createIdentifier(identifierName));
-    const namedBinding = ts.createNamedImports([importSpecifier]);
-    const importClause = ts.createImportClause(undefined, namedBinding);
-    const moduleSpecifier = ts.createStringLiteral(from);
-    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importSpecifier = astf.createImportSpecifier(false, undefined, astf.createIdentifier(identifierName));
+    const namedBinding = astf.createNamedImports([importSpecifier]);
+    const importClause = astf.createImportClause(false, undefined, namedBinding);
+    const moduleSpecifier = astf.createStringLiteral(from);
+    const importDeclaration = astf.createImportDeclaration(undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
@@ -53,9 +51,9 @@ export class DefaultOutputSource implements OutputSource {
 
   pushDefaultImportIfNeeded(identifierName: string, from: string) {
     if (this.findImportDeclarationIndex({ name: identifierName, from, isDefault: true }) !== -1) return false;
-    const importClause = ts.createImportClause(ts.createIdentifier(identifierName), undefined);
-    const moduleSpecifier = ts.createStringLiteral(from);
-    const importDeclaration = ts.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importClause = astf.createImportClause(false, astf.createIdentifier(identifierName), undefined);
+    const moduleSpecifier = astf.createStringLiteral(from);
+    const importDeclaration = astf.createImportDeclaration(undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
@@ -109,7 +107,7 @@ export class DefaultOutputSource implements OutputSource {
 
   toSourceFile() {
     const sourceFile = ts.createSourceFile(this._filename, '', ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
-    return ts.updateSourceFileNode(sourceFile, this._statements);
+    return astf.updateSourceFile(sourceFile, this._statements);
   }
 
   toFileContent() {

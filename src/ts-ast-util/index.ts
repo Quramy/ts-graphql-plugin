@@ -1,4 +1,5 @@
 export * from './types';
+export * from './ast-factory-alias';
 export * from './utilily-functions';
 export * from './template-expression-resolver';
 

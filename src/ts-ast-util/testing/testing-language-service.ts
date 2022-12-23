@@ -26,6 +26,10 @@ export class TestingLanguageServiceHost extends ScriptHost implements ts.Languag
     return undefined;
   }
 
+  fileExists(_path: string) {
+    return true;
+  }
+
   updateFile(fileName: string, content: string) {
     this._updateFile(fileName, content);
   }

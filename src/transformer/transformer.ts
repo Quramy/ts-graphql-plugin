@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { DocumentNode, print } from 'graphql';
-import { hasTagged, removeAliasFromImportDeclaration } from '../ts-ast-util';
+import { astf, hasTagged, removeAliasFromImportDeclaration } from '../ts-ast-util';
 
 export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;
 
@@ -15,20 +15,20 @@ export type TransformOptions = {
 
 function toObjectNode(field: any): ts.Expression {
   if (field === null) {
-    return ts.createNull();
+    return astf.createNull();
   } else if (typeof field === 'boolean') {
-    return field ? ts.createTrue() : ts.createFalse();
+    return field ? astf.createTrue() : astf.createFalse();
   } else if (typeof field === 'number') {
-    return ts.createNumericLiteral(field + '');
+    return astf.createNumericLiteral(field + '');
   } else if (typeof field === 'string') {
-    return ts.createStringLiteral(field);
+    return astf.createStringLiteral(field);
   } else if (Array.isArray(field)) {
-    return ts.createArrayLiteral(field.map(item => toObjectNode(item)));
+    return astf.createArrayLiteralExpression(field.map(item => toObjectNode(item)));
   }
-  return ts.createObjectLiteral(
+  return astf.createObjectLiteralExpression(
     Object.entries(field)
       .filter(([k, v]) => k !== 'loc' && v !== undefined)
-      .map(([k, v]) => ts.createPropertyAssignment(ts.createIdentifier(k), toObjectNode(v))),
+      .map(([k, v]) => astf.createPropertyAssignment(astf.createIdentifier(k), toObjectNode(v))),
     true,
   );
 }
@@ -67,10 +67,10 @@ export function getTransformer({
       const toBeRemoved =
         removeFragmentDefinitions && documentNode.definitions.every(def => def.kind === 'FragmentDefinition');
       if (target === 'text') {
-        if (toBeRemoved) return ts.createStringLiteral('');
-        return ts.createStringLiteral(print(documentNode));
+        if (toBeRemoved) return astf.createStringLiteral('');
+        return astf.createStringLiteral(print(documentNode));
       }
-      if (toBeRemoved) return ts.createNumericLiteral('0');
+      if (toBeRemoved) return astf.createNumericLiteral('0');
       return toObjectNode(documentNode);
     };
     return (sourceFile: ts.SourceFile) => ts.visitEachChild(sourceFile, visit, ctx);

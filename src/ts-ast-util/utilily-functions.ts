@@ -1,4 +1,5 @@
 import ts from 'typescript';
+import { astf } from './ast-factory-alias';
 
 function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.NamedImportBindings | undefined) {
   if (!base && !head) return undefined;
@@ -6,7 +7,7 @@ function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.Na
   if (!head) return base;
   // treat namedImports only
   if (ts.isNamespaceImport(base) || ts.isNamespaceImport(head)) return base;
-  return ts.updateNamedImports(base, [...base.elements, ...head.elements]);
+  return astf.updateNamedImports(base, [...base.elements, ...head.elements]);
 }
 
 function removeFromNamedBinding(base: ts.NamedImportBindings | undefined, name: string) {
@@ -15,7 +16,7 @@ function removeFromNamedBinding(base: ts.NamedImportBindings | undefined, name: 
   if (ts.isNamespaceImport(base)) return base;
   const elements = base.elements.filter(elm => elm.name.text !== name);
   if (elements.length === 0) return undefined;
-  return ts.updateNamedImports(base, elements);
+  return astf.updateNamedImports(base, elements);
 }
 
 function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportClause | undefined) {
@@ -25,7 +26,7 @@ function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportCla
   const name = head.name || base.name;
   const namedBindings = mergeNamedBinding(base.namedBindings, head.namedBindings);
   const isTypeOnly = base.isTypeOnly && head.isTypeOnly;
-  return ts.updateImportClause(base, name, namedBindings, isTypeOnly);
+  return astf.updateImportClause(base, isTypeOnly, name, namedBindings);
 }
 
 function removeFromImportClause(base: ts.ImportClause | undefined, name: string) {
@@ -33,7 +34,7 @@ function removeFromImportClause(base: ts.ImportClause | undefined, name: string)
   const namedBindings = removeFromNamedBinding(base.namedBindings, name);
   const nameId = base.name?.text !== name ? base.name : undefined;
   if (!nameId && !namedBindings) return undefined;
-  return ts.updateImportClause(base, nameId, namedBindings, base.isTypeOnly);
+  return astf.updateImportClause(base, base.isTypeOnly, nameId, namedBindings);
 }
 
 export type TagCondition = string;
@@ -106,36 +107,14 @@ export function isImportDeclarationWithCondition(
 export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaration, head: ts.ImportDeclaration) {
   if (!ts.isStringLiteralLike(base.moduleSpecifier) || !ts.isStringLiteralLike(head.moduleSpecifier)) return base;
   if (base.moduleSpecifier.text !== head.moduleSpecifier.text) return base;
-  const decorators = head.decorators || base.decorators;
   const modifiers = head.modifiers || base.modifiers;
   const importClause = mergeImportClause(base.importClause, head.importClause);
-  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
+  return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
 
 export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, name: string) {
-  const decorators = base.decorators;
   const modifiers = base.modifiers;
   const importClause = removeFromImportClause(base.importClause, name);
   if (!importClause) return undefined;
-  return ts.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
+  return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
-
-export function isTsVersionLaterThanOrEqualTo(major: number, minor: number): boolean {
-  const m = ts.versionMajorMinor.match(/(?<major>\d+)\.(?<minor>\d+)/);
-  const actualMajor = parseInt(m?.groups?.major ?? '0', 10);
-  const actualMinor = parseInt(m?.groups?.minor ?? '0', 10);
-  return actualMajor > major || (actualMajor === major && actualMinor >= minor);
-}
-
-/**
- * Typescript 4.5 adds an `isTypeOnly` argument as the first argument to
- * `ts.createImportSpecifier`. To avoid breaking compatibility with earlier
- * Typescript versions this helper checks the Typescript version to decide which
- * set of arguments to pass along.
- */
-export const createImportSpecifier: typeof ts.createImportSpecifier = (isTypeOnly, ...rest) => {
-  return isTsVersionLaterThanOrEqualTo(4, 5)
-    ? ts.createImportSpecifier(isTypeOnly, ...rest)
-    : // @ts-ignore
-      ts.createImportSpecifier(...rest);
-};
