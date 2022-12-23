@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from './tag';
 import { fragmentLeaf } from './fragment-leaf';
 
 export const fragmentNode = gql`
