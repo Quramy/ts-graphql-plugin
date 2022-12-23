@@ -54,7 +54,7 @@ describe(createOutputSource, () => {
       const outputSource = createOutputSource({ outputFileName: 'out.ts' });
       outputSource.pushStatement(astf.createExpressionStatement(astf.createIdentifier('hoge')));
       outputSource.pushImportDeclaration(
-        astf.createImportDeclaration(undefined, undefined, undefined, astf.createStringLiteral('typescript')),
+        astf.createImportDeclaration(undefined, undefined, astf.createStringLiteral('typescript')),
       );
       expect(outputSource.toFileContent().content).toMatchSnapshot();
     });
@@ -62,11 +62,11 @@ describe(createOutputSource, () => {
     it('should add statement at next the last import declaration', () => {
       const outputSource = createOutputSource({ outputFileName: 'out.ts' });
       outputSource.pushStatement(
-        astf.createImportDeclaration(undefined, undefined, undefined, astf.createStringLiteral('graphql')),
+        astf.createImportDeclaration(undefined, undefined, astf.createStringLiteral('graphql')),
       );
       outputSource.pushStatement(astf.createExpressionStatement(astf.createIdentifier('hoge')));
       outputSource.pushImportDeclaration(
-        astf.createImportDeclaration(undefined, undefined, undefined, astf.createStringLiteral('typescript')),
+        astf.createImportDeclaration(undefined, undefined, astf.createStringLiteral('typescript')),
       );
       expect(outputSource.toFileContent().content).toMatchSnapshot();
     });

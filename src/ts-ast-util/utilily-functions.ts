@@ -107,18 +107,16 @@ export function isImportDeclarationWithCondition(
 export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaration, head: ts.ImportDeclaration) {
   if (!ts.isStringLiteralLike(base.moduleSpecifier) || !ts.isStringLiteralLike(head.moduleSpecifier)) return base;
   if (base.moduleSpecifier.text !== head.moduleSpecifier.text) return base;
-  const decorators = head.decorators || base.decorators;
   const modifiers = head.modifiers || base.modifiers;
   const importClause = mergeImportClause(base.importClause, head.importClause);
-  return astf.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
+  return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
 
 export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, name: string) {
-  const decorators = base.decorators;
   const modifiers = base.modifiers;
   const importClause = removeFromImportClause(base.importClause, name);
   if (!importClause) return undefined;
-  return astf.updateImportDeclaration(base, decorators, modifiers, importClause, base.moduleSpecifier, undefined);
+  return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
 
 export function isTsVersionLaterThanOrEqualTo(major: number, minor: number): boolean {

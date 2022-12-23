@@ -1,15 +1,16 @@
 import ts from 'typescript';
 import { TypeGenAddonFactory } from '../typegen';
+import { astf } from '../ts-ast-util';
 
 export const TypedQueryDocumentAddonFactory: TypeGenAddonFactory = ({ source }) => ({
   operationDefinition({ tsResultNode, tsVariableNode }) {
-    const lhs = ts.createIdentifier(`${tsResultNode.name.text}Document`);
-    const rhs = ts.createTypeReferenceNode(ts.factory.createIdentifier('TypedQueryDocumentNode'), [
-      ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(tsResultNode.name.text)),
-      ts.factory.createTypeReferenceNode(ts.factory.createIdentifier(tsVariableNode.name.text)),
+    const lhs = astf.createIdentifier(`${tsResultNode.name.text}Document`);
+    const rhs = astf.createTypeReferenceNode(astf.createIdentifier('TypedQueryDocumentNode'), [
+      astf.createTypeReferenceNode(astf.createIdentifier(tsResultNode.name.text)),
+      astf.createTypeReferenceNode(astf.createIdentifier(tsVariableNode.name.text)),
     ]);
-    const modifiers = [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)];
-    const typeAliasDeclaration = ts.factory.createTypeAliasDeclaration(undefined, modifiers, lhs, undefined, rhs);
+    const modifiers = [astf.createModifier(ts.SyntaxKind.ExportKeyword)];
+    const typeAliasDeclaration = astf.createTypeAliasDeclaration(modifiers, lhs, undefined, rhs);
     source.pushNamedImportIfNeeded('TypedQueryDocumentNode', 'graphql');
     source.pushStatement(typeAliasDeclaration);
   },

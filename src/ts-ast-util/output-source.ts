@@ -41,7 +41,7 @@ export class DefaultOutputSource implements OutputSource {
     const namedBinding = astf.createNamedImports([importSpecifier]);
     const importClause = astf.createImportClause(false, undefined, namedBinding);
     const moduleSpecifier = astf.createStringLiteral(from);
-    const importDeclaration = astf.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importDeclaration = astf.createImportDeclaration(undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
@@ -57,7 +57,7 @@ export class DefaultOutputSource implements OutputSource {
     if (this.findImportDeclarationIndex({ name: identifierName, from, isDefault: true }) !== -1) return false;
     const importClause = astf.createImportClause(false, astf.createIdentifier(identifierName), undefined);
     const moduleSpecifier = astf.createStringLiteral(from);
-    const importDeclaration = astf.createImportDeclaration(undefined, undefined, importClause, moduleSpecifier);
+    const importDeclaration = astf.createImportDeclaration(undefined, importClause, moduleSpecifier);
     const indexOfSameModuleImport = this.findImportDeclarationIndex({ from });
     if (indexOfSameModuleImport === -1) {
       this.pushImportDeclaration(importDeclaration);
@@ -111,7 +111,7 @@ export class DefaultOutputSource implements OutputSource {
 
   toSourceFile() {
     const sourceFile = ts.createSourceFile(this._filename, '', ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
-    return ts.updateSourceFileNode(sourceFile, this._statements);
+    return astf.updateSourceFile(sourceFile, this._statements);
   }
 
   toFileContent() {

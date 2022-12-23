@@ -445,13 +445,7 @@ export class TypeGenVisitor {
 
   private _createTsTypeDeclaration(name: string, fieldTypeElement: FieldTypeElement, shouldExport = true) {
     const modifiers = shouldExport ? astf.createModifiersFromModifierFlags(ts.ModifierFlags.Export) : undefined;
-    return astf.createTypeAliasDeclaration(
-      undefined,
-      modifiers,
-      name,
-      undefined,
-      this._createTsFieldTypeNode(fieldTypeElement),
-    );
+    return astf.createTypeAliasDeclaration(modifiers, name, undefined, this._createTsFieldTypeNode(fieldTypeElement));
   }
 
   private _createTsFieldTypeNode({ members, typeFragments }: FieldTypeElement) {
