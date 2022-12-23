@@ -485,7 +485,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       expect(actual?.combinedText).toMatchSnapshot();
     });
 
-    it.skip('should return combined string with reference between multiple files', () => {
+    it('should return combined string with reference between multiple files', () => {
       const langService = createTestingLanguageService({
         files: [
           {
@@ -519,7 +519,7 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
     });
   });
 
-  describe.skip('cache', () => {
+  describe('cache', () => {
     it('should store result to cache', () => {
       const langService = createTestingLanguageService({
         files: [
