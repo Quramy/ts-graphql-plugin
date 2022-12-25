@@ -1,17 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Extractor should convert results to manifest JSON 1`] = `
-Object {
-  "documents": Array [
-    Object {
+{
+  "documents": [
+    {
       "body": "query MyQuery {
   hello
 }",
-      "documentEnd": Object {
+      "documentEnd": {
         "character": 8,
         "line": 6,
       },
-      "documentStart": Object {
+      "documentStart": {
         "character": 26,
         "line": 2,
       },
@@ -19,27 +19,27 @@ Object {
       "fragmentName": undefined,
       "operationName": "MyQuery",
       "tag": "",
-      "templateLiteralNodeEnd": Object {
+      "templateLiteralNodeEnd": {
         "character": 9,
         "line": 6,
       },
-      "templateLiteralNodeStart": Object {
+      "templateLiteralNodeStart": {
         "character": 25,
         "line": 2,
       },
       "type": "query",
     },
-    Object {
+    {
       "body": "mutation Greeting {
   greeting {
     reply
   }
 }",
-      "documentEnd": Object {
+      "documentEnd": {
         "character": 8,
         "line": 13,
       },
-      "documentStart": Object {
+      "documentStart": {
         "character": 29,
         "line": 7,
       },
@@ -47,11 +47,11 @@ Object {
       "fragmentName": undefined,
       "operationName": "Greeting",
       "tag": "",
-      "templateLiteralNodeEnd": Object {
+      "templateLiteralNodeEnd": {
         "character": 9,
         "line": 13,
       },
-      "templateLiteralNodeStart": Object {
+      "templateLiteralNodeStart": {
         "character": 28,
         "line": 7,
       },
@@ -62,7 +62,7 @@ Object {
 `;
 
 exports[`Extractor should extract GraphQL documents 1`] = `
-Array [
+[
   "query MyQuery {
   hello
 }",
@@ -75,7 +75,7 @@ Array [
 `;
 
 exports[`Extractor should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: false 1`] = `
-Array [
+[
   "fragment A on Query {
   hello
 }
@@ -91,7 +91,7 @@ query MyQuery {
 `;
 
 exports[`Extractor should extract GraphQL documents and shrink duplicated fragments when removeDuplicatedFragments: true 1`] = `
-Array [
+[
   "fragment A on Query {
   hello
 }
@@ -103,7 +103,7 @@ query MyQuery {
 `;
 
 exports[`Extractor should store template resolve errors with too complex interpolation 1`] = `
-Object {
+{
   "end": 219,
   "message": "This operation or fragment has too complex interpolation to analyze.",
   "start": 207,

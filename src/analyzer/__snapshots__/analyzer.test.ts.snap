@@ -1,19 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Analyzer extractToManifest should extract manifest 1`] = `
-Array [
-  Array [],
-  Object {
-    "documents": Array [
-      Object {
+[
+  [],
+  {
+    "documents": [
+      {
         "body": "query MyQuery {
   hello
 }",
-        "documentEnd": Object {
+        "documentEnd": {
           "character": 41,
           "line": 0,
         },
-        "documentStart": Object {
+        "documentStart": {
           "character": 18,
           "line": 0,
         },
@@ -21,11 +21,11 @@ Array [
         "fragmentName": undefined,
         "operationName": "MyQuery",
         "tag": "gql",
-        "templateLiteralNodeEnd": Object {
+        "templateLiteralNodeEnd": {
           "character": 42,
           "line": 0,
         },
-        "templateLiteralNodeStart": Object {
+        "templateLiteralNodeStart": {
           "character": 17,
           "line": 0,
         },
@@ -82,8 +82,8 @@ export type MyQueryVariables = {};
 "
 `;
 
-exports[`Analyzer typegen should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's \\"schema\\" configuration at tsconfig.json's compilerOptions.plugins section."`;
+exports[`Analyzer typegen should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's "schema" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
-exports[`Analyzer validate should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's \\"schema\\" configuration at tsconfig.json's compilerOptions.plugins section."`;
+exports[`Analyzer validate should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's "schema" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
-exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name \\"hogehoge\\"."`;
+exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name "hogehoge"."`;

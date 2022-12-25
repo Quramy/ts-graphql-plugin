@@ -12,4 +12,4 @@ export type MyQueryVariables = {};
 
 exports[`TypeGenerator generateTypes should ignore complex operations document 1`] = `"This document node has complex operations."`;
 
-exports[`TypeGenerator generateTypes should report errors occuring in typegen visitor 1`] = `"Type \\"Query\\" does not have field \\"goodBye\\"."`;
+exports[`TypeGenerator generateTypes should report errors occuring in typegen visitor 1`] = `"Type "Query" does not have field "goodBye"."`;

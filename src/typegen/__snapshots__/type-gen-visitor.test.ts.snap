@@ -12,7 +12,7 @@ export type MyQueryVariables = {};
 
 exports[`typegen result type generation __typename field should gen __typename type from object type 1`] = `
 "export type MyQuery = {
-    __typename: \\"Query\\";
+    __typename: "Query";
 };
 export type MyQueryVariables = {};
 "
@@ -21,7 +21,7 @@ export type MyQueryVariables = {};
 exports[`typegen result type generation __typename field should gen __typename type from union type 1`] = `
 "export type MyQuery = {
     item: {
-        __typename: \\"User\\" | \\"Page\\";
+        __typename: "User" | "Page";
     };
 };
 export type MyQueryVariables = {};
@@ -158,7 +158,7 @@ export type MyQueryVariables = {};
 
 exports[`typegen result type generation output types pattern should gen type from enum 1`] = `
 "export type MyQuery = {
-    color: (\\"RED\\" | \\"BLUE\\" | \\"GREEN\\") | null;
+    color: ("RED" | "BLUE" | "GREEN") | null;
 };
 export type MyQueryVariables = {};
 "
@@ -220,7 +220,7 @@ exports[`typegen variable type generation should gen type from enum 1`] = `
     enumInput: string;
 };
 export type MyQueryVariables = {
-    color: \\"RED\\" | \\"BLUE\\" | \\"GREEN\\";
+    color: "RED" | "BLUE" | "GREEN";
 };
 "
 `;
