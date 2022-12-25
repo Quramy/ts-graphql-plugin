@@ -84,30 +84,5 @@
   "peerDependencies": {
     "graphql": "^15.0.0 || ^16.0.0",
     "typescript": "^4.8.0"
-  },
-  "jest": {
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    },
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "testRegex": "(src/.*\\.test)\\.ts$",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "\\.d\\.ts$",
-      "lib/.*"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!**/testing/**"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "json"
-    ]
   }
 }
