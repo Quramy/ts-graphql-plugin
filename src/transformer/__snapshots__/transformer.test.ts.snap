@@ -17,19 +17,19 @@ exports[`transformer GraphQL document transformation should ignore TemplateExpre
 
 exports[`transformer GraphQL document transformation should transform NoSubstitutionTemplateLiteral 1`] = `
 "const query = {
-    kind: \\"Document\\",
+    kind: "Document",
     definitions: [{
-            kind: \\"OperationDefinition\\",
-            operation: \\"query\\",
+            kind: "OperationDefinition",
+            operation: "query",
             variableDefinitions: [],
             directives: [],
             selectionSet: {
-                kind: \\"SelectionSet\\",
+                kind: "SelectionSet",
                 selections: [{
-                        kind: \\"Field\\",
+                        kind: "Field",
                         name: {
-                            kind: \\"Name\\",
-                            value: \\"hello\\"
+                            kind: "Name",
+                            value: "hello"
                         },
                         arguments: [],
                         directives: []
@@ -42,19 +42,19 @@ exports[`transformer GraphQL document transformation should transform NoSubstitu
 
 exports[`transformer GraphQL document transformation should transform TaggedTemplateExpression 1`] = `
 "const query = {
-    kind: \\"Document\\",
+    kind: "Document",
     definitions: [{
-            kind: \\"OperationDefinition\\",
-            operation: \\"query\\",
+            kind: "OperationDefinition",
+            operation: "query",
             variableDefinitions: [],
             directives: [],
             selectionSet: {
-                kind: \\"SelectionSet\\",
+                kind: "SelectionSet",
                 selections: [{
-                        kind: \\"Field\\",
+                        kind: "Field",
                         name: {
-                            kind: \\"Name\\",
-                            value: \\"hello\\"
+                            kind: "Name",
+                            value: "hello"
                         },
                         arguments: [],
                         directives: []
@@ -67,19 +67,19 @@ exports[`transformer GraphQL document transformation should transform TaggedTemp
 
 exports[`transformer GraphQL document transformation should transform TaggedTemplateExpression when the node matches tag name 1`] = `
 "const query = {
-    kind: \\"Document\\",
+    kind: "Document",
     definitions: [{
-            kind: \\"OperationDefinition\\",
-            operation: \\"query\\",
+            kind: "OperationDefinition",
+            operation: "query",
             variableDefinitions: [],
             directives: [],
             selectionSet: {
-                kind: \\"SelectionSet\\",
+                kind: "SelectionSet",
                 selections: [{
-                        kind: \\"Field\\",
+                        kind: "Field",
                         name: {
-                            kind: \\"Name\\",
-                            value: \\"hello\\"
+                            kind: "Name",
+                            value: "hello"
                         },
                         arguments: [],
                         directives: []
@@ -92,19 +92,19 @@ exports[`transformer GraphQL document transformation should transform TaggedTemp
 
 exports[`transformer GraphQL document transformation should transform TemplateExpression 1`] = `
 "const query = {
-    kind: \\"Document\\",
+    kind: "Document",
     definitions: [{
-            kind: \\"OperationDefinition\\",
-            operation: \\"query\\",
+            kind: "OperationDefinition",
+            operation: "query",
             variableDefinitions: [],
             directives: [],
             selectionSet: {
-                kind: \\"SelectionSet\\",
+                kind: "SelectionSet",
                 selections: [{
-                        kind: \\"Field\\",
+                        kind: "Field",
                         name: {
-                            kind: \\"Name\\",
-                            value: \\"hello\\"
+                            kind: "Name",
+                            value: "hello"
                         },
                         arguments: [],
                         directives: []
@@ -117,23 +117,23 @@ exports[`transformer GraphQL document transformation should transform TemplateEx
 
 exports[`transformer GraphQL document transformation should transform inner document with documentTransformers 1`] = `
 "const query = {
-    kind: \\"Document\\",
+    kind: "Document",
     definitions: [{
-            kind: \\"OperationDefinition\\",
-            operation: \\"query\\",
+            kind: "OperationDefinition",
+            operation: "query",
             name: {
-                kind: \\"Name\\",
-                value: \\"MyQuery\\"
+                kind: "Name",
+                value: "MyQuery"
             },
             variableDefinitions: [],
             directives: [],
             selectionSet: {
-                kind: \\"SelectionSet\\",
+                kind: "SelectionSet",
                 selections: [{
-                        kind: \\"Field\\",
+                        kind: "Field",
                         name: {
-                            kind: \\"Name\\",
-                            value: \\"hello\\"
+                            kind: "Name",
+                            value: "hello"
                         },
                         arguments: [],
                         directives: []
@@ -150,56 +150,56 @@ exports[`transformer GraphQL document transformation should transform to 0 liter
 `;
 
 exports[`transformer GraphQL document transformation should transform to empty string when removeFragmentDefinitions: true and document has only fragments, text target 1`] = `
-"const fragment = \\"\\";
+"const fragment = "";
 "
 `;
 
 exports[`transformer GraphQL document transformation should transform to string literal when target is text 1`] = `
-"const query = \\"query MyQuery {\\\\n  hello\\\\n}\\";
+"const query = "query MyQuery {\\n  hello\\n}";
 "
 `;
 
 exports[`transformer import declaration transformation default import should ignore tag import when tag is not matched 1`] = `
-"import hoge from \\"hoge\\";
+"import hoge from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation default import should ignore tag import without tag 1`] = `
-"import hoge from \\"hoge\\";
+"import hoge from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation default import should remove only matched identifier 1`] = `
-"import { foo } from \\"hoge\\";
+"import { foo } from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation default import should remove tag import when tag is matched 1`] = `""`;
 
 exports[`transformer import declaration transformation named import should ignore * as import when tag is not matched 1`] = `
-"import * as hoge from \\"hoge\\";
+"import * as hoge from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation named import should ignore tag import when tag is not matched 1`] = `
-"import { hoge } from \\"hoge\\";
+"import { hoge } from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation named import should ignore tag import without tag 1`] = `
-"import { hoge } from \\"hoge\\";
+"import { hoge } from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation named import should remove * as import tag when tag is matched 1`] = `
-"import * as hoge from \\"hoge\\";
+"import * as hoge from "hoge";
 "
 `;
 
 exports[`transformer import declaration transformation named import should remove alias tag import when tag is matched 1`] = `""`;
 
 exports[`transformer import declaration transformation named import should remove only matched identifier 1`] = `
-"import foo, { bar } from \\"hoge\\";
+"import foo, { bar } from "hoge";
 "
 `;
 
