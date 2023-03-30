@@ -1,3 +1,4 @@
+import ts from 'typescript';
 import { DocumentNode } from 'graphql';
 import { Analyzer, AnalyzerFactory, ExtractResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';

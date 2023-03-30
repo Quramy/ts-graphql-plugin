@@ -1,3 +1,4 @@
+import type { LineAndCharacter } from 'typescript';
 import { IPosition } from 'graphql-language-service-types';
 
 export class SimplePosition implements IPosition {
@@ -12,7 +13,7 @@ export class SimplePosition implements IPosition {
     this.character = v;
   }
 
-  constructor(lc: ts.LineAndCharacter) {
+  constructor(lc: LineAndCharacter) {
     this.line = lc.line;
     this.character = lc.character;
   }
