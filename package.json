@@ -73,7 +73,7 @@
     "ts-loader": "9.4.2",
     "ts-node": "10.9.1",
     "typescript": "5.0.2",
-    "typescript-eslint-language-service": "5.0.3",
+    "typescript-eslint-language-service": "5.0.5",
     "vscode-languageserver-types": "3.17.3",
     "webpack": "5.77.0",
     "webpack-cli": "5.0.1"
