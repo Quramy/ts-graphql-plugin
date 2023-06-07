@@ -76,7 +76,7 @@
     "typescript-eslint-language-service": "5.0.5",
     "vscode-languageserver-types": "3.17.3",
     "webpack": "5.84.1",
-    "webpack-cli": "5.0.2"
+    "webpack-cli": "5.1.4"
   },
   "resolutions": {
     "@types/express-serve-static-core": "^4.17.9"
