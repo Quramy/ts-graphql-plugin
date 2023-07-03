@@ -5840,10 +5840,10 @@ sync-fetch@^0.3.1:
     buffer "^5.7.0"
     node-fetch "^2.6.1"
 
-talt@2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/talt/-/talt-2.4.3.tgz#65041d1b86e778e3ad583e3fe01d65d73aaee523"
-  integrity sha512-7RO+7XgEwEeCr51ReiYuVenHxssqbuh/xJPKm+6qvPv4I52re/xQy9MA6VOb6KGq2sr5dkWtC8dVjPBqQyltgQ==
+talt@2.4.4:
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/talt/-/talt-2.4.4.tgz#651908bb342639b4a87ce5afc61f7c8dd4a4c0ad"
+  integrity sha512-wyvc4IVzBbgWPqXqQMJNHJvm2shq6t/KoYkeC/qEAtVGxXyFq0y+acRKe5P6M/oJbb+Cp9ol+EK4WDqKiGLNog==
 
 tapable@^2.1.1, tapable@^2.2.0:
   version "2.2.0"
