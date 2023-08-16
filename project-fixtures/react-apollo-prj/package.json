@@ -4,8 +4,8 @@
   "version": "2.0.0",
   "devDependencies": {
     "@apollo/client": "3.8.1",
-    "@types/react": "18.2.14",
-    "@types/react-dom": "18.2.6",
+    "@types/react": "18.2.20",
+    "@types/react-dom": "18.2.7",
     "apollo": "2.34.0",
     "graphql": "16.7.1",
     "react": "18.2.0",
