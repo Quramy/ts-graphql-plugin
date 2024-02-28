@@ -30,12 +30,12 @@ jobs:
           npm test
         env:
           CI: true
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           name: jest
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/coverage-final.json
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           name: e2e
           token: ${{ secrets.CODECOV_TOKEN }}
