@@ -3,11 +3,11 @@
 ## How to run this example
 
 - (At the root of ts-graphql-plugin project directory)
-  - Execute `yarn link` command.
+  - Execute `npm link` command.
 
 ```sh
 $ cd project-fixtures/react-apollo-prj
-$ yarn install
-$ yarn link ts-graphql-plugin
+$ npm install
+$ npm link ts-graphql-plugin
 $ code .
 ```
