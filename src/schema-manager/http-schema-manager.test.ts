@@ -1,109 +1,112 @@
-import { Server } from 'http';
-import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
-import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
+import { graphqlSync, GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
+import { graphql, http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import { HttpSchemaManager } from './http-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 
-function createServerFixture() {
-  const schema = new GraphQLSchema({
-    query: new GraphQLObjectType({
-      name: 'RootQueryType',
-      fields: {
-        hello: {
-          type: GraphQLString,
-          resolve() {
-            return 'world';
-          },
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: 'RootQueryType',
+    fields: {
+      hello: {
+        type: GraphQLString,
+        resolve() {
+          return 'world';
         },
       },
+    },
+  }),
+});
+
+const schemaHandler = graphql.operation(({ query, variables }) => {
+  return HttpResponse.json(
+    graphqlSync({
+      schema,
+      source: query,
+      variableValues: variables,
     }),
-  });
-  const app = express();
-  app.post('/invalid-path', (_, res) => res.status(404).end());
-  app.post('/invalid-json', (_, res) => res.status(200).end('text'));
-  app.post('/invalid-schema', (_, res) => res.json({ hoge: 'hoge' }).status(200).end());
-  app.post('/graphql', graphqlHTTP({ schema, graphiql: false }));
-  return new Promise<Server>(res => {
-    const server = app.listen(4001, () => res(server));
-  });
-}
+  );
+});
 
 describe(HttpSchemaManager, () => {
-  let server: Server;
-  beforeAll(async () => {
-    if (!server) {
-      server = await createServerFixture();
-    }
-  });
-  afterAll(async () => {
-    if (server) {
-      await new Promise(res => server!.close(res));
-    }
-  });
+  const server = setupServer();
 
-  it('should get schema from GraphQL server', async () => {
-    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
-    const manager = new HttpSchemaManager(schemaManagerHost, {
-      method: 'POST',
-      url: 'http://localhost:4001/graphql',
-    });
-    const lazySchema = new Promise(res => manager.registerOnChange(() => res(manager.getBaseSchema())));
-    manager.startWatch();
-    expect(await lazySchema).toBeInstanceOf(GraphQLSchema);
-  });
+  beforeAll(() =>
+    server.listen({
+      onUnhandledRequest: () => null,
+    }),
+  );
 
-  it('should wait for base schema from GraphQL server', async () => {
-    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
-    const manager = new HttpSchemaManager(schemaManagerHost, {
-      method: 'POST',
-      url: 'http://localhost:4001/graphql',
-    });
-    const schema = await manager.waitBaseSchema();
-    expect(schema).toBeInstanceOf(GraphQLSchema);
-  });
+  afterEach(() => server.resetHandlers());
+
+  afterAll(() => server.close());
 
   it('should return null if request fail', async () => {
+    server.use(http.get('/grapql', () => new Response(null, { status: 404 })));
     const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
     const manager = new HttpSchemaManager(schemaManagerHost, {
       method: 'GET' as any,
-      url: 'http://localhost:4001/invalid-path',
+      url: '/graphql',
     });
     const schema = await manager.waitBaseSchema();
     expect(schema).toBeNull();
   });
 
   it('should return null if content type of the reposonse is not JSON', async () => {
+    server.use(http.post('/graphql', () => HttpResponse.text('<html />')));
     const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
     const manager = new HttpSchemaManager(schemaManagerHost, {
       method: 'POST',
-      url: 'http://localhost:4001/invalid-json',
+      url: '/graphql',
     });
     const schema = await manager.waitBaseSchema();
     expect(schema).toBeNull();
   });
 
   it('should return null if JSON response is not introspection result', async () => {
+    server.use(http.post('/graphql', () => HttpResponse.json({ hoge: 'hoge' })));
     const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
     const manager = new HttpSchemaManager(schemaManagerHost, {
       method: 'POST',
-      url: 'http://localhost:4001/invalid-schema',
+      url: '/graphql',
     });
     const schema = await manager.waitBaseSchema();
     expect(schema).toBeNull();
+  });
+
+  it('should get schema from GraphQL server', async () => {
+    server.use(schemaHandler);
+    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
+    const manager = new HttpSchemaManager(schemaManagerHost, {
+      method: 'POST',
+      url: '/graphql',
+    });
+    const lazySchema = new Promise(res => manager.registerOnChange(() => res(manager.getBaseSchema())));
+    manager.startWatch();
+    await expect(lazySchema).resolves.toBeInstanceOf(GraphQLSchema);
+  });
+
+  it('should wait for base schema from GraphQL server', async () => {
+    server.use(schemaHandler);
+    const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
+    const manager = new HttpSchemaManager(schemaManagerHost, {
+      method: 'POST',
+      url: '/graphql',
+    });
+    const schema = await manager.waitBaseSchema();
+    expect(schema).toBeInstanceOf(GraphQLSchema);
   });
 
   it('should retry to fetch', async () => {
     const schemaManagerHost = createTestingSchemaManagerHost({ schema: '' });
     const manager = new HttpSchemaManager(schemaManagerHost, {
       method: 'POST',
-      url: 'http://localhost:4001/graphql',
+      url: '/graphql',
     });
-    await new Promise(res => server!.close(res));
     manager.startWatch(50);
     await new Promise(res => setTimeout(res, 50));
     expect(manager.getBaseSchema()).toBeNull();
-    server = await createServerFixture();
+    server.use(schemaHandler);
     const schema = await new Promise(res => {
       const getSchema = () =>
         setTimeout(() => {
