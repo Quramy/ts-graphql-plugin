@@ -21,10 +21,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
-      - name: npm install, build, and test
+      - name: Install dependencies
         run: |
           npm ci
+      - name: Build
+        run: |
           npm run build
+          git diff --name-only --exit-code
+      - name: Test
+        run: |
           npm link
           npm link ts-graphql-plugin
           npm test

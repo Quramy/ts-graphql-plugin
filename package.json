@@ -14,9 +14,10 @@
   },
   "typings": "lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf lib \"e2e/*.log\" \"*.tsbuildinfo\"",
-    "build": "tsc -p .",
-    "compile": "tsc -p .",
+    "clean": "rimraf -g lib \"e2e/*.log\" \"*.tsbuildinfo\"",
+    "build": "run-s build:ts build:doc",
+    "build:ts": "tsc -p .",
+    "build:doc": "npm run doc:toc",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "jest": "jest",
     "jest:ci": "jest --coverage --maxWorkers=4",
