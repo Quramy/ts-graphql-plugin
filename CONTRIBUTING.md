@@ -28,13 +28,13 @@ cd ts-graphql-plugin
 2. Install dependencies
 
 ```sh
-yarn install --pure-lockfile
+npm install --no-save
 ```
 
 3. Compile TypeScript sources
 
 ```sh
-yarn compile
+npm run build
 ```
 
 ## Code format
@@ -44,7 +44,7 @@ We use Prettier and configure to format sources automatically when they're git s
 And we use ESLint.
 
 ```sh
-yarn lint
+npm run lint
 ```
 
 ## Testing
@@ -56,7 +56,7 @@ If you add / modify some functions, write unit testing code about them.
 Execute the following to run all unit testing codes:
 
 ```sh
-yarn test
+npm run test
 ```
 
 ### E2E testing
@@ -66,14 +66,16 @@ In some cases, it's difficult to cover entire functions by unit testing. For exa
 In such cases, consider adding E2E test specs.
 
 ```sh
-yarn compile
-yarn e2e all
+npm run build
+npm link
+npm link ts-graphql-plugin
+npm run e2e all
 ```
 
 You can specify test suite name via:
 
 ```sh
-yarn e2e cli # Execute only specs under e2e/cli-specs
+npm run e2e cli # Execute only specs under e2e/cli-specs
 ```
 
 ### Manual testing
@@ -83,11 +85,11 @@ yarn e2e cli # Execute only specs under e2e/cli-specs
 You can check manually language service plugin features with our example project.
 
 ```sh
-yarn compile
-yarn link
+npm run bulid
+npm link
 cd project-fixtures/react-apollo-prj
-yarn install
-yarn link ts-graphql-plugin
+npm install
+npm link ts-graphql-plugin
 code . # Or launch editor/IDE what you like
 ```
 
