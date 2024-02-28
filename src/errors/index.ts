@@ -17,7 +17,10 @@ export class ErrorWithLocation extends Error {
   readonly name = 'ErrorWithLocation';
   readonly severity: Severity = 'Error';
 
-  constructor(public readonly message: string, public readonly errorContent: ErrorContent) {
+  constructor(
+    public readonly message: string,
+    public readonly errorContent: ErrorContent,
+  ) {
     super(message);
     if (errorContent.severity) {
       this.severity = errorContent.severity;
@@ -27,7 +30,10 @@ export class ErrorWithLocation extends Error {
 
 export class ErrorWithoutLocation extends Error {
   readonly name = 'ErrorWithoutLocation';
-  constructor(public readonly message: string, public readonly severity: Severity = 'Error') {
+  constructor(
+    public readonly message: string,
+    public readonly severity: Severity = 'Error',
+  ) {
     super(message);
   }
 }

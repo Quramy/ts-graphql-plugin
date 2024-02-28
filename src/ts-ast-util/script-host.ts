@@ -4,7 +4,10 @@ export class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string | undefined>();
   private readonly _fileVersionMap = new Map<string, number>();
 
-  constructor(private readonly _currentDirectory: string, private readonly _compilerOptions: ts.CompilerOptions) {}
+  constructor(
+    private readonly _currentDirectory: string,
+    private readonly _compilerOptions: ts.CompilerOptions,
+  ) {}
 
   readFile(fileName: string) {
     const hit = this._fileMap.get(fileName);

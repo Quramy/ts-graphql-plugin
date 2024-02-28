@@ -53,12 +53,12 @@ type ParseOptions = {
 type Dispatch<T extends CommandLineOptionEntry> = T extends BooleanOptionEntry
   ? boolean
   : T extends StringOptionEntry
-  ? string
-  : T extends OptionalStringOptionEntry
-  ? string | undefined
-  : T extends IntegerOptionEntry
-  ? number
-  : never;
+    ? string
+    : T extends OptionalStringOptionEntry
+      ? string | undefined
+      : T extends IntegerOptionEntry
+        ? number
+        : never;
 
 type OptionsResult<T extends OptionsHolder> = {
   [P in keyof T['options']]: Dispatch<T['options'][P]>;

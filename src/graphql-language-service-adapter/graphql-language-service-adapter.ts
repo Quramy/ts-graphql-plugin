@@ -25,7 +25,10 @@ export class GraphQLLanguageServiceAdapter {
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _analysisContext: AnalysisContext;
 
-  constructor(private readonly _helper: ScriptSourceHelper, opt: GraphQLLanguageServiceAdapterCreateOptions) {
+  constructor(
+    private readonly _helper: ScriptSourceHelper,
+    opt: GraphQLLanguageServiceAdapterCreateOptions,
+  ) {
     if (opt.logger) this._logger = opt.logger;
     if (opt.schemaErrors) this.updateSchema(opt.schemaErrors, null);
     if (opt.schema) this.updateSchema(null, opt.schema);

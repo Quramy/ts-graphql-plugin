@@ -27,7 +27,10 @@ function createTestingTypeGenerator({
 type InputFile = { fileName: string; content: string };
 
 class AddonTester {
-  constructor(private readonly facory: TypeGenAddonFactory, private readonly options: { tag?: string }) {}
+  constructor(
+    private readonly facory: TypeGenAddonFactory,
+    private readonly options: { tag?: string },
+  ) {}
 
   generateTypes({ files, schemaSDL }: { files: InputFile[]; schemaSDL: string }) {
     const schema = buildSchema(schemaSDL);

@@ -5,7 +5,10 @@ import { requestIntrospectionQuery, RequestSetup } from './request-introspection
 export class HttpSchemaManager extends SchemaManager {
   private _schema: any = null;
 
-  constructor(_host: SchemaManagerHost, protected _options: RequestSetup | null = null) {
+  constructor(
+    _host: SchemaManagerHost,
+    protected _options: RequestSetup | null = null,
+  ) {
     super(_host);
   }
 

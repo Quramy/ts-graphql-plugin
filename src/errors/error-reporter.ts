@@ -12,7 +12,10 @@ const lineMarkForUnderline = (width: number) => {
 };
 
 export class ErrorReporter {
-  constructor(private readonly _currentDirectory: string, private readonly _output: (msg: string) => void = () => {}) {}
+  constructor(
+    private readonly _currentDirectory: string,
+    private readonly _output: (msg: string) => void = () => {},
+  ) {}
 
   outputError(error: TsGqlError) {
     if (error instanceof ErrorWithoutLocation) {
