@@ -1,6 +1,6 @@
 import { SchemaManager } from './schema-manager';
 import { SchemaManagerHost } from './types';
-import { requestIntrospectionQuery, RequestSetup } from './request-introspection-query';
+import { requestIntrospectionQuery, type RequestSetup } from './request-introspection-query';
 
 export class HttpSchemaManager extends SchemaManager {
   private _schema: any = null;
