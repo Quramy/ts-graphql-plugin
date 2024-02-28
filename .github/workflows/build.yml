@@ -20,13 +20,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
       - name: npm install, build, and test
         run: |
-          yarn --frozen-lockfile
-          yarn compile
-          yarn link
-          yarn link ts-graphql-plugin
-          yarn test
+          npm ci
+          npm run build
+          npm link
+          npm link ts-graphql-plugin
+          npm test
         env:
           CI: true
       - uses: codecov/codecov-action@v3

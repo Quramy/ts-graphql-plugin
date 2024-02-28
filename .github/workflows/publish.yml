@@ -19,12 +19,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: npm
       - name: npm publish
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
           npm whoami
-          yarn --frozen-lockfile
-          yarn compile
+          npm ci
+          npm run build
           npm publish
         if: contains(github.ref, 'tags/v')
         env:
