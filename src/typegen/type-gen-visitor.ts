@@ -76,7 +76,10 @@ interface FieldTypeElement {
 }
 
 export class TypeGenError extends Error {
-  constructor(public readonly message: string, public readonly node: ASTNode) {
+  constructor(
+    public readonly message: string,
+    public readonly node: ASTNode,
+  ) {
     super(message);
   }
 }
@@ -343,8 +346,8 @@ export class TypeGenVisitor {
       fieldType: fieldType as T extends GraphQLField<any, any>
         ? GraphQLOutputType
         : T extends GraphQLInputField
-        ? GraphQLInputType
-        : never,
+          ? GraphQLInputType
+          : never,
       structureStack,
     };
   }
@@ -387,8 +390,8 @@ export class TypeGenVisitor {
               astf.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
             ])
           : kind === 'list'
-          ? astf.createArrayTypeNode(node)
-          : node;
+            ? astf.createArrayTypeNode(node)
+            : node;
     }
     return { node, lastStructureKind: kind };
   }
