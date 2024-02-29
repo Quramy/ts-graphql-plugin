@@ -1,6 +1,5 @@
 import ts from 'typescript';
-import { Diagnostic } from 'graphql-language-service-types';
-import { getDiagnostics } from 'graphql-language-service-interface';
+import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';

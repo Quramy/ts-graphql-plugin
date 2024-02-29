@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { getHoverInformation } from 'graphql-language-service-interface';
+import { getHoverInformation } from 'graphql-language-service';
 import { AnalysisContext, GetQuickInfoAtPosition } from './types';
 import { SimplePosition } from './simple-position';
 
@@ -16,7 +16,7 @@ export function getQuickInfoAtPosition(
   const { resolvedInfo } = ctx.resolveTemplateInfo(fileName, node);
   if (!resolvedInfo) return delegate(fileName, position);
   const { combinedText, getInnerPosition, convertInnerPosition2InnerLocation } = resolvedInfo;
-  const cursor = new SimplePosition(convertInnerPosition2InnerLocation(getInnerPosition(position).pos + 1));
+  const cursor = new SimplePosition(convertInnerPosition2InnerLocation(getInnerPosition(position).pos));
   const result = getHoverInformation(schema, combinedText, cursor);
   if (typeof result !== 'string' || !result.length) return delegate(fileName, position);
   return {

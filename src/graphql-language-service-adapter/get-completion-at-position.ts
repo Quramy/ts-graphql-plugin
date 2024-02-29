@@ -1,6 +1,5 @@
 import ts from 'typescript';
-import { CompletionItem } from 'graphql-language-service-types';
-import { getAutocompleteSuggestions } from 'graphql-language-service-interface';
+import { getAutocompleteSuggestions, type CompletionItem } from 'graphql-language-service';
 import { AnalysisContext, GetCompletionAtPosition } from './types';
 import { SimplePosition } from './simple-position';
 

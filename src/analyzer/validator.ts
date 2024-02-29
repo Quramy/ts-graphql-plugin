@@ -1,5 +1,5 @@
 import { GraphQLSchema } from 'graphql';
-import { getDiagnostics } from 'graphql-language-service-interface';
+import { getDiagnostics } from 'graphql-language-service';
 import { ExtractResult } from './extractor';
 import { ErrorWithLocation } from '../errors';
 

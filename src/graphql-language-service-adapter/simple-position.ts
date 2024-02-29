@@ -1,5 +1,5 @@
 import type { LineAndCharacter } from 'typescript';
-import { IPosition } from 'graphql-language-service-types';
+import type { IPosition } from 'graphql-language-service';
 
 export class SimplePosition implements IPosition {
   line: number;
