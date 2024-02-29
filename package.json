@@ -42,9 +42,7 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
-    "graphql-language-service": "^5.2.0",
-    "graphql-language-service-interface": "^2.10.2",
-    "graphql-language-service-types": "^1.8.7"
+    "graphql-language-service": "^5.2.0"
   },
   "devDependencies": {
     "@types/jest": "29.5.12",
