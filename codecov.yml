@@ -1,6 +1,11 @@
 codecov:
   require_ci_to_pass: yes
 
+ignore:
+  - 'webpack.js'
+  - 'addons/**/*'
+  - 'project-fixtures/**/*'
+
 comment:
   layout: 'reach, diff, flags, files'
   behavior: default
