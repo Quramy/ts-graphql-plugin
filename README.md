@@ -48,7 +48,6 @@ This plugin has the following features:
     - [`documentTransformers` optional](#documenttransformers-optional)
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
-- [Version compatibility](#version-compatibility)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -69,8 +68,6 @@ And configure `plugins` section in your tsconfig.json, for example:
 ```json
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es5",
     "plugins": [
       {
         "name": "ts-graphql-plugin",
@@ -208,8 +205,6 @@ Example how configuration script may look like:
 
 ```js
 // my-graphql-config.js
-const fetch = require('node-fetch');
-
 module.exports = projectRootPath =>
   new Promise(resolve => {
     fetch('http://localhost/identity-server/connect/token', {
@@ -495,7 +490,8 @@ module.exports = {
 };
 ```
 
-_NOTE_: For now, this plugin transforms nothing when webpack's `--mode` option is `development` and webpack runs with `--watch` option.
+> [!NOTE]
+> For now, this plugin transforms nothing when webpack's `--mode` option is `development` and webpack runs with `--watch` option.
 
 ### webpack plugin options
 
@@ -545,9 +541,8 @@ const query = gql`
 `;
 ```
 
-_NOTE_
-
-This tool cannot interpret queries containing too complex TypeScript expressions because it statically explores GraphQL queries.
+> [!IMPORTANT]
+> This tool cannot interpret queries containing too complex TypeScript expressions because it statically explores GraphQL queries.
 
 ```ts
 /* It's ok */
@@ -593,11 +588,6 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Emacs
 - Sublime text
 - Eclipse
-
-## Version compatibility
-
-- If you use `graphql < 15.x`, install `ts-graphql-plugin@^1.x.x`.
-- If you use `typescript < 4.8.x`, install `ts-graphql-plugin@^2.x.x`.
 
 ## Contributing
 
