@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, type FragmentDefinitionNode } from 'graphql';
 import { ScriptSourceHelper, ResolveResult } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 
@@ -12,10 +12,16 @@ export interface AnalysisContext {
   getScriptSourceHelper(): ScriptSourceHelper;
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
+  getFragmentDefinitions(): FragmentDefinitionNode[];
   findTemplateNode(
     fileName: string,
     position: number,
   ): ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined;
   findTemplateNodes(fileName: string): (ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-  resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral): ResolveResult;
+  resolveTemplateInfo(
+    fileName: string,
+    node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral,
+  ): ResolveResult & {
+    fragmentNames: string[];
+  };
 }

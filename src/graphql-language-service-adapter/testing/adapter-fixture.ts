@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { GraphQLSchema } from 'graphql';
 import { createScriptSourceHelper } from '../../ts-ast-util';
+import { FragmentRegistry } from '../../gql-ast-util';
 import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
 import {
   createTestingLanguageServiceAndHost,
@@ -12,6 +13,7 @@ export class AdapterFixture {
   readonly langService: ts.LanguageService;
   private readonly _sourceFileName: string;
   private readonly _langServiceHost: TestingLanguageServiceHost;
+  private readonly _fragmentRegistry: FragmentRegistry;
 
   constructor(sourceFileName: string, schema?: GraphQLSchema) {
     const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({
@@ -19,12 +21,14 @@ export class AdapterFixture {
     });
     this._sourceFileName = sourceFileName;
     this._langServiceHost = languageServiceHost;
+    this._fragmentRegistry = new FragmentRegistry();
     this.langService = languageService;
     this.adapter = new GraphQLLanguageServiceAdapter(
       createScriptSourceHelper({ languageService, languageServiceHost }),
       {
         schema: schema || null,
         removeDuplicatedFragments: true,
+        fragmentRegistry: this._fragmentRegistry,
       },
     );
   }
@@ -35,5 +39,9 @@ export class AdapterFixture {
 
   set source(content: string) {
     this._langServiceHost.updateFile(this._sourceFileName, content);
+  }
+
+  addFragment(fragmentDefDoc: string, sourceFileName = this._sourceFileName) {
+    this._fragmentRegistry.registerDocument(sourceFileName, fragmentDefDoc);
   }
 }

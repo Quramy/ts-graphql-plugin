@@ -136,6 +136,61 @@ describe('getSemanticDiagnostics', () => {
     expect(validateFn().length).toBe(1);
   });
 
+  it('should exclude fragment definition itself as external fragments', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment(`
+      fragment MyFragment on Query {
+        hello
+      }
+    `);
+
+    fixture.source = `
+      const fragment = \`
+        fragment MyFragment on Query {
+          hello
+        }
+      \`;
+    `;
+    const actual = validateFn();
+    expect(actual.length).toBe(0);
+  });
+
+  it('should work with external fragments', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment(
+      `
+      fragment ExternalFragment1 on Query {
+        __typename
+      }
+    `,
+      'fragments.ts',
+    );
+
+    fixture.addFragment(
+      `
+      fragment ExternalFragment2 on Query {
+        __typename
+      }
+    `,
+      'fragments.ts',
+    );
+
+    fixture.source = `
+      const fragment = \`
+        fragment MyFragment on Query {
+          hello
+          ...ExternalFragment1
+        }
+      \`;
+    `;
+    const actual = validateFn();
+    expect(actual.length).toBe(0);
+  });
+
   it('should return "templateIsTooComplex" error when template node has too complex interpolation', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');

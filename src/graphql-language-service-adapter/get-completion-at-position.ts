@@ -49,7 +49,13 @@ export function getCompletionAtPosition(
     line: innerLocation.line,
     character: innerLocation.character,
   });
-  const gqlCompletionItems = getAutocompleteSuggestions(schema, combinedText, positionForSeach);
+  const gqlCompletionItems = getAutocompleteSuggestions(
+    schema,
+    combinedText,
+    positionForSeach,
+    undefined,
+    ctx.getFragmentDefinitions(),
+  );
   ctx.debug(JSON.stringify(gqlCompletionItems));
   return translateCompletionItems(gqlCompletionItems);
 }

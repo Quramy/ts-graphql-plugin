@@ -1,9 +1,11 @@
 import ts from 'typescript/lib/tsserverlibrary';
 import { TsGraphQLPluginConfigOptions } from '../types';
 import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
+import { DocumentRegistryProxy } from './document-registry-proxy';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 import { SchemaManagerFactory, createSchemaManagerHostFromLSPluginInfo } from '../schema-manager';
-import { createScriptSourceHelper } from '../ts-ast-util';
+import { FragmentRegistry } from '../gql-ast-util';
+import { createScriptSourceHelper, isTagged, findAllNodes } from '../ts-ast-util';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const logger = (msg: string) => info.project.projectService.logger.info(`[ts-graphql-plugin] ${msg}`);
@@ -13,15 +15,56 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const config = info.config as TsGraphQLPluginConfigOptions;
   const tag = config.tag;
   const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
-  const adapter = new GraphQLLanguageServiceAdapter(createScriptSourceHelper(info), {
+
+  const host = info.languageServiceHost;
+  const docRegistry = new DocumentRegistryProxy({
+    delegate: ts.createDocumentRegistry(
+      host.useCaseSensitiveFileNames && host.useCaseSensitiveFileNames(),
+      host.getCurrentDirectory(),
+    ),
+  });
+
+  const languageService = ts.createLanguageService(info.languageServiceHost, docRegistry);
+  const fragmentRegistry = new FragmentRegistry();
+  const scriptSourceHelper = createScriptSourceHelper({ ...info, languageService });
+  const adapter = new GraphQLLanguageServiceAdapter(scriptSourceHelper, {
     schema,
     schemaErrors,
     logger,
     tag,
+    fragmentRegistry,
     removeDuplicatedFragments,
   });
 
-  const proxy = new LanguageServiceProxyBuilder(info)
+  docRegistry.scriptChangeEventListener = {
+    onAcquire: (fileName, sourceFile) => {
+      if (host.getScriptFileNames().includes(fileName)) {
+        // TODO remove before merge
+        logger('acquire script ' + fileName);
+
+        const templateLiteralNodes = findAllNodes(sourceFile, node => {
+          // TODO handle TemplateExpression
+          if (ts.isNoSubstitutionTemplateLiteral(node)) {
+            return true;
+          }
+          if (!tag) return true;
+          return !!isTagged(node, tag);
+        }) as ts.NoSubstitutionTemplateLiteral[];
+        templateLiteralNodes.forEach(node => {
+          if (!node.rawText) return;
+          fragmentRegistry.registerDocument(fileName, node.rawText);
+        });
+      }
+    },
+    onUpdate: () => {
+      // TODO
+    },
+    onRelease: () => {
+      // TODO
+    },
+  };
+
+  const proxy = new LanguageServiceProxyBuilder({ languageService })
     .wrap('getCompletionsAtPosition', delegate => adapter.getCompletionAtPosition.bind(adapter, delegate))
     .wrap('getSemanticDiagnostics', delegate => adapter.getSemanticDiagnostics.bind(adapter, delegate))
     .wrap('getQuickInfoAtPosition', delegate => adapter.getQuickInfoAtPosition.bind(adapter, delegate))

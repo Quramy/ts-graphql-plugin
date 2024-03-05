@@ -52,11 +52,14 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
     });
   } else if (schema) {
     const diagnosticsAndResolvedInfoList = nodes.map(n => {
-      const { resolvedInfo, resolveErrors } = ctx.resolveTemplateInfo(fileName, n);
+      const { resolvedInfo, resolveErrors, fragmentNames } = ctx.resolveTemplateInfo(fileName, n);
+      const externalFragments = ctx.getFragmentDefinitions().filter(def => !fragmentNames.includes(def.name.value));
       return {
         resolveErrors,
         resolvedTemplateInfo: resolvedInfo,
-        diagnostics: resolvedInfo ? getDiagnostics(resolvedInfo.combinedText, schema) : [],
+        diagnostics: resolvedInfo
+          ? getDiagnostics(resolvedInfo.combinedText, schema, undefined, undefined, externalFragments)
+          : [],
       };
     });
     diagnosticsAndResolvedInfoList.forEach((info, i) => {

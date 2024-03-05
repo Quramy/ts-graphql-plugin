@@ -2,13 +2,13 @@ import ts from 'typescript/lib/tsserverlibrary';
 
 export type LanguageServiceMethodWrapper<K extends keyof ts.LanguageService> = (
   delegate: ts.LanguageService[K],
-  info?: ts.server.PluginCreateInfo,
+  info?: { languageService: ts.LanguageService },
 ) => ts.LanguageService[K];
 
 export class LanguageServiceProxyBuilder {
   private _wrappers: any[] = [];
 
-  constructor(private _info: ts.server.PluginCreateInfo) {}
+  constructor(private _info: { languageService: ts.LanguageService }) {}
 
   wrap<K extends keyof ts.LanguageService, Q extends LanguageServiceMethodWrapper<K>>(name: K, wrapper: Q) {
     this._wrappers.push({ name, wrapper });

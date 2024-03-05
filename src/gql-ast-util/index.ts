@@ -1,5 +1,17 @@
 import { DocumentNode, FragmentDefinitionNode } from 'graphql';
 
+export * from './fragment-registry';
+
+export function getFragmentNamesInDocument(documentNode: DocumentNode) {
+  const nameSet = new Set<string>();
+  for (const def of documentNode.definitions) {
+    if (def.kind === 'FragmentDefinition') {
+      nameSet.add(def.name.value);
+    }
+  }
+  return [...nameSet];
+}
+
 export function detectDuplicatedFragments(documentNode: DocumentNode) {
   const fragments: FragmentDefinitionNode[] = [];
   const duplicatedFragments: FragmentDefinitionNode[] = [];

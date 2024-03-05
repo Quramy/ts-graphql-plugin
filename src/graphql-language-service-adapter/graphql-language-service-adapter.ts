@@ -2,7 +2,7 @@ import ts from 'typescript';
 import { GraphQLSchema, parse } from 'graphql';
 import { isTagged, ScriptSourceHelper, TagCondition, isTemplateLiteralTypeNode } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
-import { detectDuplicatedFragments } from '../gql-ast-util';
+import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
 import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
 import { getCompletionAtPosition } from './get-completion-at-position';
 import { getSemanticDiagnostics } from './get-semantic-diagonistics';
@@ -14,6 +14,7 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   logger?: (msg: string) => void;
   tag?: string;
   removeDuplicatedFragments: boolean;
+  fragmentRegistry: FragmentRegistry;
 }
 
 type Args<T> = T extends (...args: infer A) => any ? A : never;
@@ -24,6 +25,7 @@ export class GraphQLLanguageServiceAdapter {
   private readonly _tagCondition?: TagCondition;
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _analysisContext: AnalysisContext;
+  private readonly _fragmentRegisry: FragmentRegistry;
 
   constructor(
     private readonly _helper: ScriptSourceHelper,
@@ -35,6 +37,7 @@ export class GraphQLLanguageServiceAdapter {
     if (opt.tag) this._tagCondition = opt.tag;
     this._removeDuplicatedFragments = opt.removeDuplicatedFragments;
     this._analysisContext = this._createAnalysisContext();
+    this._fragmentRegisry = opt.fragmentRegistry;
   }
 
   getCompletionAtPosition(delegate: GetCompletionAtPosition, ...args: Args<GetCompletionAtPosition>) {
@@ -71,6 +74,7 @@ export class GraphQLLanguageServiceAdapter {
           return [this._schema, null];
         }
       },
+      getFragmentDefinitions: () => this._fragmentRegisry.getFragmentDefinitions(),
       findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),
@@ -114,20 +118,21 @@ export class GraphQLLanguageServiceAdapter {
 
   private _resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
     const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
-    if (!resolvedInfo) return { resolveErrors };
-    if (!this._removeDuplicatedFragments) return { resolveErrors, resolvedInfo };
+    if (!resolvedInfo) return { resolveErrors, fragmentNames: [] };
     try {
       const documentNode = parse(resolvedInfo.combinedText);
+      const fragmentNames = getFragmentNamesInDocument(documentNode);
+      if (!this._removeDuplicatedFragments) return { resolveErrors, resolvedInfo, fragmentNames };
       const duplicatedFragmentInfoList = detectDuplicatedFragments(documentNode);
       const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
         return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
       }, resolvedInfo);
-      return { resolvedInfo: info, resolveErrors };
+      return { resolvedInfo: info, resolveErrors, fragmentNames };
     } catch (error) {
       // Note:
       // `parse` throws GraphQL syntax error when combinedText is invalid for GraphQL syntax.
       // We don't need handle this error because getDiagnostics method in this class re-checks syntax with graphql-lang-service,
-      return { resolvedInfo, resolveErrors };
+      return { resolvedInfo, resolveErrors, fragmentNames: [] };
     }
   }
 
