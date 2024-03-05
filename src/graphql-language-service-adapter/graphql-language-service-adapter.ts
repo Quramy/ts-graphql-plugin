@@ -74,7 +74,8 @@ export class GraphQLLanguageServiceAdapter {
           return [this._schema, null];
         }
       },
-      getFragmentDefinitions: () => this._fragmentRegisry.getFragmentDefinitions(),
+      getGlobalFragmentDefinitions: fragmentNamesToBeIgnored =>
+        this._fragmentRegisry.getFragmentDefinitions(fragmentNamesToBeIgnored),
       findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),

@@ -54,7 +54,7 @@ export function getCompletionAtPosition(
     combinedText,
     positionForSeach,
     undefined,
-    ctx.getFragmentDefinitions(),
+    ctx.getGlobalFragmentDefinitions(),
   );
   ctx.debug(JSON.stringify(gqlCompletionItems));
   return translateCompletionItems(gqlCompletionItems);

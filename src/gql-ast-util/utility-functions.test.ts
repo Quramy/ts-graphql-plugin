@@ -1,4 +1,4 @@
-import { detectDuplicatedFragments } from './';
+import { detectDuplicatedFragments } from './utility-functions';
 import { parse } from 'graphql';
 
 describe(detectDuplicatedFragments, () => {

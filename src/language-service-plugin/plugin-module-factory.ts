@@ -37,10 +37,10 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   });
 
   docRegistry.scriptChangeEventListener = {
-    onAcquire: (fileName, sourceFile) => {
+    onAcquire: (fileName, sourceFile, version) => {
       if (host.getScriptFileNames().includes(fileName)) {
         // TODO remove before merge
-        logger('acquire script ' + fileName);
+        logger('acquire script ' + fileName + version);
 
         const templateLiteralNodes = findAllNodes(sourceFile, node => {
           // TODO handle TemplateExpression
@@ -52,15 +52,32 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
         }) as ts.NoSubstitutionTemplateLiteral[];
         templateLiteralNodes.forEach(node => {
           if (!node.rawText) return;
-          fragmentRegistry.registerDocument(fileName, node.rawText);
+          fragmentRegistry.registerDocument(fileName, version, node.rawText);
         });
       }
     },
-    onUpdate: () => {
-      // TODO
+    onUpdate: (fileName, sourceFile, version) => {
+      if (host.getScriptFileNames().includes(fileName)) {
+        if (fragmentRegistry.getFileCurrentVersion(fileName) === version) return;
+        // TODO remove before merge
+        logger('update script ' + fileName + version);
+
+        const templateLiteralNodes = findAllNodes(sourceFile, node => {
+          // TODO handle TemplateExpression
+          if (ts.isNoSubstitutionTemplateLiteral(node)) {
+            return true;
+          }
+          if (!tag) return true;
+          return !!isTagged(node, tag);
+        }) as ts.NoSubstitutionTemplateLiteral[];
+        templateLiteralNodes.forEach(node => {
+          if (!node.rawText) return;
+          fragmentRegistry.registerDocument(fileName, version, node.rawText);
+        });
+      }
     },
-    onRelease: () => {
-      // TODO
+    onRelease: fileName => {
+      fragmentRegistry.removeDocument(fileName);
     },
   };
 

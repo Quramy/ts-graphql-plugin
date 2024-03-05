@@ -1,37 +1,33 @@
 import { parse, type DocumentNode, FragmentDefinitionNode } from 'graphql';
-
-type FragmentRegistryEntry = {
-  readonly fileName: string;
-  readonly fragmentDefinition: FragmentDefinitionNode;
-};
+import { getFragmentsInDocument } from './utility-functions';
 
 export class FragmentRegistry {
-  private _map = new Map<string, FragmentRegistryEntry>();
+  private _fileVersionMap = new Map<string, string>();
+  private _fragmentsMap = new Map<string, FragmentDefinitionNode[]>();
 
-  getFragmentDefinitions() {
-    return [...this._map.values()].map(node => node.fragmentDefinition);
+  getFileCurrentVersion(fileName: string): string | undefined {
+    return this._fileVersionMap.get(fileName);
   }
 
-  getFragmentDependencies() {
-    const map = new Map<string, FragmentDefinitionNode>();
-    for (const [k, v] of this._map.entries()) {
-      map.set(k, v.fragmentDefinition);
-    }
-    return map;
+  getFragmentDefinitions(fragmentNamesToBeIgnored: string[] = []): FragmentDefinitionNode[] {
+    return [...this._fragmentsMap.values()].flat().filter(def => !fragmentNamesToBeIgnored.includes(def.name.value));
   }
 
-  registerDocument(fileName: string, document: string) {
+  registerDocument(fileName: string, version: string, document: string): void {
     let docNode: DocumentNode | undefined = undefined;
+    this._fileVersionMap.set(fileName, version);
     try {
       docNode = parse(document);
     } catch {}
-    if (!docNode) return;
-    docNode.definitions.forEach(node => {
-      if (node.kind !== 'FragmentDefinition') return;
-      this._map.set(node.name.value, {
-        fileName,
-        fragmentDefinition: node,
-      });
-    });
+    if (!docNode) {
+      this._fragmentsMap.set(fileName, []);
+      return;
+    }
+    this._fragmentsMap.set(fileName, getFragmentsInDocument(docNode));
+  }
+
+  removeDocument(fileName: string): void {
+    this._fileVersionMap.delete(fileName);
+    this._fragmentsMap.delete(fileName);
   }
 }

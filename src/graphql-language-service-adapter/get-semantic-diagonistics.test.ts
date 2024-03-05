@@ -167,7 +167,7 @@ describe('getSemanticDiagnostics', () => {
         __typename
       }
     `,
-      'fragments.ts',
+      'fragment1.ts',
     );
 
     fixture.addFragment(
@@ -176,7 +176,7 @@ describe('getSemanticDiagnostics', () => {
         __typename
       }
     `,
-      'fragments.ts',
+      'fragment2.ts',
     );
 
     fixture.source = `

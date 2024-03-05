@@ -5,8 +5,8 @@ export type DocumentRegistryProxyCreateOptions = {
 };
 
 export type ScriptChangeEventListener = {
-  onAcquire: (fileName: string, sourceFile: ts.SourceFile) => void;
-  onUpdate: (fileName: string, sourceFile: ts.SourceFile) => void;
+  onAcquire: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;
+  onUpdate: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;
   onRelease: (fileName: string) => void;
 };
 
@@ -19,30 +19,30 @@ export class DocumentRegistryProxy implements ts.DocumentRegistry {
   }
 
   acquireDocument(...args: Parameters<ts.DocumentRegistry['acquireDocument']>) {
-    const fileName = args[0];
+    const [fileName, , , version] = args;
     const sourceFile = this._delegate.acquireDocument(...args);
-    this.scriptChangeEventListener?.onAcquire(fileName, sourceFile);
+    this.scriptChangeEventListener?.onAcquire(fileName, sourceFile, version);
     return sourceFile;
   }
 
   acquireDocumentWithKey(...args: Parameters<ts.DocumentRegistry['acquireDocumentWithKey']>) {
-    const fileName = args[0];
+    const [fileName, , , , , version] = args;
     const sourceFile = this._delegate.acquireDocumentWithKey(...args);
-    this.scriptChangeEventListener?.onAcquire(fileName, sourceFile);
+    this.scriptChangeEventListener?.onAcquire(fileName, sourceFile, version);
     return sourceFile;
   }
 
   updateDocument(...args: Parameters<ts.DocumentRegistry['updateDocument']>) {
-    const fileName = args[0];
+    const [fileName, , , version] = args;
     const sourceFile = this._delegate.updateDocument(...args);
-    this.scriptChangeEventListener?.onUpdate(fileName, sourceFile);
+    this.scriptChangeEventListener?.onUpdate(fileName, sourceFile, version);
     return sourceFile;
   }
 
   updateDocumentWithKey(...args: Parameters<ts.DocumentRegistry['updateDocumentWithKey']>) {
-    const fileName = args[0];
+    const [fileName, , , , , version] = args;
     const sourceFile = this._delegate.updateDocumentWithKey(...args);
-    this.scriptChangeEventListener?.onUpdate(fileName, sourceFile);
+    this.scriptChangeEventListener?.onUpdate(fileName, sourceFile, version);
     return sourceFile;
   }
 

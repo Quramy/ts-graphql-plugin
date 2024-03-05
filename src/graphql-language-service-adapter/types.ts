@@ -12,7 +12,7 @@ export interface AnalysisContext {
   getScriptSourceHelper(): ScriptSourceHelper;
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
-  getFragmentDefinitions(): FragmentDefinitionNode[];
+  getGlobalFragmentDefinitions(fragmentNamesToBeIgnored?: string[]): FragmentDefinitionNode[];
   findTemplateNode(
     fileName: string,
     position: number,
