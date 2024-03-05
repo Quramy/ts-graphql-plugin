@@ -50,10 +50,11 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
           if (!tag) return true;
           return !!isTagged(node, tag);
         }) as ts.NoSubstitutionTemplateLiteral[];
-        templateLiteralNodes.forEach(node => {
-          if (!node.rawText) return;
-          fragmentRegistry.registerDocument(fileName, version, node.rawText);
-        });
+        fragmentRegistry.registerDocument(
+          fileName,
+          version,
+          templateLiteralNodes.reduce((docs, node) => (node.rawText ? [...docs, node.rawText] : docs), [] as string[]),
+        );
       }
     },
     onUpdate: (fileName, sourceFile, version) => {
@@ -70,10 +71,11 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
           if (!tag) return true;
           return !!isTagged(node, tag);
         }) as ts.NoSubstitutionTemplateLiteral[];
-        templateLiteralNodes.forEach(node => {
-          if (!node.rawText) return;
-          fragmentRegistry.registerDocument(fileName, version, node.rawText);
-        });
+        fragmentRegistry.registerDocument(
+          fileName,
+          version,
+          templateLiteralNodes.reduce((docs, node) => (node.rawText ? [...docs, node.rawText] : docs), [] as string[]),
+        );
       }
     },
     onRelease: fileName => {
