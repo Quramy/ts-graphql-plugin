@@ -43,14 +43,32 @@ function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtens
 
 const simpleSources = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
       fileName: 'main.ts',
       content: 'const query = gql`query MyQuery { hello }`;',
+    },
+  ],
+};
+
+const externalFragmentsPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'fragment.ts',
+      content: 'const fragment = gql`fragment MyFragment on Query { hello }`;',
+    },
+    {
+      fileName: 'main.ts',
+      content: 'const query = gql`query MyQuery { ...MyFragment }`;',
     },
   ],
 };
@@ -67,9 +85,9 @@ const noSchemaPrj = {
 
 const extensionErrorPrj = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
@@ -85,9 +103,9 @@ const extensionErrorPrj = {
 
 const semanticErrorPrj = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
@@ -99,9 +117,9 @@ const semanticErrorPrj = {
 
 const semanticWarningPrj = {
   sdl: `
-  type Query {
-    hello: String! @deprecated(reason: "don't use")
-  }
+    type Query {
+      hello: String! @deprecated(reason: "don't use")
+    }
   `,
   files: [
     {
@@ -149,17 +167,30 @@ describe(Analyzer, () => {
       expect(schema).toBeTruthy();
     });
 
-    it('should validate project with semantic error project', async () => {
+    it('should validate project with semantic warning project', async () => {
       const analyzer = createTestingAnalyzer(semanticWarningPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
       expect(schema).toBeTruthy();
+    });
+
+    it('should work with external fragments', async () => {
+      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(0);
     });
   });
 
   describe(Analyzer.prototype.report, () => {
     it('should create markdown report', () => {
       const analyzer = createTestingAnalyzer(simpleSources);
+      const [errors, output] = analyzer.report('out.md');
+      expect(errors.length).toBe(0);
+      expect(output).toMatchSnapshot();
+    });
+
+    it('should create markdown report with external fragments', () => {
+      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
       const [errors, output] = analyzer.report('out.md');
       expect(errors.length).toBe(0);
       expect(output).toMatchSnapshot();
