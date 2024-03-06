@@ -1,22 +1,26 @@
 import { DocumentNode, FragmentDefinitionNode } from 'graphql';
 
-export function getFragmentsInDocument(documentNode: DocumentNode | undefined) {
-  if (!documentNode) return [];
-  const fragmentDefs = new Set<FragmentDefinitionNode>();
-  for (const def of documentNode.definitions) {
-    if (def.kind === 'FragmentDefinition') {
-      fragmentDefs.add(def);
+export function getFragmentsInDocument(...documentNodes: (DocumentNode | undefined)[]) {
+  const fragmentDefs = new Map<string, FragmentDefinitionNode>();
+  for (const documentNode of documentNodes) {
+    if (!documentNode) return [];
+    for (const def of documentNode.definitions) {
+      if (def.kind === 'FragmentDefinition') {
+        fragmentDefs.set(def.name.value, def);
+      }
     }
   }
-  return [...fragmentDefs];
+  return [...fragmentDefs.values()];
 }
 
-export function getFragmentNamesInDocument(documentNode: DocumentNode | undefined) {
-  if (!documentNode) return [];
+export function getFragmentNamesInDocument(...documentNodes: (DocumentNode | undefined)[]) {
   const nameSet = new Set<string>();
-  for (const def of documentNode.definitions) {
-    if (def.kind === 'FragmentDefinition') {
-      nameSet.add(def.name.value);
+  for (const documentNode of documentNodes) {
+    if (!documentNode) return [];
+    for (const def of documentNode.definitions) {
+      if (def.kind === 'FragmentDefinition') {
+        nameSet.add(def.name.value);
+      }
     }
   }
   return [...nameSet];

@@ -6,9 +6,7 @@ import { getFragmentsInDocument, getFragmentNamesInDocument } from '../gql-ast-u
 
 export function validate(extractedResults: ExtractResult[], schema: GraphQLSchema) {
   const errors: ErrorWithLocation[] = [];
-  const globalFragmentDefinitions = extractedResults.flatMap(({ documentNode }) =>
-    getFragmentsInDocument(documentNode),
-  );
+  const globalFragmentDefinitions = getFragmentsInDocument(...extractedResults.map(({ documentNode }) => documentNode));
   extractedResults.forEach(r => {
     if (!r.resolevedTemplateInfo) return;
     const { combinedText, getSourcePosition, convertInnerLocation2InnerPosition } = r.resolevedTemplateInfo;
