@@ -45,7 +45,10 @@ export type ExtractSucceededResult = {
   resolveTemplateErrorMessage: undefined;
 };
 
-export type ExtractResult = ExtractTemplateResolveErrorResult | ExtractGraphQLErrorResult | ExtractSucceededResult;
+export type ExtractFileResult = ExtractTemplateResolveErrorResult | ExtractGraphQLErrorResult | ExtractSucceededResult;
+export type ExtractResult = {
+  fileEntries: ExtractFileResult[];
+};
 
 export class Extractor {
   private readonly _removeDuplicatedFragments: boolean;
@@ -58,8 +61,8 @@ export class Extractor {
     this._debug = debug;
   }
 
-  extract(files: string[], tagName?: string): ExtractResult[] {
-    const results: ExtractResult[] = [];
+  extract(files: string[], tagName?: string): ExtractResult {
+    const results: ExtractFileResult[] = [];
     this._debug('Extract template literals from: ');
     this._debug(files.map(f => ' ' + f).join(',\n'));
     files.forEach(fileName => {
@@ -97,7 +100,7 @@ export class Extractor {
         }
       });
     });
-    return results.map(result => {
+    const fileEntries = results.map(result => {
       if (!result.resolevedTemplateInfo) return result;
       try {
         const rawDocumentNode = parse(result.resolevedTemplateInfo.combinedText);
@@ -129,10 +132,13 @@ export class Extractor {
         }
       }
     });
+    return {
+      fileEntries,
+    };
   }
 
   pickupErrors(
-    extractResults: ExtractResult[],
+    { fileEntries: extractResults }: ExtractResult,
     { ignoreGraphQLError }: { ignoreGraphQLError: boolean } = { ignoreGraphQLError: false },
   ) {
     const errors: ErrorWithLocation[] = [];
@@ -213,7 +219,7 @@ export class Extractor {
     return { type, operationName, fragmentName: noReferedFragmentNames[noReferedFragmentNames.length - 1] };
   }
 
-  toManifest(extractResults: ExtractResult[], tagName: string = ''): ManifestOutput {
+  toManifest({ fileEntries: extractResults }: ExtractResult, tagName: string = ''): ManifestOutput {
     const documents = extractResults
       .filter(r => !!r.documentNode)
       .map(result => {

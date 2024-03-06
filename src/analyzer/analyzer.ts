@@ -88,13 +88,13 @@ export class Analyzer {
   async validate() {
     const [schemaErrors, schema] = await this._getSchema();
     if (!schema) return { errors: schemaErrors };
-    const [extractedErrors, results] = this.extract();
+    const [extractedErrors, result] = this.extract();
     if (extractedErrors.length) {
       this._debug(`Found ${extractedErrors.length} extraction errors.`);
     }
     return {
-      errors: [...schemaErrors, ...extractedErrors, ...validate(results, schema)],
-      extractedResults: results,
+      errors: [...schemaErrors, ...extractedErrors, ...validate(result, schema)],
+      extractedResults: result,
       schema,
     };
   }

@@ -4,7 +4,7 @@ import { ExtractResult } from './extractor';
 import { ErrorWithLocation } from '../errors';
 import { getFragmentsInDocument, getFragmentNamesInDocument } from '../gql-ast-util';
 
-export function validate(extractedResults: ExtractResult[], schema: GraphQLSchema) {
+export function validate({ fileEntries: extractedResults }: ExtractResult, schema: GraphQLSchema) {
   const errors: ErrorWithLocation[] = [];
   const globalFragmentDefinitions = getFragmentsInDocument(...extractedResults.map(({ documentNode }) => documentNode));
   extractedResults.forEach(r => {

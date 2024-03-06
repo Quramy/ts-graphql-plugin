@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { DocumentNode } from 'graphql';
-import { Analyzer, AnalyzerFactory, ExtractResult } from '../analyzer';
+import { Analyzer, AnalyzerFactory, ExtractFileResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';
 
 class DocumentNodeRegistory {
@@ -18,7 +18,7 @@ class DocumentNodeRegistory {
     return positionMap.get(templateNode.getStart());
   }
 
-  update(extractedResults: ExtractResult[]) {
+  update(extractedResults: ExtractFileResult[]) {
     extractedResults.forEach(result => {
       if (!result.documentNode) return;
       let positionMap = this._map.get(result.fileName);
@@ -54,8 +54,8 @@ export class TransformerHost {
   }
 
   loadProject() {
-    const [, results] = this._analyzer.extract();
-    this._documentNodeRegistory.update(results);
+    const [, { fileEntries }] = this._analyzer.extract();
+    this._documentNodeRegistory.update(fileEntries);
   }
 
   updateFiles(fileNameList: string[]) {
@@ -70,10 +70,10 @@ export class TransformerHost {
     //    other-opened-file.ts: declare `query { ...X }` importing fragment from changed-file.ts
     //
     // In the above case, the transformed output of other-opened-file.ts should have GraphQL docuemnt corresponding to `fragment X on Query { fieldA } query { ...X }`
-    const [, results] = this._analyzer.extract([
+    const [, { fileEntries }] = this._analyzer.extract([
       ...new Set([...fileNameList, ...this._documentNodeRegistory.getFiles()]),
     ]);
-    this._documentNodeRegistory.update(results);
+    this._documentNodeRegistory.update(fileEntries);
   }
 
   getTransformer({

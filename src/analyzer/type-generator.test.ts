@@ -35,9 +35,11 @@ describe(TypeGenerator, () => {
           },
         ],
       });
-      const result = extractor.extract(['main.ts']) as ExtractSucceededResult[];
+      const {
+        fileEntries: [fileEntry],
+      } = extractor.extract(['main.ts']) as { fileEntries: ExtractSucceededResult[] };
       const { addon, context } = generator.createAddon({
-        extractedResult: result[0],
+        fileEntry,
         schema,
         outputSource: createOutputSource({ outputFileName: 'my-query.ts' }),
       });
