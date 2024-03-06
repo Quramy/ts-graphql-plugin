@@ -73,6 +73,29 @@ const externalFragmentsPrj = {
   ],
 };
 
+const fragmentExpressionPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const fragment = gql\`
+          fragment MyFragment on Query { hello }
+        \`;
+
+        const query = gql\`
+          \${fragment}
+          query MyQuery { ...MyFragment }
+        \`;
+      `,
+    },
+  ],
+};
+
 const noSchemaPrj = {
   sdl: '',
   files: [
@@ -172,6 +195,12 @@ describe(Analyzer, () => {
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
       expect(schema).toBeTruthy();
+    });
+
+    it('should work with fragments in template expression', async () => {
+      const analyzer = createTestingAnalyzer(fragmentExpressionPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(0);
     });
 
     it('should work with external fragments', async () => {
