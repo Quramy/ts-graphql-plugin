@@ -73,8 +73,19 @@ describe('CRLF', () => {
   });
 
   describe('throwErrorIfOutOfRange', () => {
+    describe(pos2location, () => {
+      const text = 'abcd\r\nefg';
+      it.each([-1, 9])('should throw an error if pos is out of range', pos => {
+        expect(() => pos2location(text, pos, true)).toThrowError();
+      });
+
+      it.each([0, 8])('should not throw an error if pos is invalid', pos => {
+        expect(() => pos2location(text, pos, true)).not.toThrowError();
+      });
+    });
+
     describe(location2pos, () => {
-      const text = 'abcd\nefg';
+      const text = 'abcd\r\nefg';
       it.each([
         { line: -1, character: 0 },
         { line: 0, character: -1 },
