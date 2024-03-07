@@ -132,8 +132,14 @@ export interface ResolvedTemplateInfo {
   combinedText: string;
   getInnerPosition: ComputePosition;
   getSourcePosition: ComputePosition;
-  convertInnerPosition2InnerLocation: (pos: number) => { line: number; character: number };
-  convertInnerLocation2InnerPosition: (location: { line: number; character: number }) => number;
+  convertInnerPosition2InnerLocation: (
+    pos: number,
+    throwErrorIfOutOfRange?: boolean,
+  ) => { line: number; character: number };
+  convertInnerLocation2InnerPosition: (
+    location: { line: number; character: number },
+    throwErrorIfOutOfRange?: boolean,
+  ) => number;
 }
 
 export interface ResolveErrorInfo {
