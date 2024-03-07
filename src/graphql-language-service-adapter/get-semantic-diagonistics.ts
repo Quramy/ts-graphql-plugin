@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
+import { getDiagnostics, getFragmentDependencies, type Diagnostic } from 'graphql-language-service';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';
@@ -53,7 +53,12 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
   } else if (schema) {
     const diagnosticsAndResolvedInfoList = nodes.map(n => {
       const { resolvedInfo, resolveErrors, fragmentNames } = ctx.resolveTemplateInfo(fileName, n);
-      const externalFragments = ctx.getGlobalFragmentDefinitions(fragmentNames);
+
+      // TODO refactor
+      const globalFragments = ctx.getGlobalFragmentDefinitions(fragmentNames);
+      const map = new Map(globalFragments.map(def => [def.name.value, def]));
+      const externalFragments = resolvedInfo ? getFragmentDependencies(resolvedInfo.combinedText, map) : [];
+
       return {
         resolveErrors,
         resolvedTemplateInfo: resolvedInfo,
@@ -86,19 +91,23 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
       diagnostics.forEach(d => {
         let length = 0;
         const file = node.getSourceFile();
-        const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
-          convertInnerLocation2InnerPosition(d.range.start),
-        );
         try {
-          const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end)).pos;
-          length = endPositionOfSource - startPositionOfSource - 1;
-        } catch (error) {
-          length = 0;
-        }
-        if (isInOtherExpression) {
-          result.push(createIsInOtherExpressionDiagnostic(file, startPositionOfSource, length));
-        } else {
-          result.push(translateDiagnostic(d, file, startPositionOfSource, length));
+          const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
+            convertInnerLocation2InnerPosition(d.range.start, true),
+          );
+          try {
+            const endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(d.range.end, true)).pos;
+            length = endPositionOfSource - startPositionOfSource - 1;
+          } catch (error) {
+            length = 0;
+          }
+          if (isInOtherExpression) {
+            result.push(createIsInOtherExpressionDiagnostic(file, startPositionOfSource, length));
+          } else {
+            result.push(translateDiagnostic(d, file, startPositionOfSource, length));
+          }
+        } catch {
+          return;
         }
       });
     });

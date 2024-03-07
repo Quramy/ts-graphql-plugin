@@ -54,12 +54,23 @@ describe('getSemanticDiagnostics', () => {
     expect(validateFn()).toEqual([]);
   });
 
-  it('should return syntax error with empty template literal', () => {
+  it('should not report for empty template literal', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
     fixture.source = `
       const query = \`\`;
+    `;
+    const actual = validateFn();
+    expect(actual.length).toBe(0);
+  });
+
+  it('should return syntax error if template literal is not valid GraphQL syntax', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.source = `
+      const query = \`query {\`;
     `;
     const actual = validateFn();
     expect(actual.length).toBe(1);
@@ -184,6 +195,67 @@ describe('getSemanticDiagnostics', () => {
         fragment MyFragment on Query {
           hello
           ...ExternalFragment1
+        }
+      \`;
+    `;
+    const actual = validateFn();
+    expect(actual.length).toBe(0);
+  });
+
+  it('should not report error if non-dependent fragment has error', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment(
+      `
+        fragment DependentFragment on Query {
+          __typename
+        }
+      `,
+      'fragment1.ts',
+    );
+
+    fixture.addFragment(
+      `
+        fragment NonDependentFragment on Query {
+          __typename
+          notExistingFeild
+        }
+      `,
+      'fragment2.ts',
+    );
+
+    fixture.source = `
+      const fragment = \`
+        fragment MyFragment on Query {
+          hello
+          ...DependentFragment
+        }
+      \`;
+    `;
+    const actual = validateFn();
+    expect(actual.length).toBe(0);
+  });
+
+  it('should not report error even if dependent fragment has error', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment(
+      `
+        fragment DependentFragment on Query {
+          __typename
+          notExistingFeild
+        }
+      `,
+      'fragment1.ts',
+    );
+
+    fixture.source = `
+      const fragment = \`
+        fragment MyFragment on Query {
+          hello
+          ...DependentFragment
         }
       \`;
     `;

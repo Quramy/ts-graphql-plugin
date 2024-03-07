@@ -7,8 +7,7 @@ function findResponse(responses, eventName) {
 
 const fileContent = `
 import gql from 'graphql-tag';
-const q = gql\`
-\`;
+const q = gql\`{\`;
 `;
 
 async function run(server) {
@@ -21,7 +20,7 @@ async function run(server) {
     const semanticDiagEvent = findResponse(server.responses, 'semanticDiag');
     assert(!!semanticDiagEvent);
     assert.strictEqual(semanticDiagEvent.body.diagnostics.length, 1);
-    assert.strictEqual(semanticDiagEvent.body.diagnostics[0].text, 'Syntax Error: Unexpected <EOF>.');
+    assert.strictEqual(semanticDiagEvent.body.diagnostics[0].text, 'Syntax Error: Expected Name, found <EOF>.');
   });
 }
 
