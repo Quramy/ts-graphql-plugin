@@ -11,6 +11,7 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
+        "enabledGlobalFragments": true,
         "tag": "gql",
         "typegen": {
           "addons": ["../../addons/typed-query-document"]

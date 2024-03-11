@@ -7,6 +7,7 @@
         "name": "ts-graphql-plugin",
         "tag": "gql",
         "schema": "schema.graphql",
+        "enabledGlobalFragments": true,
         "localSchemaExtensions": ["local-extension.graphql"],
         "typegen": {
           "addons": ["./addon"]
