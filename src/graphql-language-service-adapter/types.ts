@@ -13,15 +13,11 @@ export interface AnalysisContext {
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
   getGlobalFragmentDefinitions(fragmentNamesToBeIgnored?: string[]): FragmentDefinitionNode[];
+  getExternalFragmentDefinitions(documentStr: string): FragmentDefinitionNode[];
   findTemplateNode(
     fileName: string,
     position: number,
   ): ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined;
   findTemplateNodes(fileName: string): (ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-  resolveTemplateInfo(
-    fileName: string,
-    node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral,
-  ): ResolveResult & {
-    fragmentNames: string[];
-  };
+  resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral): ResolveResult;
 }

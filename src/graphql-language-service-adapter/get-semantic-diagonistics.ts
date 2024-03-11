@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { getDiagnostics, getFragmentDependencies, type Diagnostic } from 'graphql-language-service';
+import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';
@@ -52,13 +52,8 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
     });
   } else if (schema) {
     const diagnosticsAndResolvedInfoList = nodes.map(n => {
-      const { resolvedInfo, resolveErrors, fragmentNames } = ctx.resolveTemplateInfo(fileName, n);
-
-      // TODO refactor
-      const globalFragments = ctx.getGlobalFragmentDefinitions(fragmentNames);
-      const map = new Map(globalFragments.map(def => [def.name.value, def]));
-      const externalFragments = resolvedInfo ? getFragmentDependencies(resolvedInfo.combinedText, map) : [];
-
+      const { resolvedInfo, resolveErrors } = ctx.resolveTemplateInfo(fileName, n);
+      const externalFragments = resolvedInfo ? ctx.getExternalFragmentDefinitions(resolvedInfo.combinedText) : [];
       return {
         resolveErrors,
         resolvedTemplateInfo: resolvedInfo,

@@ -76,6 +76,7 @@ export class GraphQLLanguageServiceAdapter {
       },
       getGlobalFragmentDefinitions: fragmentNamesToBeIgnored =>
         this._fragmentRegisry.getFragmentDefinitions(fragmentNamesToBeIgnored),
+      getExternalFragmentDefinitions: documentStr => this._fragmentRegisry.getExternalFragments(documentStr),
       findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),
@@ -119,7 +120,7 @@ export class GraphQLLanguageServiceAdapter {
 
   private _resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
     const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
-    if (!resolvedInfo) return { resolveErrors, fragmentNames: [] };
+    if (!resolvedInfo) return { resolveErrors };
     try {
       const documentNode = parse(resolvedInfo.combinedText);
       const fragmentNames = getFragmentNamesInDocument(documentNode);
@@ -128,12 +129,12 @@ export class GraphQLLanguageServiceAdapter {
       const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
         return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
       }, resolvedInfo);
-      return { resolvedInfo: info, resolveErrors, fragmentNames };
+      return { resolvedInfo: info, resolveErrors };
     } catch (error) {
       // Note:
       // `parse` throws GraphQL syntax error when combinedText is invalid for GraphQL syntax.
       // We don't need handle this error because getDiagnostics method in this class re-checks syntax with graphql-lang-service,
-      return { resolvedInfo, resolveErrors, fragmentNames: [] };
+      return { resolvedInfo, resolveErrors };
     }
   }
 
