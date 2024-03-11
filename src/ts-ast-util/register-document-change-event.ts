@@ -2,8 +2,8 @@ import type ts from 'typescript';
 
 type DocumentChangeEventListener = {
   onAcquire: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;
-  onUpdate: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;
-  onRelease: (fileName: string) => void;
+  onUpdate?: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;
+  onRelease?: (fileName: string) => void;
 };
 
 export function registerDocumentChangeEvent(
@@ -32,7 +32,7 @@ export function registerDocumentChangeEvent(
     apply: (delegate, thisArg, args: Parameters<ts.DocumentRegistry['updateDocument']>) => {
       const [fileName, , , version] = args;
       const sourceFile = delegate.apply(thisArg, args);
-      documentChangeEventListener.onUpdate(fileName, sourceFile, version);
+      documentChangeEventListener.onUpdate?.(fileName, sourceFile, version);
       return sourceFile;
     },
   });
@@ -41,7 +41,7 @@ export function registerDocumentChangeEvent(
     apply: (delegate, thisArg, args: Parameters<ts.DocumentRegistry['updateDocumentWithKey']>) => {
       const [fileName, , , , , version] = args;
       const sourceFile = delegate.apply(thisArg, args);
-      documentChangeEventListener.onUpdate(fileName, sourceFile, version);
+      documentChangeEventListener.onUpdate?.(fileName, sourceFile, version);
       return sourceFile;
     },
   });
@@ -50,7 +50,7 @@ export function registerDocumentChangeEvent(
     apply: (delegate, thisArg, args: Parameters<ts.DocumentRegistry['releaseDocument']>) => {
       const [fileName] = args;
       delegate.apply(thisArg, args);
-      documentChangeEventListener.onRelease(fileName);
+      documentChangeEventListener.onRelease?.(fileName);
     },
   });
 
@@ -58,7 +58,7 @@ export function registerDocumentChangeEvent(
     apply: (delegate, thisArg, args: Parameters<ts.DocumentRegistry['releaseDocumentWithKey']>) => {
       const [fileName] = args;
       delegate.apply(thisArg, args);
-      documentChangeEventListener.onRelease(fileName);
+      documentChangeEventListener.onRelease?.(fileName);
     },
   });
 }

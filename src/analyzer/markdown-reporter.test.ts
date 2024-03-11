@@ -1,21 +1,9 @@
-import { Extractor } from './extractor';
 import { MarkdownReporter } from './markdown-reporter';
-import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/testing-language-service';
-import { createScriptSourceHelper } from '../ts-ast-util/script-source-helper';
-
-function createExtractor(files: { fileName: string; content: string }[]) {
-  const { languageService, languageServiceHost } = createTestingLanguageServiceAndHost({ files });
-  const extractor = new Extractor({
-    removeDuplicatedFragments: true,
-    scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
-    debug: () => {},
-  });
-  return extractor;
-}
+import { createTesintExtractor } from './testing/testing-extractor';
 
 describe(MarkdownReporter, () => {
   it('should convert from manifest to markdown content', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: '/prj-root/src/main.ts',
         content: `
@@ -50,7 +38,7 @@ describe(MarkdownReporter, () => {
   });
 
   it('should convert from manifest to markdown content with ignoreFragments: false', () => {
-    const extractor = createExtractor([
+    const extractor = createTesintExtractor([
       {
         fileName: '/prj-root/src/main.ts',
         content: `

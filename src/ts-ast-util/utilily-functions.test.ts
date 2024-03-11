@@ -2,6 +2,7 @@ import ts from 'typescript';
 import {
   findAllNodes,
   findNode,
+  getShallowText,
   isTagged,
   isImportDeclarationWithCondition,
   mergeImportDeclarationsWithSameModules,
@@ -13,7 +14,7 @@ describe(isTagged, () => {
   it('should return true when the tag condition is matched', () => {
     // prettier-ignore
     const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-             + 'const x = myTag`query { }`';
+               + 'const x = myTag`query { }`';
     const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
     const node = findNode(s, text.length - 3) as ts.Node;
     expect(isTagged(node, 'myTag')).toBeTruthy();
@@ -22,7 +23,7 @@ describe(isTagged, () => {
   it('should return true when the tag condition is not matched', () => {
     // prettier-ignore
     const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-             + 'const x = myTag`query { }`';
+               + 'const x = myTag`query { }`';
     const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
     const node = findNode(s, text.length - 3) as ts.Node;
     expect(isTagged(node, 'MyTag')).toBeFalsy();
@@ -33,7 +34,7 @@ describe(findAllNodes, () => {
   it('should return nodes which match given condition', () => {
     // prettier-ignore
     const text = 'const a = `AAA`;' + '\n'
-             + 'const b = `BBB`;';
+               + 'const b = `BBB`;';
     const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
     const actual = findAllNodes(s, node => node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral);
     expect(actual.length).toBe(2);
@@ -50,6 +51,30 @@ describe(findAllNodes, () => {
     expect(actual.length).toBe(2);
     expect(ts.isNoSubstitutionTemplateLiteral(actual[0])).toBeTruthy();
     expect(ts.isStringLiteral(actual[1])).toBeTruthy();
+  });
+});
+
+describe(getShallowText, () => {
+  it('should return rawText for NoSubstitutionTemplateLiteral node', () => {
+    const text = 'const a = `abc`;';
+    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
+    const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node)) as (
+      | ts.NoSubstitutionTemplateLiteral
+      | ts.TemplateExpression
+    )[];
+    const actual = getShallowText(found);
+    expect(actual.text).toBe('abc');
+  });
+
+  it('should retun replaced text for TemplateExpression', () => {
+    const text = 'const a = `abc${hoge}`;';
+    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
+    const [found] = findAllNodes(s, node => ts.isTemplateExpression(node)) as (
+      | ts.NoSubstitutionTemplateLiteral
+      | ts.TemplateExpression
+    )[];
+    const actual = getShallowText(found);
+    expect(actual.text).toBe('abc       ');
   });
 });
 

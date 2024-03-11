@@ -1,5 +1,5 @@
-import { detectDuplicatedFragments } from './utility-functions';
 import { parse } from 'graphql';
+import { detectDuplicatedFragments } from './utility-functions';
 
 describe(detectDuplicatedFragments, () => {
   it('should detect duplicated fragments info', () => {

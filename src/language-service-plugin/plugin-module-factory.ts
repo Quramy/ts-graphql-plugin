@@ -3,8 +3,13 @@ import { TsGraphQLPluginConfigOptions } from '../types';
 import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
 import { SchemaManagerFactory, createSchemaManagerHostFromLSPluginInfo } from '../schema-manager';
 import { FragmentRegistry } from '../gql-ast-util';
-import { createScriptSourceHelper, isTagged, findAllNodes } from '../ts-ast-util';
-import { registerDocumentChangeEvent } from './register-document-change-event';
+import {
+  createScriptSourceHelper,
+  registerDocumentChangeEvent,
+  hasTagged,
+  findAllNodes,
+  getShallowText,
+} from '../ts-ast-util';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 
 function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
@@ -15,65 +20,67 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const config = info.config as TsGraphQLPluginConfigOptions;
   const tag = config.tag;
   const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
+  const enabledGlobalFragments = config.enabledGlobalFragments === true;
 
-  const fragmentRegistry = new FragmentRegistry();
-  registerDocumentChangeEvent(
-    // Note:
-    // documentRegistry in ts.server.Project is annotated @internal
-    (info.project as any).documentRegistry as ts.DocumentRegistry,
-    {
-      onAcquire: (fileName, sourceFile, version) => {
-        if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
-          // TODO remove before merge
-          logger('acquire script ' + fileName + version);
+  const fragmentRegistry = new FragmentRegistry({ logger });
+  if (enabledGlobalFragments) {
+    registerDocumentChangeEvent(
+      // Note:
+      // documentRegistry in ts.server.Project is annotated @internal
+      (info.project as any).documentRegistry as ts.DocumentRegistry,
+      {
+        onAcquire: (fileName, sourceFile, version) => {
+          if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
+            // TODO remove before merge
+            logger('acquire script ' + fileName + version);
 
-          const templateLiteralNodes = findAllNodes(sourceFile, node => {
-            // TODO handle TemplateExpression
-            if (ts.isNoSubstitutionTemplateLiteral(node)) {
-              return true;
-            }
-            if (!tag) return true;
-            return !!isTagged(node, tag);
-          }) as ts.NoSubstitutionTemplateLiteral[];
-          fragmentRegistry.registerDocument(
-            fileName,
-            version,
-            templateLiteralNodes.reduce(
-              (docs, node) => (node.rawText ? [...docs, node.rawText] : docs),
-              [] as string[],
-            ),
-          );
-        }
-      },
-      onUpdate: (fileName, sourceFile, version) => {
-        if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
-          if (fragmentRegistry.getFileCurrentVersion(fileName) === version) return;
-          // TODO remove before merge
-          logger('update script ' + fileName + version);
+            const templateLiteralNodes = findAllNodes(sourceFile, node => {
+              if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+                return true;
+              } else {
+                return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
+              }
+            }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
+            logger('templateLiteralNodes: ' + templateLiteralNodes.length);
+            fragmentRegistry.registerDocument(
+              fileName,
+              version,
+              templateLiteralNodes.reduce(
+                (acc, node) => [...acc, getShallowText(node)],
+                [] as { text: string; sourcePosition: number }[],
+              ),
+            );
+          }
+        },
+        onUpdate: (fileName, sourceFile, version) => {
+          if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
+            if (fragmentRegistry.getFileCurrentVersion(fileName) === version) return;
+            // TODO remove before merge
+            logger('update script ' + fileName + version);
 
-          const templateLiteralNodes = findAllNodes(sourceFile, node => {
-            // TODO handle TemplateExpression
-            if (ts.isNoSubstitutionTemplateLiteral(node)) {
-              return true;
-            }
-            if (!tag) return true;
-            return !!isTagged(node, tag);
-          }) as ts.NoSubstitutionTemplateLiteral[];
-          fragmentRegistry.registerDocument(
-            fileName,
-            version,
-            templateLiteralNodes.reduce(
-              (docs, node) => (node.rawText ? [...docs, node.rawText] : docs),
-              [] as string[],
-            ),
-          );
-        }
+            const templateLiteralNodes = findAllNodes(sourceFile, node => {
+              if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+                return true;
+              } else {
+                return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
+              }
+            }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
+            fragmentRegistry.registerDocument(
+              fileName,
+              version,
+              templateLiteralNodes.reduce(
+                (acc, node) => [...acc, getShallowText(node)],
+                [] as { text: string; sourcePosition: number }[],
+              ),
+            );
+          }
+        },
+        onRelease: fileName => {
+          fragmentRegistry.removeDocument(fileName);
+        },
       },
-      onRelease: fileName => {
-        fragmentRegistry.removeDocument(fileName);
-      },
-    },
-  );
+    );
+  }
 
   const scriptSourceHelper = createScriptSourceHelper(info);
   const adapter = new GraphQLLanguageServiceAdapter(scriptSourceHelper, {

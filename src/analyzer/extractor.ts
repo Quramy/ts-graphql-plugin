@@ -4,11 +4,12 @@ import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
 import { ErrorWithLocation, ERROR_CODES } from '../errors';
-import { detectDuplicatedFragments } from '../gql-ast-util';
+import { detectDuplicatedFragments, FragmentRegistry } from '../gql-ast-util';
 
 export type ExtractorOptions = {
   removeDuplicatedFragments: boolean;
   scriptSourceHelper: ScriptSourceHelper;
+  fragmentRegistry: FragmentRegistry;
   debug: (msg: string) => void;
 };
 
@@ -53,6 +54,7 @@ export type ExtractResult = {
 export class Extractor {
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _helper: ScriptSourceHelper;
+  // private readonly _fragmentRegistry: FragmentRegistry;
   private readonly _debug: (msg: string) => void;
 
   constructor({ debug, removeDuplicatedFragments, scriptSourceHelper }: ExtractorOptions) {

@@ -1,4 +1,5 @@
 import { Extractor } from '../extractor';
+import { FragmentRegistry } from '../../gql-ast-util';
 import { createTestingLanguageServiceAndHost } from '../../ts-ast-util/testing/testing-language-service';
 import { createScriptSourceHelper } from '../../ts-ast-util';
 
@@ -10,6 +11,7 @@ export function createTesintExtractor(
   const extractor = new Extractor({
     removeDuplicatedFragments,
     scriptSourceHelper: createScriptSourceHelper({ languageService, languageServiceHost }),
+    fragmentRegistry: new FragmentRegistry(),
     debug: () => {},
   });
   return extractor;

@@ -20,6 +20,7 @@ function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtens
   const pluginConfig: TsGraphQLPluginConfig = {
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
+    enabledGlobalFragments: true,
     localSchemaExtensions: localSchemaExtension ? [localSchemaExtension.fileName] : [],
     removeDuplicatedFragments: true,
     tag: 'gql',

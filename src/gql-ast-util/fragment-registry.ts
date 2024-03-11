@@ -6,16 +6,25 @@ import { getFragmentsInDocument, getFragmentNamesInDocument } from './utility-fu
 type FileName = string;
 type FileVersion = string;
 
-type ExternalFragmentsCacheEntry = {
-  registryVersion: number;
-  externalFragments: FragmentDefinitionNode[];
-  referencedFragmentNames: string[];
-};
-
-type FragmentsMapEntry = {
+type FragmentDefinitionEntry = {
+  fileName: string;
+  sourcePosition: number;
   text: string;
   name: string;
   node: FragmentDefinitionNode;
+};
+
+type ExternalFragmentsCacheEntry = {
+  registryVersion: number;
+  internalFragmentNames: string[];
+  referencedFragmentNames: string[];
+  externalFragments: FragmentDefinitionNode[];
+};
+
+type UniqueDefinitionsResult = {
+  registryVersion: number;
+  validDefinitions: Map<string, FragmentDefinitionEntry>;
+  duplicatedDefinitions: Map<string, FragmentDefinitionEntry[]>;
 };
 
 type FragmentRegistryCreateOptions = {
@@ -35,8 +44,9 @@ export class FragmentRegistry {
   private _registryVersion = 0;
   private _registrationHistroy: Set<string>[] = [];
   private _fileVersionMap = new Map<FileName, FileVersion>();
-  private _fragmentsMap = new Map<FileName, FragmentsMapEntry[]>();
+  private _fragmentsMap = new Map<FileName, FragmentDefinitionEntry[]>();
   private _externalFragmentsCache = new LRUCache<string, ExternalFragmentsCacheEntry>(200);
+  private _uniqueDefinitionsCache = new LRUCache<string, UniqueDefinitionsResult>(200);
   private _logger: (msg: string) => void;
 
   constructor(options: FragmentRegistryCreateOptions = { logger: () => null }) {
@@ -58,6 +68,51 @@ export class FragmentRegistry {
       .filter(def => !fragmentNamesToBeIgnored.includes(def.name.value));
   }
 
+  getUniqueDefinitions(fragmentNamesToBeIgnored: string[] = []) {
+    if (fragmentNamesToBeIgnored.length === 0) {
+      return this._getWholeDefinitions();
+    }
+    const cacheKey = fragmentNamesToBeIgnored.join(',');
+    const cachedValue = this._uniqueDefinitionsCache.get(cacheKey);
+    if (cachedValue) {
+      const changed = new Set(
+        this._registrationHistroy
+          .slice(cachedValue.registryVersion)
+          .reduce((acc, nameSet) => [...acc, ...nameSet.keys()], [] as string[]),
+      );
+      const ignored = new Set(fragmentNamesToBeIgnored);
+      let notAffected = true;
+      for (const name of changed) {
+        notAffected &&= ignored.has(name);
+      }
+      if (notAffected) {
+        const { validDefinitions, duplicatedDefinitions } = cachedValue;
+        return {
+          validDefinitions,
+          duplicatedDefinitions,
+        };
+      }
+    }
+
+    const wholeDefinitions = this._getWholeDefinitions();
+    const validDefinitions = new Map(wholeDefinitions.validDefinitions);
+    const duplicatedDefinitions = new Map(wholeDefinitions.duplicatedDefinitions);
+    for (const name of fragmentNamesToBeIgnored) {
+      validDefinitions.delete(name);
+      duplicatedDefinitions.delete(name);
+    }
+    const cacheEntry = {
+      registryVersion: this._registryVersion,
+      validDefinitions,
+      duplicatedDefinitions,
+    } satisfies UniqueDefinitionsResult;
+    this._uniqueDefinitionsCache.set(cacheKey, cacheEntry);
+    return {
+      validDefinitions,
+      duplicatedDefinitions,
+    };
+  }
+
   getExternalFragments(documentStr: string, fileName: string, sourcePosition: number): FragmentDefinitionNode[] {
     let docNode: DocumentNode | undefined = undefined;
     try {
@@ -66,34 +121,37 @@ export class FragmentRegistry {
       // Nothing to do
     }
     if (!docNode) return [];
+    const names = getFragmentNamesInDocument(docNode);
     const cacheKey = `${fileName}:${sourcePosition}`;
     const cachedValue = this._externalFragmentsCache.get(cacheKey);
     if (cachedValue) {
-      const changed = new Set(
-        this._registrationHistroy
-          .slice(cachedValue.registryVersion)
-          .reduce((acc, nameSet) => [...acc, ...nameSet.keys()], [] as string[]),
-      );
-      let affectd = false;
-      const referencedFragmentNames = new Set<string>();
-      visit(docNode, {
-        FragmentSpread: node => {
-          affectd ||= changed.has(node.name.value);
-          referencedFragmentNames.add(node.name.value);
-        },
-      });
-      if (!affectd && compareSet(referencedFragmentNames, new Set(cachedValue.referencedFragmentNames))) {
-        this._logger('getExternalFragments: use cached value');
-        return cachedValue.externalFragments;
+      if (compareSet(new Set(cachedValue.internalFragmentNames), new Set(names))) {
+        const changed = new Set(
+          this._registrationHistroy
+            .slice(cachedValue.registryVersion)
+            .reduce((acc, nameSet) => [...acc, ...nameSet.keys()], [] as string[]),
+        );
+        let affectd = false;
+        const referencedFragmentNames = new Set<string>();
+        visit(docNode, {
+          FragmentSpread: node => {
+            affectd ||= changed.has(node.name.value);
+            referencedFragmentNames.add(node.name.value);
+          },
+        });
+        if (!affectd && compareSet(referencedFragmentNames, new Set(cachedValue.referencedFragmentNames))) {
+          this._logger('getExternalFragments: use cached value');
+          return cachedValue.externalFragments;
+        }
       }
     }
-    const names = getFragmentNamesInDocument(docNode);
-    const map = new Map(
-      [...this._fragmentsMap.values()]
-        .flat()
-        .filter(({ name }) => !names.includes(name))
-        .map(({ name, node }) => [name, node]),
-    );
+    // const map = new Map(
+    //   [...this._fragmentsMap.values()]
+    //     .flat()
+    //     .filter(({ name }) => !names.includes(name))
+    //     .map(({ name, node }) => [name, node]),
+    // );
+    const map = new Map([...this.getUniqueDefinitions(names).validDefinitions.entries()].map(([k, v]) => [k, v.node]));
     const externalFragments = getFragmentDependenciesForAST(docNode, map);
     const referencedFragmentNames: string[] = [];
     visit(docNode, {
@@ -103,18 +161,23 @@ export class FragmentRegistry {
     });
     this._externalFragmentsCache.set(cacheKey, {
       registryVersion: this._registryVersion,
+      internalFragmentNames: names,
       externalFragments,
       referencedFragmentNames,
     });
     return externalFragments;
   }
 
-  registerDocument(fileName: string, version: string, documentStrings: string[]): void {
-    const definitions: FragmentsMapEntry[] = [];
+  registerDocument(
+    fileName: string,
+    version: string,
+    documentStrings: { text: string; sourcePosition: number }[],
+  ): void {
+    const definitions: FragmentDefinitionEntry[] = [];
     const previousValues = this._fragmentsMap.get(fileName) ?? [];
     const changedFragmentNames = new Set<string>();
     const previousFragmentNames = new Set(previousValues.map(({ name }) => name));
-    const previousValuesMapByDocumentStr = new Map<string, FragmentsMapEntry[]>();
+    const previousValuesMapByDocumentStr = new Map<string, FragmentDefinitionEntry[]>();
     previousValues.forEach(value => {
       const arr = previousValuesMapByDocumentStr.get(value.text);
       if (!arr) {
@@ -124,15 +187,15 @@ export class FragmentRegistry {
       }
     });
     for (const documentStr of documentStrings) {
-      const previous = previousValuesMapByDocumentStr.get(documentStr);
+      const previous = previousValuesMapByDocumentStr.get(documentStr.text);
       if (previous) {
         previous.forEach(({ name }) => previousFragmentNames.delete(name));
-        definitions.push(...previous);
+        definitions.push(...previous.map(v => ({ ...v, sourcePosition: documentStr.sourcePosition })));
         continue;
       }
       let docNode: DocumentNode | undefined = undefined;
       try {
-        docNode = parse(documentStr);
+        docNode = parse(documentStr.text);
       } catch {}
       if (!docNode) {
         continue;
@@ -140,10 +203,12 @@ export class FragmentRegistry {
       const newDefs = getFragmentsInDocument(docNode).map(
         def =>
           ({
-            text: documentStr,
+            fileName,
+            sourcePosition: documentStr.sourcePosition,
+            text: documentStr.text,
             name: def.name.value,
             node: def,
-          }) satisfies FragmentsMapEntry,
+          }) satisfies FragmentDefinitionEntry,
       );
       newDefs.forEach(({ name }) => changedFragmentNames.add(name));
       definitions.push(...newDefs);
@@ -166,5 +231,42 @@ export class FragmentRegistry {
       this._registrationHistroy[this._registryVersion] = affetctedFragmentNames;
       this._registryVersion++;
     }
+  }
+
+  private _getWholeDefinitions() {
+    const cached = this._uniqueDefinitionsCache.get('');
+    if (cached && cached.registryVersion === this._registryVersion) {
+      const { validDefinitions, duplicatedDefinitions } = cached;
+      return { validDefinitions, duplicatedDefinitions };
+    }
+    const map = new Map<string, FragmentDefinitionEntry[]>();
+    const duplicatedNames = new Set<string>();
+    for (const list of this._fragmentsMap.values()) {
+      for (const v of list) {
+        const hit = map.get(v.name);
+        if (!hit) {
+          map.set(v.name, [v]);
+        } else {
+          hit.push(v);
+          duplicatedNames.add(v.name);
+        }
+      }
+    }
+    const duplicatedDefinitions = new Map<string, FragmentDefinitionEntry[]>();
+    for (const name of duplicatedNames) {
+      duplicatedDefinitions.set(name, map.get(name)!);
+      map.delete(name);
+    }
+    const validDefinitions = new Map([...map.entries()].map(([k, v]) => [k, v[0]]));
+    const cacheEntry = {
+      registryVersion: this._registryVersion,
+      validDefinitions,
+      duplicatedDefinitions,
+    } satisfies UniqueDefinitionsResult;
+    this._uniqueDefinitionsCache.set('', cacheEntry);
+    return {
+      validDefinitions,
+      duplicatedDefinitions,
+    };
   }
 }

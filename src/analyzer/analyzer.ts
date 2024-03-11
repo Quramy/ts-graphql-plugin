@@ -2,7 +2,8 @@ import ts from 'typescript';
 import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
-import { createScriptSourceHelper } from '../ts-ast-util';
+import { createScriptSourceHelper, isTagged, findAllNodes, registerDocumentChangeEvent } from '../ts-ast-util';
+import { FragmentRegistry } from '../gql-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { location2pos } from '../string-util';
@@ -47,7 +48,9 @@ export class Analyzer {
     private readonly _schemaManager: SchemaManager,
     private readonly _debug: (msg: string) => void,
   ) {
-    const langService = ts.createLanguageService(this._languageServiceHost);
+    const documentRegistry = ts.createDocumentRegistry();
+    const langService = ts.createLanguageService(this._languageServiceHost, documentRegistry);
+    const fragmentRegistry = new FragmentRegistry();
     this._scriptSourceHelper = createScriptSourceHelper({
       languageService: langService,
       languageServiceHost: this._languageServiceHost,
@@ -55,6 +58,7 @@ export class Analyzer {
     this._extractor = new Extractor({
       removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
       scriptSourceHelper: this._scriptSourceHelper,
+      fragmentRegistry,
       debug: this._debug,
     });
     this._typeGenerator = new TypeGenerator({
@@ -64,6 +68,32 @@ export class Analyzer {
       addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
+    if (this._pluginConfig.enabledGlobalFragments === true) {
+      const tag = this._pluginConfig.tag;
+      registerDocumentChangeEvent(documentRegistry, {
+        onAcquire: (fileName, sourceFile, version) => {
+          if (this._languageServiceHost.getScriptFileNames().includes(fileName)) {
+            const templateLiteralNodes = findAllNodes(sourceFile, node => {
+              // TODO handle TemplateExpression
+              if (ts.isNoSubstitutionTemplateLiteral(node)) {
+                return true;
+              }
+              if (!tag) return true;
+              return !!isTagged(node, tag);
+            }) as ts.NoSubstitutionTemplateLiteral[];
+            fragmentRegistry.registerDocument(
+              fileName,
+              version,
+              templateLiteralNodes.reduce(
+                (acc, node) =>
+                  node.rawText ? [...acc, { text: node.rawText, sourcePosition: node.getStart(sourceFile) }] : acc,
+                [] as { text: string; sourcePosition: number }[],
+              ),
+            );
+          }
+        },
+      });
+    }
   }
 
   getPluginConfig() {
