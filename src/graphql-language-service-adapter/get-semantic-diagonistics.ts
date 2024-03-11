@@ -53,7 +53,9 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
   } else if (schema) {
     const diagnosticsAndResolvedInfoList = nodes.map(n => {
       const { resolvedInfo, resolveErrors } = ctx.resolveTemplateInfo(fileName, n);
-      const externalFragments = resolvedInfo ? ctx.getExternalFragmentDefinitions(resolvedInfo.combinedText) : [];
+      const externalFragments = resolvedInfo
+        ? ctx.getExternalFragmentDefinitions(resolvedInfo.combinedText, fileName, resolvedInfo.getSourcePosition(0).pos)
+        : [];
       return {
         resolveErrors,
         resolvedTemplateInfo: resolvedInfo,

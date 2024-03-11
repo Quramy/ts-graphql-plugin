@@ -13,7 +13,11 @@ export interface AnalysisContext {
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
   getGlobalFragmentDefinitions(fragmentNamesToBeIgnored?: string[]): FragmentDefinitionNode[];
-  getExternalFragmentDefinitions(documentStr: string): FragmentDefinitionNode[];
+  getExternalFragmentDefinitions(
+    documentStr: string,
+    fileName: string,
+    sourcePosition: number,
+  ): FragmentDefinitionNode[];
   findTemplateNode(
     fileName: string,
     position: number,
