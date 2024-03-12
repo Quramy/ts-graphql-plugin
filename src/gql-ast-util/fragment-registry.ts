@@ -230,7 +230,9 @@ export class DefinitionFileStore<T extends DefinitionAST, TExtra = unknown> {
       const alreadyStoredValueAsUnique = this._uniqueRecordMap.get(name);
       if (alreadyStoredValueAsUnique) {
         this._uniqueRecordMap.delete(name);
-        namesRemoved.add(name);
+        if (!namesFromDuplicatedToUnique.has(name)) {
+          namesRemoved.add(name);
+        }
         continue;
       }
 

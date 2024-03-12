@@ -130,16 +130,72 @@ describe(DefinitionFileStore, () => {
     describe('updating', () => {
       describe.each`
         docs              | updated  | appeared | disappeared | unique   | duplicated
+        ${[]}             | ${[]}    | ${[]}    | ${['A']}    | ${[]}    | ${[]}
         ${['A:0']}        | ${[]}    | ${[]}    | ${[]}       | ${['A']} | ${[]}
         ${['A:1']}        | ${['A']} | ${[]}    | ${[]}       | ${['A']} | ${[]}
-        ${[]}             | ${[]}    | ${[]}    | ${['A']}    | ${[]}    | ${[]}
-        ${['B:0']}        | ${[]}    | ${['B']} | ${['A']}    | ${['B']} | ${[]}
         ${['A:1', 'A:2']} | ${[]}    | ${[]}    | ${['A']}    | ${[]}    | ${['A']}
+        ${['B:0']}        | ${[]}    | ${['B']} | ${['A']}    | ${['B']} | ${[]}
       `('file1: ["A:0"] -> file1: $docs', ({ docs, ...expected }) => {
         let store: TestingStore;
         beforeEach(() => {
           store = createTestingStore();
           store.update('main.ts', ['A:0']);
+          store.update('main.ts', docs);
+        });
+
+        test('correct history', () => {
+          expect([...store.getDetailedAffectedDefinitions(1)[0].updated.values()]).toEqual(expected.updated);
+          expect([...store.getDetailedAffectedDefinitions(1)[0].appeared.values()]).toEqual(expected.appeared);
+          expect([...store.getDetailedAffectedDefinitions(1)[0].disappeared.values()]).toEqual(expected.disappeared);
+        });
+
+        test('correct unique definition', () => {
+          expect([...store.getUniqueDefinitonMap().keys()]).toEqual(expected.unique);
+        });
+
+        test('correct duplicated definition', () => {
+          expect([...store.getDuplicatedDefinitonMap().keys()]).toEqual(expected.duplicated);
+        });
+      });
+
+      describe.each`
+        docs              | updated | appeared | disappeared | unique   | duplicated
+        ${[]}             | ${[]}   | ${[]}    | ${[]}       | ${[]}    | ${[]}
+        ${['A:0']}        | ${[]}   | ${['A']} | ${[]}       | ${['A']} | ${[]}
+        ${['A:1']}        | ${[]}   | ${['A']} | ${[]}       | ${['A']} | ${[]}
+        ${['A:1', 'A:2']} | ${[]}   | ${[]}    | ${[]}       | ${[]}    | ${['A']}
+        ${['B:0']}        | ${[]}   | ${['B']} | ${[]}       | ${['B']} | ${[]}
+      `('file1: ["A:0", "A:1"] -> file1: $docs', ({ docs, ...expected }) => {
+        let store: TestingStore;
+        beforeEach(() => {
+          store = createTestingStore();
+          store.update('main.ts', ['A:0', 'A:1']);
+          store.update('main.ts', docs);
+        });
+
+        test('correct history', () => {
+          expect([...store.getDetailedAffectedDefinitions(1)[0].updated.values()]).toEqual(expected.updated);
+          expect([...store.getDetailedAffectedDefinitions(1)[0].appeared.values()]).toEqual(expected.appeared);
+          expect([...store.getDetailedAffectedDefinitions(1)[0].disappeared.values()]).toEqual(expected.disappeared);
+        });
+
+        test('correct unique definition', () => {
+          expect([...store.getUniqueDefinitonMap().keys()]).toEqual(expected.unique);
+        });
+
+        test('correct duplicated definition', () => {
+          expect([...store.getDuplicatedDefinitonMap().keys()]).toEqual(expected.duplicated);
+        });
+      });
+
+      describe.each`
+        docs              | updated | appeared | disappeared | unique | duplicated
+        ${['A:0', 'A:1']} | ${[]}   | ${[]}    | ${[]}       | ${[]}  | ${['A']}
+      `('file1: ["A:0", "A:1", "A:2"] -> file1: $docs', ({ docs, ...expected }) => {
+        let store: TestingStore;
+        beforeEach(() => {
+          store = createTestingStore();
+          store.update('main.ts', ['A:0', 'A:1', 'A:2']);
           store.update('main.ts', docs);
         });
 
