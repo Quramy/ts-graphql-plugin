@@ -135,11 +135,9 @@ export class DefinitionFileStore<T extends DefinitionAST, TExtra = unknown> {
 
     for (const doc of documents) {
       const alreadyParsedItems = currentValueMapByText.get(doc.text);
-      if (alreadyParsedItems) {
-        alreadyParsedItems.forEach(v => {
-          v.extra = doc.extra;
-          valuesNotChanged.push(v);
-        });
+      if (alreadyParsedItems && alreadyParsedItems.length === 1) {
+        alreadyParsedItems[0].extra = doc.extra;
+        valuesNotChanged.push(alreadyParsedItems[0]);
         currentValueMapByText.delete(doc.text);
         continue;
       }

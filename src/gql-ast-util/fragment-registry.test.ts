@@ -214,6 +214,30 @@ describe(DefinitionFileStore, () => {
         });
       });
 
+      describe('file1: ["A:0"] -> file1: ["A:0", "A:0"] -> file1: ["B:0", "A:0"]', () => {
+        let store: TestingStore;
+        beforeEach(() => {
+          store = createTestingStore();
+          store.update('main.ts', ['A:0']);
+          store.update('main.ts', ['A:0', 'A:0']);
+          store.update('main.ts', ['B:0', 'A:0']);
+        });
+
+        test('correct history', () => {
+          expect([...store.getDetailedAffectedDefinitions(2)[0].updated.values()]).toEqual([]);
+          expect([...store.getDetailedAffectedDefinitions(2)[0].appeared.values()]).toEqual(['B', 'A']);
+          expect([...store.getDetailedAffectedDefinitions(2)[0].disappeared.values()]).toEqual([]);
+        });
+
+        test('correct unique definition', () => {
+          expect([...store.getUniqueDefinitonMap().keys()]).toEqual(['B', 'A']);
+        });
+
+        test('correct duplicated definition', () => {
+          expect([...store.getDuplicatedDefinitonMap().keys()]).toEqual([]);
+        });
+      });
+
       describe.each`
         file1Docs         | file2Docs  | affected      | unique        | duplicated
         ${['A:0', 'B:0']} | ${['A:1']} | ${['B', 'A']} | ${['B']}      | ${['A']}
