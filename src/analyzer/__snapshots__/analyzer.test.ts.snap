@@ -6,11 +6,41 @@ exports[`Analyzer extractToManifest should extract manifest 1`] = `
   {
     "documents": [
       {
-        "body": "query MyQuery {
+        "body": "fragment MyFragment on Query {
   hello
 }",
         "documentEnd": {
-          "character": 41,
+          "character": 59,
+          "line": 0,
+        },
+        "documentStart": {
+          "character": 21,
+          "line": 0,
+        },
+        "fileName": "fragment.ts",
+        "fragmentName": "MyFragment",
+        "operationName": undefined,
+        "tag": "gql",
+        "templateLiteralNodeEnd": {
+          "character": 60,
+          "line": 0,
+        },
+        "templateLiteralNodeStart": {
+          "character": 20,
+          "line": 0,
+        },
+        "type": "fragment",
+      },
+      {
+        "body": "query MyQuery {
+  ...MyFragment
+}
+
+fragment MyFragment on Query {
+  hello
+}",
+        "documentEnd": {
+          "character": 49,
           "line": 0,
         },
         "documentStart": {
@@ -22,7 +52,7 @@ exports[`Analyzer extractToManifest should extract manifest 1`] = `
         "operationName": "MyQuery",
         "tag": "gql",
         "templateLiteralNodeEnd": {
-          "character": 42,
+          "character": 50,
           "line": 0,
         },
         "templateLiteralNodeStart": {

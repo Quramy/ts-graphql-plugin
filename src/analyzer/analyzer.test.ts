@@ -56,7 +56,7 @@ const simpleSources = {
   ],
 };
 
-const externalFragmentsPrj = {
+const fragmentPrj = {
   sdl: `
     type Query {
       hello: String!
@@ -173,7 +173,7 @@ const externalFragmentErrorPrj = {
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       expect(analyzer.extractToManifest()).toMatchSnapshot();
     });
   });
@@ -181,6 +181,13 @@ describe(Analyzer, () => {
   describe(Analyzer.prototype.validate, () => {
     it('should validate project with normal project', async () => {
       const analyzer = createTestingAnalyzer(simpleSources);
+      const { errors, schema } = await analyzer.validate();
+      expect(errors.length).toBe(0);
+      expect(schema).toBeTruthy();
+    });
+
+    it('should validate project using global fragments', async () => {
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(0);
       expect(schema).toBeTruthy();
@@ -228,17 +235,11 @@ describe(Analyzer, () => {
       const { errors } = await analyzer.validate();
       expect(errors.length).toBe(0);
     });
-
-    it('should work with external fragments', async () => {
-      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
-      const { errors } = await analyzer.validate();
-      expect(errors.length).toBe(0);
-    });
   });
 
   describe(Analyzer.prototype.report, () => {
     it('should create markdown report', () => {
-      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const [errors, output] = analyzer.report('out.md');
       expect(errors.length).toBe(0);
       expect(output).toMatchSnapshot();
@@ -262,7 +263,7 @@ describe(Analyzer, () => {
     });
 
     it('should create type files', async () => {
-      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const { outputSourceFiles } = await analyzer.typegen();
       if (!outputSourceFiles) return fail();
       expect(outputSourceFiles.length).toBe(2);
