@@ -41,7 +41,6 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
                 return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
               }
             }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-            logger('templateLiteralNodes: ' + templateLiteralNodes.length);
             fragmentRegistry.registerDocument(
               fileName,
               version,
