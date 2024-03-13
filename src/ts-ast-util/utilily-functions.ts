@@ -48,18 +48,22 @@ export function findNode(sourceFile: ts.SourceFile, position: number): ts.Node |
   return find(sourceFile);
 }
 
-export function findAllNodes(sourceFile: ts.SourceFile, cond: (n: ts.Node) => boolean): ts.Node[] {
-  const result: ts.Node[] = [];
+export function findAllNodes<S extends ts.Node>(
+  sourceFile: ts.SourceFile,
+  cond: (n: ts.Node) => S | boolean | undefined,
+): S[] {
+  const result: (S | ts.Node)[] = [];
   function find(node: ts.Node) {
-    if (cond(node)) {
-      result.push(node);
+    const hit = cond(node);
+    if (hit) {
+      result.push(hit === true ? node : hit);
       return;
     } else {
       ts.forEachChild(node, find);
     }
   }
   find(sourceFile);
-  return result;
+  return result as S[];
 }
 
 export function hasTagged(node: ts.Node | undefined, condition: TagCondition) {

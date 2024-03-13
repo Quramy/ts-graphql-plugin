@@ -30,7 +30,7 @@ describe(isTagged, () => {
 });
 
 describe(findAllNodes, () => {
-  it('findAllNodes should return nodes which match given condition', () => {
+  it('should return nodes which match given condition', () => {
     // prettier-ignore
     const text = 'const a = `AAA`;' + '\n'
              + 'const b = `BBB`;';
@@ -38,6 +38,18 @@ describe(findAllNodes, () => {
     const actual = findAllNodes(s, node => node.kind === ts.SyntaxKind.NoSubstitutionTemplateLiteral);
     expect(actual.length).toBe(2);
     expect(actual.map(n => n.getText())).toEqual(['`AAA`', '`BBB`']);
+  });
+
+  it('should accepts callback which returns ts.Node', () => {
+    const text = `
+      const a = fn(\`AAA\`);
+      const b = fn('BBB');
+    `;
+    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest);
+    const actual = findAllNodes(s, node => (ts.isCallExpression(node) ? node.arguments[0] : undefined));
+    expect(actual.length).toBe(2);
+    expect(ts.isNoSubstitutionTemplateLiteral(actual[0])).toBeTruthy();
+    expect(ts.isStringLiteral(actual[1])).toBeTruthy();
   });
 });
 
