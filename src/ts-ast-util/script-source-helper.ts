@@ -2,14 +2,24 @@ import ts from 'typescript';
 import { ScriptSourceHelper } from './types';
 import { findAllNodes, findNode } from './utilily-functions';
 import { TemplateExpressionResolver } from './template-expression-resolver';
+import { createFileNameFilter } from './file-name-filter';
 
-export function createScriptSourceHelper({
-  languageService,
-  languageServiceHost,
-}: {
-  languageService: ts.LanguageService;
-  languageServiceHost: ts.LanguageServiceHost;
-}): ScriptSourceHelper {
+export function createScriptSourceHelper(
+  {
+    languageService,
+    languageServiceHost,
+    project,
+  }: {
+    languageService: ts.LanguageService;
+    languageServiceHost: ts.LanguageServiceHost;
+    project: { getProjectName: () => string };
+  },
+  {
+    exclude,
+  }: {
+    exclude: string[] | undefined;
+  },
+): ScriptSourceHelper {
   const getSourceFile = (fileName: string) => {
     const program = languageService.getProgram();
     if (!program) {
@@ -21,6 +31,7 @@ export function createScriptSourceHelper({
     }
     return s;
   };
+  const isExcluded = createFileNameFilter({ specs: exclude, projectName: project.getProjectName() });
   const getNode = (fileName: string, position: number) => {
     return findNode(getSourceFile(fileName), position);
   };
@@ -32,12 +43,15 @@ export function createScriptSourceHelper({
     const s = getSourceFile(fileName);
     return ts.getLineAndCharacterOfPosition(s, position);
   };
-  const resolver = new TemplateExpressionResolver(languageService, (fileName: string) =>
-    languageServiceHost.getScriptVersion(fileName),
+  const resolver = new TemplateExpressionResolver(
+    languageService,
+    (fileName: string) => languageServiceHost.getScriptVersion(fileName),
+    isExcluded,
   );
   const resolveTemplateLiteral = resolver.resolve.bind(resolver);
   const updateTemplateLiteralInfo = resolver.update.bind(resolver);
   return {
+    isExcluded,
     getNode,
     getAllNodes,
     getLineAndChar,

@@ -9,6 +9,7 @@ import {
   hasTagged,
   findAllNodes,
   getShallowText,
+  createFileNameFilter,
 } from '../ts-ast-util';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 
@@ -21,6 +22,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const tag = config.tag;
   const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
   const enabledGlobalFragments = config.enabledGlobalFragments === true;
+  const isExcluded = createFileNameFilter({ specs: config.exclude, projectName: info.project.getProjectName() });
 
   const fragmentRegistry = new FragmentRegistry({ logger });
   if (enabledGlobalFragments) {
@@ -30,7 +32,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
       (info.project as any).documentRegistry as ts.DocumentRegistry,
       {
         onAcquire: (fileName, sourceFile, version) => {
-          if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
+          if (!isExcluded(fileName) && info.languageServiceHost.getScriptFileNames().includes(fileName)) {
             // TODO remove before merge
             logger('acquire script ' + fileName + version);
 
@@ -52,7 +54,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
           }
         },
         onUpdate: (fileName, sourceFile, version) => {
-          if (info.languageServiceHost.getScriptFileNames().includes(fileName)) {
+          if (!isExcluded(fileName) && info.languageServiceHost.getScriptFileNames().includes(fileName)) {
             if (fragmentRegistry.getFileCurrentVersion(fileName) === version) return;
             // TODO remove before merge
             logger('update script ' + fileName + version);
@@ -81,7 +83,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
     );
   }
 
-  const scriptSourceHelper = createScriptSourceHelper(info);
+  const scriptSourceHelper = createScriptSourceHelper(info, { exclude: config.exclude });
   const adapter = new GraphQLLanguageServiceAdapter(scriptSourceHelper, {
     schema,
     schemaErrors,

@@ -7,3 +7,4 @@ export * from './register-document-change-event';
 export { ScriptHost } from './script-host';
 export { createScriptSourceHelper } from './script-source-helper';
 export { createOutputSource } from './output-source';
+export { createFileNameFilter } from './file-name-filter';

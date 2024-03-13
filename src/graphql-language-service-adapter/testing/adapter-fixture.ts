@@ -24,7 +24,10 @@ export class AdapterFixture {
     this._fragmentRegistry = new FragmentRegistry();
     this.langService = languageService;
     this.adapter = new GraphQLLanguageServiceAdapter(
-      createScriptSourceHelper({ languageService, languageServiceHost }),
+      createScriptSourceHelper(
+        { languageService, languageServiceHost, project: { getProjectName: () => 'tsconfig.json' } },
+        { exclude: [] },
+      ),
       {
         schema: schema || null,
         removeDuplicatedFragments: true,

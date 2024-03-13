@@ -17,6 +17,7 @@ import { validate } from './validator';
 import { ManifestOutput, TsGraphQLPluginConfig } from './types';
 import { MarkdownReporter } from './markdown-reporter';
 import { TypeGenerator } from './type-generator';
+import { createFileNameFilter } from '../ts-ast-util/file-name-filter';
 
 class TsGqlConfigError extends ErrorWithoutLocation {
   constructor() {
@@ -57,10 +58,18 @@ export class Analyzer {
     const documentRegistry = ts.createDocumentRegistry();
     const langService = ts.createLanguageService(this._languageServiceHost, documentRegistry);
     const fragmentRegistry = new FragmentRegistry();
-    this._scriptSourceHelper = createScriptSourceHelper({
-      languageService: langService,
-      languageServiceHost: this._languageServiceHost,
-    });
+    const projectName = path.join(this._prjRootPath, 'tsconfig.json');
+    const isExcluded = createFileNameFilter({ specs: this._pluginConfig.exclude, projectName });
+    this._scriptSourceHelper = createScriptSourceHelper(
+      {
+        languageService: langService,
+        languageServiceHost: this._languageServiceHost,
+        project: {
+          getProjectName: () => projectName,
+        },
+      },
+      { exclude: this._pluginConfig.exclude },
+    );
     this._extractor = new Extractor({
       removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
       scriptSourceHelper: this._scriptSourceHelper,
@@ -78,7 +87,7 @@ export class Analyzer {
       const tag = this._pluginConfig.tag;
       registerDocumentChangeEvent(documentRegistry, {
         onAcquire: (fileName, sourceFile, version) => {
-          if (this._languageServiceHost.getScriptFileNames().includes(fileName)) {
+          if (!isExcluded(fileName) && this._languageServiceHost.getScriptFileNames().includes(fileName)) {
             const templateLiteralNodes = findAllNodes(sourceFile, node => {
               if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
                 return true;

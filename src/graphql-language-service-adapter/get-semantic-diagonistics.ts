@@ -38,6 +38,7 @@ function translateDiagnostic(d: Diagnostic, file: ts.SourceFile, start: number, 
 
 export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemanticDiagnostics, fileName: string) {
   const errors = delegate(fileName) || [];
+  if (ctx.getScriptSourceHelper().isExcluded(fileName)) return errors;
   const nodes = ctx.findTemplateNodes(fileName);
   const result = [...errors];
   const [schema, schemaErrors] = ctx.getSchemaOrSchemaErrors();
