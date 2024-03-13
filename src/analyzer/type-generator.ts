@@ -1,11 +1,13 @@
 import path from 'path';
 import ts from 'typescript';
-import { GraphQLSchema } from 'graphql/type';
+import { GraphQLSchema, visit, type DocumentNode, type ASTNode, Kind } from 'graphql';
+import { getFragmentDependenciesForAST } from 'graphql-language-service';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
 import { mergeAddons, TypeGenVisitor, TypeGenError, TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen';
 import { dasherize } from '../string-util';
 import { OutputSource, createOutputSource } from '../ts-ast-util';
+import { cloneFragmentMap, getFragmentNamesInDocument } from '../gql-ast-util';
 import { Extractor, ExtractSucceededResult } from './extractor';
 
 export type TypeGeneratorOptions = {
@@ -66,6 +68,31 @@ export class TypeGenerator {
     const outputSourceFiles: { fileName: string; content: string }[] = [];
     extractedResult.fileEntries.forEach(fileEntry => {
       if (fileEntry.documentNode) {
+        const externalFragments = getFragmentDependenciesForAST(
+          fileEntry.documentNode,
+          cloneFragmentMap(
+            extractedResult.globalFragments.definitionMap,
+            getFragmentNamesInDocument(fileEntry.documentNode),
+          ),
+        );
+        const targetDocumentNode: DocumentNode = {
+          kind: Kind.DOCUMENT,
+          definitions: [...fileEntry.documentNode.definitions, ...externalFragments],
+          loc: fileEntry.documentNode.loc,
+        };
+        const additionalDocuments: DocumentNode = {
+          kind: Kind.DOCUMENT,
+          definitions: externalFragments,
+        };
+        const isDefinedExternal = (node: ASTNode) => {
+          let found = false;
+          visit(additionalDocuments, {
+            enter: n => {
+              found = node === n;
+            },
+          });
+          return found;
+        };
         const { type, fragmentName, operationName } = this._extractor.getDominantDefinition(fileEntry);
         if (type === 'complex') {
           const fileName = fileEntry.fileName;
@@ -87,7 +114,7 @@ export class TypeGenerator {
         try {
           const outputSource = createOutputSource({ outputFileName });
           const { addon } = this.createAddon({ schema, outputSource, fileEntry });
-          const outputSourceFile = visitor.visit(fileEntry.documentNode, { outputSource, addon });
+          const outputSourceFile = visitor.visit(targetDocumentNode, { outputSource, addon });
           const content = this._printer.printFile(outputSourceFile);
           outputSourceFiles.push({ fileName: outputFileName, content });
           this._debug(
@@ -98,6 +125,7 @@ export class TypeGenerator {
           );
         } catch (error) {
           if (error instanceof TypeGenError) {
+            if (isDefinedExternal(error.node)) return;
             const sourcePosition = fileEntry.resolevedTemplateInfo.getSourcePosition(error.node.loc!.start);
             if (sourcePosition.isInOtherExpression) return;
             const fileName = fileEntry.fileName;

@@ -269,12 +269,14 @@ describe(Analyzer, () => {
     });
 
     it('should create type files', async () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
+      const analyzer = createTestingAnalyzer(externalFragmentsPrj);
       const { outputSourceFiles } = await analyzer.typegen();
       if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(1);
-      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      expect(outputSourceFiles.length).toBe(2);
+      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-fragment.ts')).toBeTruthy();
       expect(outputSourceFiles[0].content).toMatchSnapshot();
+      expect(outputSourceFiles[1].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      expect(outputSourceFiles[1].content).toMatchSnapshot();
     });
   });
 });
