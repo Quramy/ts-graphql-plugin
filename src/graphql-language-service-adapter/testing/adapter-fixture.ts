@@ -45,6 +45,6 @@ export class AdapterFixture {
   }
 
   addFragment(fragmentDefDoc: string, sourceFileName = this._sourceFileName) {
-    this._fragmentRegistry.registerDocument(sourceFileName, 'v1', [{ sourcePosition: 0, text: fragmentDefDoc }]);
+    this._fragmentRegistry.registerDocuments(sourceFileName, 'v1', [{ sourcePosition: 0, text: fragmentDefDoc }]);
   }
 }

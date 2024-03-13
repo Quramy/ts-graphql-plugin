@@ -362,7 +362,7 @@ export class FragmentRegistry {
     return externalFragments;
   }
 
-  registerDocument(
+  registerDocuments(
     fileName: string,
     version: string,
     documentStrings: { text: string; sourcePosition: number }[],

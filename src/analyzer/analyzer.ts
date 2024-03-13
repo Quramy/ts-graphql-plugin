@@ -95,7 +95,7 @@ export class Analyzer {
                 return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
               }
             }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-            fragmentRegistry.registerDocument(
+            fragmentRegistry.registerDocuments(
               fileName,
               version,
               templateLiteralNodes.reduce(

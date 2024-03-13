@@ -275,7 +275,7 @@ describe(FragmentRegistry, () => {
   describe(FragmentRegistry.prototype.getExternalFragments, () => {
     it('should return empty array when target document can not be parsed', () => {
       const registry = new FragmentRegistry();
-      registry.registerDocument('fragments.ts', '0', [
+      registry.registerDocuments('fragments.ts', '0', [
         {
           sourcePosition: 0,
           text: `
@@ -285,14 +285,14 @@ describe(FragmentRegistry, () => {
           `,
         },
       ]);
-      registry.registerDocument('main.ts', '0', [{ sourcePosition: 0, text: 'fragment X on Query {' }]);
+      registry.registerDocuments('main.ts', '0', [{ sourcePosition: 0, text: 'fragment X on Query {' }]);
 
       expect(registry.getExternalFragments('fragment X on Query {', 'main.ts', 0)).toEqual([]);
     });
 
     it('should return dependent fragment definitions', () => {
       const registry = new FragmentRegistry();
-      registry.registerDocument('fragments.ts', '0', [
+      registry.registerDocuments('fragments.ts', '0', [
         {
           sourcePosition: 0,
           text: `
@@ -310,7 +310,7 @@ describe(FragmentRegistry, () => {
           `,
         },
       ]);
-      registry.registerDocument('main.ts', '0', [
+      registry.registerDocuments('main.ts', '0', [
         { sourcePosition: 0, text: 'fragment FragmentB on Query { ...FragmentA }' },
       ]);
 
@@ -323,7 +323,7 @@ describe(FragmentRegistry, () => {
       it('should not use cached value when dependent fragment changes', () => {
         const logger = jest.fn();
         const registry = new FragmentRegistry({ logger });
-        registry.registerDocument('fragments.ts', '0', [
+        registry.registerDocuments('fragments.ts', '0', [
           {
             sourcePosition: 0,
             text: `
@@ -334,13 +334,13 @@ describe(FragmentRegistry, () => {
           },
         ]);
 
-        registry.registerDocument('main.ts', '0', [
+        registry.registerDocuments('main.ts', '0', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA }' },
         ]);
         registry.getExternalFragments('fragment FragmentX on Query { ...FragmentA }', 'main.ts', 0);
         expect(logger).toBeCalledTimes(0);
 
-        registry.registerDocument('fragments.ts', '1', [
+        registry.registerDocuments('fragments.ts', '1', [
           {
             sourcePosition: 0,
             text: `
@@ -362,7 +362,7 @@ describe(FragmentRegistry, () => {
       it('should not use cached value when FragmentSpread set in target documentString changes', () => {
         const logger = jest.fn();
         const registry = new FragmentRegistry({ logger });
-        registry.registerDocument('fragments.ts', '0', [
+        registry.registerDocuments('fragments.ts', '0', [
           {
             sourcePosition: 0,
             text: `
@@ -380,14 +380,14 @@ describe(FragmentRegistry, () => {
             `,
           },
         ]);
-        registry.registerDocument('main.ts', '0', [
+        registry.registerDocuments('main.ts', '0', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA }' },
         ]);
 
         registry.getExternalFragments('fragment FragmentX on Query { ...FragmentA }', 'main.ts', 0);
         expect(logger).toBeCalledTimes(0);
 
-        registry.registerDocument('main.ts', '1', [
+        registry.registerDocuments('main.ts', '1', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA, ...FragmentB }' },
         ]);
 
@@ -404,7 +404,7 @@ describe(FragmentRegistry, () => {
       it('should not use cached value when FragmentDefinition set in target documentString changes', () => {
         const logger = jest.fn();
         const registry = new FragmentRegistry({ logger });
-        registry.registerDocument('fragments.ts', '0', [
+        registry.registerDocuments('fragments.ts', '0', [
           {
             sourcePosition: 0,
             text: `
@@ -414,14 +414,14 @@ describe(FragmentRegistry, () => {
             `,
           },
         ]);
-        registry.registerDocument('main.ts', '0', [
+        registry.registerDocuments('main.ts', '0', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA }' },
         ]);
 
         registry.getExternalFragments('fragment FragmentX on Query { ...FragmentA }', 'main.ts', 0);
         expect(logger).toBeCalledTimes(0);
 
-        registry.registerDocument('main.ts', '1', [
+        registry.registerDocuments('main.ts', '1', [
           {
             sourcePosition: 0,
             text: `
@@ -451,7 +451,7 @@ describe(FragmentRegistry, () => {
       it('should use cached value', () => {
         const logger = jest.fn();
         const registry = new FragmentRegistry({ logger });
-        registry.registerDocument('fragments.ts', '0', [
+        registry.registerDocuments('fragments.ts', '0', [
           {
             sourcePosition: 0,
             text: `
@@ -469,14 +469,14 @@ describe(FragmentRegistry, () => {
             `,
           },
         ]);
-        registry.registerDocument('main.ts', '0', [
+        registry.registerDocuments('main.ts', '0', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA }' },
         ]);
 
         registry.getExternalFragments('fragment FragmentX on Query { ...FragmentA }', 'main.ts', 0);
         expect(logger).toBeCalledTimes(0);
 
-        registry.registerDocument('main.ts', '1', [
+        registry.registerDocuments('main.ts', '1', [
           { sourcePosition: 0, text: 'fragment FragmentX on Query { ...FragmentA, __typename }' },
         ]);
 

@@ -26,6 +26,24 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
 
   const fragmentRegistry = new FragmentRegistry({ logger });
   if (enabledGlobalFragments) {
+    const handleAcquireOrUpdate = (fileName: string, sourceFile: ts.SourceFile, version: string) => {
+      const templateLiteralNodes = findAllNodes(sourceFile, node => {
+        if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+          return true;
+        } else {
+          return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
+        }
+      }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
+      fragmentRegistry.registerDocuments(
+        fileName,
+        version,
+        templateLiteralNodes.reduce(
+          (acc, node) => [...acc, getShallowText(node)],
+          [] as { text: string; sourcePosition: number }[],
+        ),
+      );
+    };
+
     registerDocumentChangeEvent(
       // Note:
       // documentRegistry in ts.server.Project is annotated @internal
@@ -33,47 +51,13 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
       {
         onAcquire: (fileName, sourceFile, version) => {
           if (!isExcluded(fileName) && info.languageServiceHost.getScriptFileNames().includes(fileName)) {
-            // TODO remove before merge
-            logger('acquire script ' + fileName + version);
-
-            const templateLiteralNodes = findAllNodes(sourceFile, node => {
-              if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-                return true;
-              } else {
-                return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
-              }
-            }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-            fragmentRegistry.registerDocument(
-              fileName,
-              version,
-              templateLiteralNodes.reduce(
-                (acc, node) => [...acc, getShallowText(node)],
-                [] as { text: string; sourcePosition: number }[],
-              ),
-            );
+            handleAcquireOrUpdate(fileName, sourceFile, version);
           }
         },
         onUpdate: (fileName, sourceFile, version) => {
           if (!isExcluded(fileName) && info.languageServiceHost.getScriptFileNames().includes(fileName)) {
             if (fragmentRegistry.getFileCurrentVersion(fileName) === version) return;
-            // TODO remove before merge
-            logger('update script ' + fileName + version);
-
-            const templateLiteralNodes = findAllNodes(sourceFile, node => {
-              if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-                return true;
-              } else {
-                return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
-              }
-            }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-            fragmentRegistry.registerDocument(
-              fileName,
-              version,
-              templateLiteralNodes.reduce(
-                (acc, node) => [...acc, getShallowText(node)],
-                [] as { text: string; sourcePosition: number }[],
-              ),
-            );
+            handleAcquireOrUpdate(fileName, sourceFile, version);
           }
         },
         onRelease: fileName => {
