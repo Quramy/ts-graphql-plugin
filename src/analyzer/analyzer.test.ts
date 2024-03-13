@@ -238,13 +238,6 @@ describe(Analyzer, () => {
 
   describe(Analyzer.prototype.report, () => {
     it('should create markdown report', () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
-      const [errors, output] = analyzer.report('out.md');
-      expect(errors.length).toBe(0);
-      expect(output).toMatchSnapshot();
-    });
-
-    it('should create markdown report with external fragments', () => {
       const analyzer = createTestingAnalyzer(externalFragmentsPrj);
       const [errors, output] = analyzer.report('out.md');
       expect(errors.length).toBe(0);

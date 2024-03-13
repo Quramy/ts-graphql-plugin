@@ -44,6 +44,10 @@ exports[`Analyzer report should create markdown report 1`] = `
 
 \`\`\`graphql
 query MyQuery {
+  ...MyFragment
+}
+
+fragment MyFragment on Query {
   hello
 }
 \`\`\`
@@ -63,24 +67,6 @@ exports[`Analyzer report should create markdown report from manifest 1`] = `
 \`\`\`graphql
 query MyQuery {
   hello
-}
-\`\`\`
-
-From [main.ts:1:19](main.ts#L1-L1)
-    
----
-Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)"
-`;
-
-exports[`Analyzer report should create markdown report with external fragments 1`] = `
-"# Extracted GraphQL Operations
-## Queries
-
-### MyQuery
-
-\`\`\`graphql
-query MyQuery {
-  ...MyFragment
 }
 \`\`\`
 

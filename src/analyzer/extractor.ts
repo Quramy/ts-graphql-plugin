@@ -1,10 +1,24 @@
 import ts from 'typescript';
-import { parse, print, GraphQLError, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
-import { visit } from 'graphql/language';
+import {
+  parse,
+  visit,
+  print,
+  GraphQLError,
+  Kind,
+  type ASTNode,
+  type DocumentNode,
+  type FragmentDefinitionNode,
+} from 'graphql';
+import { getFragmentDependenciesForAST } from 'graphql-language-service';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
 import { ErrorWithLocation, ERROR_CODES } from '../errors';
-import { detectDuplicatedFragments, FragmentRegistry } from '../gql-ast-util';
+import {
+  detectDuplicatedFragments,
+  FragmentRegistry,
+  getFragmentNamesInDocument,
+  cloneFragmentMap,
+} from '../gql-ast-util';
 
 export type ExtractorOptions = {
   removeDuplicatedFragments: boolean;
@@ -235,7 +249,42 @@ export class Extractor {
     return { type, operationName, fragmentName: noReferedFragmentNames[noReferedFragmentNames.length - 1] };
   }
 
-  toManifest({ fileEntries: extractResults }: ExtractResult, tagName: string = ''): ManifestOutput {
+  inflateDocument(
+    fileEntry: ExtractSucceededResult,
+    { globalFragments }: { globalFragments: { definitionMap: Map<string, FragmentDefinitionNode> } },
+  ) {
+    const externalFragments = getFragmentDependenciesForAST(
+      fileEntry.documentNode,
+      cloneFragmentMap(globalFragments.definitionMap, getFragmentNamesInDocument(fileEntry.documentNode)),
+    );
+    const inflatedDocumentNode: DocumentNode = {
+      kind: Kind.DOCUMENT,
+      definitions: [...fileEntry.documentNode.definitions, ...externalFragments],
+      loc: fileEntry.documentNode.loc,
+    };
+    const additionalDocuments: DocumentNode = {
+      kind: Kind.DOCUMENT,
+      definitions: externalFragments,
+    };
+    const isDefinedExternal = (node: ASTNode) => {
+      let found = false;
+      visit(additionalDocuments, {
+        enter: n => {
+          found = node === n;
+        },
+      });
+      return found;
+    };
+
+    return {
+      inflatedDocumentNode,
+      externalFragments,
+      additionalDocuments,
+      isDefinedExternal,
+    };
+  }
+
+  toManifest({ fileEntries: extractResults, globalFragments }: ExtractResult, tagName: string = ''): ManifestOutput {
     const documents = extractResults
       .filter(r => !!r.documentNode)
       .map(result => {
@@ -246,7 +295,7 @@ export class Extractor {
           type: type || 'other',
           operationName,
           fragmentName,
-          body: print(r.documentNode!),
+          body: print(this.inflateDocument(r, { globalFragments }).inflatedDocumentNode),
           tag: tagName,
           templateLiteralNodeStart: this._helper.getLineAndChar(r.fileName, r.templateNode.getStart()),
           templateLiteralNodeEnd: this._helper.getLineAndChar(r.fileName, r.templateNode.getEnd()),
