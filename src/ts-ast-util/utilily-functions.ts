@@ -78,19 +78,16 @@ export function isTagged(node: ts.Node | undefined, condition: TagCondition, sou
   return hasTagged(node.parent, condition, source);
 }
 
-export function getShallowText(
-  node: ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
-) {
-  const n = ts.isTaggedTemplateExpression(node) ? node.template : node;
-  if (ts.isNoSubstitutionTemplateLiteral(n)) {
-    return { text: n.text ?? '', sourcePosition: n.pos };
+export function getShallowText(node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) {
+  if (ts.isNoSubstitutionTemplateLiteral(node)) {
+    return { text: node.text ?? '', sourcePosition: node.pos };
   } else {
-    let text = n.head.text ?? '';
-    for (const span of n.templateSpans) {
+    let text = node.head.text ?? '';
+    for (const span of node.templateSpans) {
       text += ''.padEnd(span.expression.end - span.expression.pos + 3, ' ');
       text += span.literal.text;
     }
-    return { text, sourcePosition: n.pos };
+    return { text, sourcePosition: node.pos };
   }
 }
 

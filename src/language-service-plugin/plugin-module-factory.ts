@@ -27,20 +27,16 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const fragmentRegistry = new FragmentRegistry({ logger });
   if (enabledGlobalFragments) {
     const handleAcquireOrUpdate = (fileName: string, sourceFile: ts.SourceFile, version: string) => {
-      const templateLiteralNodes = findAllNodes(sourceFile, node => {
-        if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-          return true;
-        } else {
-          return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
-        }
-      }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
       fragmentRegistry.registerDocuments(
         fileName,
         version,
-        templateLiteralNodes.reduce(
-          (acc, node) => [...acc, getShallowText(node)],
-          [] as { text: string; sourcePosition: number }[],
-        ),
+        findAllNodes(sourceFile, node => {
+          if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+            return node.template;
+          } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
+            return node;
+          }
+        }).map(getShallowText),
       );
     };
 

@@ -58,10 +58,7 @@ describe(getShallowText, () => {
   it('should return rawText for NoSubstitutionTemplateLiteral node', () => {
     const text = 'const a = `abc`;';
     const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node)) as (
-      | ts.NoSubstitutionTemplateLiteral
-      | ts.TemplateExpression
-    )[];
+    const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node) && node);
     const actual = getShallowText(found);
     expect(actual.text).toBe('abc');
   });
@@ -69,10 +66,7 @@ describe(getShallowText, () => {
   it('should retun replaced text for TemplateExpression', () => {
     const text = 'const a = `abc${hoge}`;';
     const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const [found] = findAllNodes(s, node => ts.isTemplateExpression(node)) as (
-      | ts.NoSubstitutionTemplateLiteral
-      | ts.TemplateExpression
-    )[];
+    const [found] = findAllNodes(s, node => ts.isTemplateExpression(node) && node);
     const actual = getShallowText(found);
     expect(actual.text).toBe('abc       ');
   });
