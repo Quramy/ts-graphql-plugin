@@ -300,10 +300,17 @@ export class FragmentRegistry {
     return this._fileVersionMap.get(fileName);
   }
 
-  getFragmentDefinitions(fragmentNamesToBeIgnored: string[] = []): FragmentDefinitionNode[] {
-    return [...this._store.getUniqueDefinitonMap().entries()]
-      .filter(([name]) => !fragmentNamesToBeIgnored.includes(name))
-      .map(([, v]) => v.node);
+  getFragmentDefinitions(): FragmentDefinitionNode[] {
+    return this.getFragmentDefinitionsWithMap().definitions;
+  }
+
+  getFragmentDefinitionsWithMap(): { definitions: FragmentDefinitionNode[]; map: Map<string, FragmentDefinitionNode> } {
+    const map = new Map([...this._store.getUniqueDefinitonMap().entries()].map(([k, { node }]) => [k, node]));
+    const definitions = [...map.values()];
+    return {
+      map,
+      definitions,
+    };
   }
 
   getExternalFragments(documentStr: string, fileName: string, sourcePosition: number): FragmentDefinitionNode[] {

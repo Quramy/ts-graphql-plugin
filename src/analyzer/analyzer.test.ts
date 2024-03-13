@@ -153,6 +153,23 @@ const semanticWarningPrj = {
   ],
 };
 
+const externalFragmentErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const f1 = gql\`fragment F1 on Query { __typename }\`;
+        const query = gql\`query MyQuery { ...F1, ...F2 }\`;
+      `,
+    },
+  ],
+};
+
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
@@ -195,6 +212,14 @@ describe(Analyzer, () => {
       const analyzer = createTestingAnalyzer(semanticWarningPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
+      expect(schema).toBeTruthy();
+    });
+
+    it('should validate project with semantic warning project', async () => {
+      const analyzer = createTestingAnalyzer(externalFragmentErrorPrj);
+      const { errors, schema } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
       expect(schema).toBeTruthy();
     });
 

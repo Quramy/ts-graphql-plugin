@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { parse, print, DocumentNode, GraphQLError } from 'graphql';
+import { parse, print, GraphQLError, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { visit } from 'graphql/language';
 import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
@@ -47,18 +47,25 @@ export type ExtractSucceededResult = {
 };
 
 export type ExtractFileResult = ExtractTemplateResolveErrorResult | ExtractGraphQLErrorResult | ExtractSucceededResult;
+
 export type ExtractResult = {
   fileEntries: ExtractFileResult[];
+  globalFragments: {
+    definitions: FragmentDefinitionNode[];
+    definitionMap: Map<string, FragmentDefinitionNode>;
+    // TODO additional entries from FragmentRegistry
+  };
 };
 
 export class Extractor {
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _helper: ScriptSourceHelper;
-  // private readonly _fragmentRegistry: FragmentRegistry;
+  private readonly _fragmentRegistry: FragmentRegistry;
   private readonly _debug: (msg: string) => void;
 
-  constructor({ debug, removeDuplicatedFragments, scriptSourceHelper }: ExtractorOptions) {
+  constructor({ debug, removeDuplicatedFragments, fragmentRegistry, scriptSourceHelper }: ExtractorOptions) {
     this._removeDuplicatedFragments = removeDuplicatedFragments;
+    this._fragmentRegistry = fragmentRegistry;
     this._helper = scriptSourceHelper;
     this._debug = debug;
   }
@@ -134,8 +141,15 @@ export class Extractor {
         }
       }
     });
+
+    const globalDefinitonsWithMap = this._fragmentRegistry.getFragmentDefinitionsWithMap();
+
     return {
       fileEntries,
+      globalFragments: {
+        definitions: globalDefinitonsWithMap.definitions,
+        definitionMap: globalDefinitonsWithMap.map,
+      },
     };
   }
 

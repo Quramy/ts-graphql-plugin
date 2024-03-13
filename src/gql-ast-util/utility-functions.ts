@@ -26,6 +26,14 @@ export function getFragmentNamesInDocument(...documentNodes: (DocumentNode | und
   return [...nameSet];
 }
 
+export function cloneFragmentMap(from: Map<string, FragmentDefinitionNode>, namesToBeExcluded: string[] = []) {
+  const map = new Map(from);
+  for (const name in namesToBeExcluded) {
+    map.delete(name);
+  }
+  return map;
+}
+
 export function detectDuplicatedFragments(documentNode: DocumentNode) {
   const fragments: FragmentDefinitionNode[] = [];
   const duplicatedFragments: FragmentDefinitionNode[] = [];

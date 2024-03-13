@@ -2,7 +2,13 @@ import ts from 'typescript';
 import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
-import { createScriptSourceHelper, isTagged, findAllNodes, registerDocumentChangeEvent } from '../ts-ast-util';
+import {
+  createScriptSourceHelper,
+  hasTagged,
+  findAllNodes,
+  registerDocumentChangeEvent,
+  getShallowText,
+} from '../ts-ast-util';
 import { FragmentRegistry } from '../gql-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
@@ -74,19 +80,17 @@ export class Analyzer {
         onAcquire: (fileName, sourceFile, version) => {
           if (this._languageServiceHost.getScriptFileNames().includes(fileName)) {
             const templateLiteralNodes = findAllNodes(sourceFile, node => {
-              // TODO handle TemplateExpression
-              if (ts.isNoSubstitutionTemplateLiteral(node)) {
+              if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
                 return true;
+              } else {
+                return ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node);
               }
-              if (!tag) return true;
-              return !!isTagged(node, tag);
-            }) as ts.NoSubstitutionTemplateLiteral[];
+            }) as (ts.TaggedTemplateExpression | ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
             fragmentRegistry.registerDocument(
               fileName,
               version,
               templateLiteralNodes.reduce(
-                (acc, node) =>
-                  node.rawText ? [...acc, { text: node.rawText, sourcePosition: node.getStart(sourceFile) }] : acc,
+                (acc, node) => [...acc, getShallowText(node)],
                 [] as { text: string; sourcePosition: number }[],
               ),
             );

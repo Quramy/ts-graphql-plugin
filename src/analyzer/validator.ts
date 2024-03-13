@@ -1,23 +1,22 @@
 import { GraphQLSchema } from 'graphql';
-import { getDiagnostics } from 'graphql-language-service';
+import { getDiagnostics, getFragmentDependenciesForAST } from 'graphql-language-service';
 import { ExtractResult } from './extractor';
 import { ErrorWithLocation } from '../errors';
-import { getFragmentsInDocument, getFragmentNamesInDocument } from '../gql-ast-util';
+import { getFragmentNamesInDocument, cloneFragmentMap } from '../gql-ast-util';
 
-export function validate({ fileEntries: extractedResults }: ExtractResult, schema: GraphQLSchema) {
+export function validate({ fileEntries: extractedResults, globalFragments }: ExtractResult, schema: GraphQLSchema) {
   const errors: ErrorWithLocation[] = [];
-  const globalFragmentDefinitions = getFragmentsInDocument(...extractedResults.map(({ documentNode }) => documentNode));
   extractedResults.forEach(r => {
     if (!r.resolevedTemplateInfo) return;
     const { combinedText, getSourcePosition, convertInnerLocation2InnerPosition } = r.resolevedTemplateInfo;
     const fragmentNamesInText = getFragmentNamesInDocument(r.documentNode);
-    const diagnostics = getDiagnostics(
-      combinedText,
-      schema,
-      undefined,
-      undefined,
-      globalFragmentDefinitions.filter(def => !fragmentNamesInText.includes(def.name.value)),
-    );
+    const externalFragments = r.documentNode
+      ? getFragmentDependenciesForAST(
+          r.documentNode,
+          cloneFragmentMap(globalFragments.definitionMap, fragmentNamesInText),
+        )
+      : [];
+    const diagnostics = getDiagnostics(combinedText, schema, undefined, undefined, externalFragments);
     diagnostics.forEach(diagnositc => {
       const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
         convertInnerLocation2InnerPosition(diagnositc.range.start),
