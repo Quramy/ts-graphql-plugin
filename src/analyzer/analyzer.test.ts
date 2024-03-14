@@ -170,6 +170,24 @@ const externalFragmentErrorPrj = {
   ],
 };
 
+const duplicatedFragmentsErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const f1 = gql\`fragment F on Query { __typename }\`;
+        const f2 = gql\`fragment F on Query { __typename }\`;
+        const f3 = gql\` \${f1} fragment F3 on Query { ...F }\`;
+      `,
+    },
+  ],
+};
+
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
@@ -234,6 +252,13 @@ describe(Analyzer, () => {
       const analyzer = createTestingAnalyzer(fragmentExpressionPrj);
       const { errors } = await analyzer.validate();
       expect(errors.length).toBe(0);
+    });
+
+    it('should report duplicatedFragmentDefinitions error', async () => {
+      const analyzer = createTestingAnalyzer(duplicatedFragmentsErrorPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(2);
+      expect(errors).toMatchSnapshot();
     });
   });
 

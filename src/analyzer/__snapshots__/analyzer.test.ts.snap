@@ -128,6 +128,13 @@ export type MyFragment = {
 
 exports[`Analyzer typegen should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's "schema" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
+exports[`Analyzer validate should report duplicatedFragmentDefinitions error 1`] = `
+[
+  [ErrorWithLocation: All fragments must have an unique name.],
+  [ErrorWithLocation: All fragments must have an unique name.],
+]
+`;
+
 exports[`Analyzer validate should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's "schema" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
 exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name "hogehoge"."`;

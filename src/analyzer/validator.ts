@@ -1,8 +1,23 @@
 import { GraphQLSchema } from 'graphql';
 import { getDiagnostics, getFragmentDependenciesForAST } from 'graphql-language-service';
+import { ErrorWithLocation, ERROR_CODES } from '../errors';
+import { ComputePosition } from '../ts-ast-util';
+import { getFragmentsInDocument, getFragmentNamesInDocument, cloneFragmentMap } from '../gql-ast-util';
 import { ExtractResult } from './extractor';
-import { ErrorWithLocation } from '../errors';
-import { getFragmentNamesInDocument, cloneFragmentMap } from '../gql-ast-util';
+
+function calcEndPositionSafely(
+  startPositionOfSource: number,
+  getSourcePosition: ComputePosition,
+  innerPosition: number,
+) {
+  let endPositionOfSource: number = 0;
+  try {
+    endPositionOfSource = getSourcePosition(innerPosition).pos;
+  } catch (error) {
+    endPositionOfSource = startPositionOfSource + 1;
+  }
+  return endPositionOfSource;
+}
 
 export function validate({ fileEntries: extractedResults, globalFragments }: ExtractResult, schema: GraphQLSchema) {
   const errors: ErrorWithLocation[] = [];
@@ -10,6 +25,24 @@ export function validate({ fileEntries: extractedResults, globalFragments }: Ext
     if (!r.resolevedTemplateInfo) return;
     const { combinedText, getSourcePosition, convertInnerLocation2InnerPosition } = r.resolevedTemplateInfo;
     const fragmentNamesInText = getFragmentNamesInDocument(r.documentNode);
+    errors.push(
+      ...getFragmentsInDocument(r.documentNode)
+        .map(fragmentDef => [fragmentDef, getSourcePosition(fragmentDef.name.loc!.start)] as const)
+        .filter(
+          ([fragmentDef, { isInOtherExpression }]) =>
+            !isInOtherExpression && globalFragments.duplicatedDefinitionMap.has(fragmentDef.name.value),
+        )
+        .map(
+          ([fragmentDef, { pos: startPositionOfSource }]) =>
+            new ErrorWithLocation(ERROR_CODES.duplicatedFragmentDefinitions.message, {
+              fileName: r.fileName,
+              severity: 'Error',
+              content: r.templateNode.getSourceFile().getText(),
+              start: startPositionOfSource,
+              end: calcEndPositionSafely(startPositionOfSource, getSourcePosition, fragmentDef.name.loc!.end),
+            }),
+        ),
+    );
     const externalFragments = r.documentNode
       ? getFragmentDependenciesForAST(
           r.documentNode,
@@ -22,12 +55,11 @@ export function validate({ fileEntries: extractedResults, globalFragments }: Ext
         convertInnerLocation2InnerPosition(diagnositc.range.start),
       );
       if (isInOtherExpression) return;
-      let endPositionOfSource: number = 0;
-      try {
-        endPositionOfSource = getSourcePosition(convertInnerLocation2InnerPosition(diagnositc.range.end)).pos;
-      } catch (error) {
-        endPositionOfSource = startPositionOfSource + 1;
-      }
+      const endPositionOfSource = calcEndPositionSafely(
+        startPositionOfSource,
+        getSourcePosition,
+        convertInnerLocation2InnerPosition(diagnositc.range.end),
+      );
       errors.push(
         new ErrorWithLocation(diagnositc.message, {
           fileName: r.fileName,

@@ -67,7 +67,7 @@ export type ExtractResult = {
   globalFragments: {
     definitions: FragmentDefinitionNode[];
     definitionMap: Map<string, FragmentDefinitionNode>;
-    // TODO additional entries from FragmentRegistry
+    duplicatedDefinitionMap: Map<string, {}[]>;
   };
 };
 
@@ -164,6 +164,7 @@ export class Extractor {
       globalFragments: {
         definitions: globalDefinitonsWithMap.definitions,
         definitionMap: globalDefinitonsWithMap.map,
+        duplicatedDefinitionMap: this._fragmentRegistry.getDuplicaterdFragmentDefinitionMap(),
       },
     };
   }
