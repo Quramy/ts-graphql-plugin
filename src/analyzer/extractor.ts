@@ -86,9 +86,10 @@ export class Extractor {
 
   extract(files: string[], tagName?: string): ExtractResult {
     const results: ExtractFileResult[] = [];
+    const targetFiles = files.filter(fileName => !this._helper.isExcluded(fileName));
     this._debug('Extract template literals from: ');
-    this._debug(files.map(f => ' ' + f).join(',\n'));
-    files.forEach(fileName => {
+    this._debug(targetFiles.map(f => ' ' + f).join(',\n'));
+    targetFiles.forEach(fileName => {
       if (this._helper.isExcluded(fileName)) return;
       const nodes = this._helper
         .getAllNodes(fileName, node => ts.isTemplateExpression(node) || ts.isNoSubstitutionTemplateLiteral(node))
