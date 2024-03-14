@@ -80,7 +80,7 @@ export class GraphQLLanguageServiceAdapter {
       getGlobalFragmentDefinitions: () => this._fragmentRegisry.getFragmentDefinitions(),
       getExternalFragmentDefinitions: (documentStr, fileName, sourcePosition) =>
         this._fragmentRegisry.getExternalFragments(documentStr, fileName, sourcePosition),
-      getDuplicaterdFragmentDefinitionMap: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitionMap(),
+      getDuplicaterdFragmentDefinitions: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitions(),
       findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),

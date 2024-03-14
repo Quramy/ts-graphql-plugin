@@ -76,7 +76,7 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
       const { text, sourcePosition } = getSanitizedTemplateText(n);
       result.push(
         ...getFragmentsInDocument(ctx.getGraphQLDocumentNode(text))
-          .filter(fragmentDef => ctx.getDuplicaterdFragmentDefinitionMap().has(fragmentDef.name.value))
+          .filter(fragmentDef => ctx.getDuplicaterdFragmentDefinitions().has(fragmentDef.name.value))
           .map(fragmentDef =>
             createDuplicatedFragmentDefinitonsDiagnostic(n.getSourceFile(), sourcePosition, fragmentDef),
           ),

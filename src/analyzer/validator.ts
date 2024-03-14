@@ -30,7 +30,7 @@ export function validate({ fileEntries: extractedResults, globalFragments }: Ext
         .map(fragmentDef => [fragmentDef, getSourcePosition(fragmentDef.name.loc!.start)] as const)
         .filter(
           ([fragmentDef, { isInOtherExpression }]) =>
-            !isInOtherExpression && globalFragments.duplicatedDefinitionMap.has(fragmentDef.name.value),
+            !isInOtherExpression && globalFragments.duplicatedDefinitions.has(fragmentDef.name.value),
         )
         .map(
           ([fragmentDef, { pos: startPositionOfSource }]) =>

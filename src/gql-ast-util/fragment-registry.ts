@@ -313,8 +313,8 @@ export class FragmentRegistry {
     };
   }
 
-  getDuplicaterdFragmentDefinitionMap() {
-    return this._store.getDuplicatedDefinitonMap();
+  getDuplicaterdFragmentDefinitions() {
+    return new Set(this._store.getDuplicatedDefinitonMap().keys());
   }
 
   getExternalFragments(documentStr: string, fileName: string, sourcePosition: number): FragmentDefinitionNode[] {
