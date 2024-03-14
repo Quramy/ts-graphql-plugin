@@ -3,6 +3,7 @@ import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/test
 import { createTestingSchemaManagerHost } from '../schema-manager/testing/testing-schema-manager-host';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
 import { TsGraphQLPluginConfig } from './types';
+import { ErrorWithLocation } from '../errors';
 
 type CreateTestingAnalyzerOptions = {
   sdl: string;
@@ -170,6 +171,38 @@ const externalFragmentErrorPrj = {
   ],
 };
 
+const dependendtFragmentErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'fragment1.ts',
+      content: `
+        const dependendtFragment = gql\`
+          fragment DependentFragment on Query {
+            __typename
+            notExistingFeild
+          }
+        \`;
+      `,
+    },
+    {
+      fileName: 'main.ts',
+      content: `
+        const fragment = gql\`
+          fragment MyFragment on Query {
+            hello
+            ...DependentFragment
+          }
+        \`;
+      `,
+    },
+  ],
+};
+
 const duplicatedFragmentsErrorPrj = {
   sdl: `
     type Query {
@@ -240,12 +273,23 @@ describe(Analyzer, () => {
       expect(schema).toBeTruthy();
     });
 
-    it('should validate project with semantic warning project', async () => {
+    it('should report missing external fragment refference', async () => {
       const analyzer = createTestingAnalyzer(externalFragmentErrorPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
       expect(errors[0].message).toMatchSnapshot();
       expect(schema).toBeTruthy();
+    });
+
+    it('should report correct dependent fragment errors', async () => {
+      const analyzer = createTestingAnalyzer(dependendtFragmentErrorPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      if (!(errors[0] instanceof ErrorWithLocation)) {
+        return fail();
+      }
+      expect(errors[0].errorContent.fileName).not.toBe('main.ts');
+      expect(errors[0].errorContent.fileName).toBe('fragment1.ts');
     });
 
     it('should work with fragments in template expression', async () => {

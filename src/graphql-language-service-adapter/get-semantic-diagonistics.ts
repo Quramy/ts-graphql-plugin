@@ -6,6 +6,7 @@ import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';
 import { getSanitizedTemplateText } from '../ts-ast-util';
 import { getFragmentsInDocument } from '../gql-ast-util';
+import { OutOfRangeError } from '../string-util';
 
 function createSchemaErrorDiagnostic(
   errorInfo: SchemaBuildErrorInfo,
@@ -132,8 +133,14 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
           } else {
             result.push(translateDiagnostic(d, file, startPositionOfSource, length));
           }
-        } catch {
-          return;
+        } catch (e) {
+          if (e instanceof OutOfRangeError) {
+            // Note:
+            // We can not convertInnerLocation2InnerPosition if semantics diagnostics are located in externalFragments.
+            // In other words, there is no error in the original sanitized template text, so nothing to do.
+            return;
+          }
+          throw e;
         }
       });
     });

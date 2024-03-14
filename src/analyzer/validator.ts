@@ -4,6 +4,7 @@ import { ErrorWithLocation, ERROR_CODES } from '../errors';
 import { ComputePosition } from '../ts-ast-util';
 import { getFragmentsInDocument, getFragmentNamesInDocument, cloneFragmentMap } from '../gql-ast-util';
 import { ExtractResult } from './extractor';
+import { OutOfRangeError } from '../string-util';
 
 function calcEndPositionSafely(
   startPositionOfSource: number,
@@ -51,24 +52,34 @@ export function validate({ fileEntries: extractedResults, globalFragments }: Ext
       : [];
     const diagnostics = getDiagnostics(combinedText, schema, undefined, undefined, externalFragments);
     diagnostics.forEach(diagnositc => {
-      const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
-        convertInnerLocation2InnerPosition(diagnositc.range.start),
-      );
-      if (isInOtherExpression) return;
-      const endPositionOfSource = calcEndPositionSafely(
-        startPositionOfSource,
-        getSourcePosition,
-        convertInnerLocation2InnerPosition(diagnositc.range.end),
-      );
-      errors.push(
-        new ErrorWithLocation(diagnositc.message, {
-          fileName: r.fileName,
-          severity: diagnositc.severity === 2 ? 'Warn' : 'Error',
-          content: r.templateNode.getSourceFile().getText(),
-          start: startPositionOfSource,
-          end: endPositionOfSource,
-        }),
-      );
+      try {
+        const { pos: startPositionOfSource, isInOtherExpression } = getSourcePosition(
+          convertInnerLocation2InnerPosition(diagnositc.range.start, true),
+        );
+        if (isInOtherExpression) return;
+        const endPositionOfSource = calcEndPositionSafely(
+          startPositionOfSource,
+          getSourcePosition,
+          convertInnerLocation2InnerPosition(diagnositc.range.end),
+        );
+        errors.push(
+          new ErrorWithLocation(diagnositc.message, {
+            fileName: r.fileName,
+            severity: diagnositc.severity === 2 ? 'Warn' : 'Error',
+            content: r.templateNode.getSourceFile().getText(),
+            start: startPositionOfSource,
+            end: endPositionOfSource,
+          }),
+        );
+      } catch (e) {
+        if (e instanceof OutOfRangeError) {
+          // Note:
+          // We can not convertInnerLocation2InnerPosition if semantics diagnostics are located in externalFragments.
+          // In other words, there is no error in the original sanitized template text, so nothing to do.
+          return;
+        }
+        throw e;
+      }
     });
   });
   return errors;

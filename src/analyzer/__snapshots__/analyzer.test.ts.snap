@@ -137,6 +137,6 @@ exports[`Analyzer validate should report duplicatedFragmentDefinitions error 1`]
 
 exports[`Analyzer validate should report error when no schema 1`] = `"No GraphQL schema. Confirm your ts-graphql-plugin's "schema" configuration at tsconfig.json's compilerOptions.plugins section."`;
 
-exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name "hogehoge"."`;
+exports[`Analyzer validate should report missing external fragment refference 1`] = `"Unknown fragment "F2"."`;
 
-exports[`Analyzer validate should validate project with semantic warning project 1`] = `"Unknown fragment "F2"."`;
+exports[`Analyzer validate should validate project with schema error project 1`] = `"Syntax Error: Unexpected Name "hogehoge"."`;

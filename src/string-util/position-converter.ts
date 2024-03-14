@@ -1,7 +1,13 @@
+export class OutOfRangeError extends Error {
+  constructor() {
+    super('Out of range');
+  }
+}
+
 export function pos2location(content: string, pos: number, throwErrorIfOutOfRange = false) {
   if (throwErrorIfOutOfRange) {
     if (pos < 0 || content.length <= pos) {
-      throw new Error('OutOfRange');
+      throw new OutOfRangeError();
     }
   }
   let l = 0,
@@ -27,14 +33,14 @@ export function location2pos(
     ic = 0;
   if (throwErrorIfOutOfRange) {
     if (location.line < 0 || location.character < 0) {
-      throw new Error('OutOfRange');
+      throw new OutOfRangeError();
     }
   }
   for (let i = 0; i < content.length; i++) {
     const cc = content[i];
     if (il === location.line) {
       if (throwErrorIfOutOfRange && (cc === '\n' || (cc === '\r' && content[i + 1] === '\n'))) {
-        throw new Error('OutOfRange');
+        throw new OutOfRangeError();
       }
       if (ic === location.character) {
         return i;
@@ -48,7 +54,7 @@ export function location2pos(
     }
   }
   if (throwErrorIfOutOfRange) {
-    throw new Error('OutOfRange');
+    throw new OutOfRangeError();
   }
   return content.length;
 }
