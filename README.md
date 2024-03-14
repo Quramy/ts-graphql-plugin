@@ -282,12 +282,16 @@ It's useful if other code generator copies your GraphQL Template Strings.
 > [!NOTE]
 > Currently, the `exclude` option only accepts file or directory names. Wildcard characters such as `*` and `**` are not allowed.
 
+<!--
+
 ### `enabledGlobalFragments`
 
 It's optional and the default value is `false`. If enabled, the plugin automatically searches for and merges the dependent fragments for the target GraphQL operation in the TypeScript project.
 
 > [!IMPORTANT]
 > Fragments must be given a unique name if this option is enabled.
+
+-->
 
 ### `localSchemaExtensions`
 
