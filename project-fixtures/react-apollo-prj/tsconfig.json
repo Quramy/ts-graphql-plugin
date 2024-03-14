@@ -11,10 +11,10 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
-        "enabledGlobalFragments": true,
         "tag": "gql",
+        "exclude": ["src/__generated__"],
         "typegen": {
-          "addons": ["../../addons/typed-query-document"]
+          "addons": ["ts-graphql-plugin/addons/typed-query-document"]
         }
       }
     ]

@@ -9,6 +9,7 @@ const repositoryFragment = gql`
 `;
 
 const query = gql`
+  ${repositoryFragment}
   query GitHubQuery($first: Int!) {
     viewer {
       repositories(first: $first) {
