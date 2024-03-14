@@ -78,16 +78,22 @@ export function isTagged(node: ts.Node | undefined, condition: TagCondition, sou
   return hasTagged(node.parent, condition, source);
 }
 
-export function getShallowText(node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression) {
+export function getSanitizedTemplateText(
+  node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
+  source?: ts.SourceFile,
+) {
+  const sourcePosition = node.getStart(source) + 1;
   if (ts.isNoSubstitutionTemplateLiteral(node)) {
-    return { text: node.text ?? '', sourcePosition: node.pos };
+    return { text: node.text ?? '', sourcePosition };
   } else {
     let text = node.head.text ?? '';
     for (const span of node.templateSpans) {
+      // Note:
+      // This magic number 3 is introduced from "${}".length
       text += ''.padEnd(span.expression.end - span.expression.pos + 3, ' ');
       text += span.literal.text;
     }
-    return { text, sourcePosition: node.pos };
+    return { text, sourcePosition };
   }
 }
 

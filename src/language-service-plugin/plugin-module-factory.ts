@@ -8,7 +8,7 @@ import {
   registerDocumentChangeEvent,
   hasTagged,
   findAllNodes,
-  getShallowText,
+  getSanitizedTemplateText,
   createFileNameFilter,
 } from '../ts-ast-util';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
@@ -36,7 +36,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
           } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
             return node;
           }
-        }).map(getShallowText),
+        }).map(node => getSanitizedTemplateText(node, sourceFile)),
       );
     };
 

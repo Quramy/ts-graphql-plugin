@@ -2,7 +2,7 @@ import ts from 'typescript';
 import {
   findAllNodes,
   findNode,
-  getShallowText,
+  getSanitizedTemplateText,
   isTagged,
   isImportDeclarationWithCondition,
   mergeImportDeclarationsWithSameModules,
@@ -54,21 +54,45 @@ describe(findAllNodes, () => {
   });
 });
 
-describe(getShallowText, () => {
-  it('should return rawText for NoSubstitutionTemplateLiteral node', () => {
-    const text = 'const a = `abc`;';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node) && node);
-    const actual = getShallowText(found);
-    expect(actual.text).toBe('abc');
+describe(getSanitizedTemplateText, () => {
+  describe('when node was parsed with parent', () => {
+    it('should return rawText for NoSubstitutionTemplateLiteral node', () => {
+      const text = 'const a = `abc`;';
+      const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
+      const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node) && node);
+      const actual = getSanitizedTemplateText(found);
+      expect(actual.text).toBe('abc');
+      expect(actual.sourcePosition).toBe(text.indexOf('abc'));
+    });
+
+    it('should replace variable placeholders in TemplateExpression node', () => {
+      const text = 'const a = `abc${hoge}def`;';
+      const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
+      const [found] = findAllNodes(s, node => ts.isTemplateExpression(node) && node);
+      const actual = getSanitizedTemplateText(found);
+      expect(actual.text).toBe('abc       def');
+      expect(actual.sourcePosition).toBe(text.indexOf('abc'));
+    });
   });
 
-  it('should retun replaced text for TemplateExpression', () => {
-    const text = 'const a = `abc${hoge}`;';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const [found] = findAllNodes(s, node => ts.isTemplateExpression(node) && node);
-    const actual = getShallowText(found);
-    expect(actual.text).toBe('abc       ');
+  describe('when node was parsed without parent', () => {
+    it('should return rawText for NoSubstitutionTemplateLiteral node', () => {
+      const text = 'const a = `abc`;';
+      const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, false);
+      const [found] = findAllNodes(s, node => ts.isNoSubstitutionTemplateLiteral(node) && node);
+      const actual = getSanitizedTemplateText(found, s);
+      expect(actual.text).toBe('abc');
+      expect(actual.sourcePosition).toBe(text.indexOf('abc'));
+    });
+
+    it('should replace variable placeholders in TemplateExpression node', () => {
+      const text = 'const a = `abc${hoge}def`;';
+      const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, false);
+      const [found] = findAllNodes(s, node => ts.isTemplateExpression(node) && node);
+      const actual = getSanitizedTemplateText(found, s);
+      expect(actual.text).toBe('abc       def');
+      expect(actual.sourcePosition).toBe(text.indexOf('abc'));
+    });
   });
 });
 

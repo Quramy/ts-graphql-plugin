@@ -7,7 +7,7 @@ import {
   hasTagged,
   findAllNodes,
   registerDocumentChangeEvent,
-  getShallowText,
+  getSanitizedTemplateText,
 } from '../ts-ast-util';
 import { FragmentRegistry } from '../gql-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
@@ -97,7 +97,7 @@ export class Analyzer {
                 } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
                   return node;
                 }
-              }).map(getShallowText),
+              }).map(node => getSanitizedTemplateText(node, sourceFile)),
             );
           }
         },
