@@ -44,6 +44,10 @@ export const ERROR_CODES = {
   graphqlLangServiceError: {
     code: 51001,
   },
+  duplicatedFragmentDefinitions: {
+    code: 51002,
+    message: 'All fragments must have an unique name.',
+  },
   templateIsTooComplex: {
     code: 51010,
     message: 'This operation or fragment has too complex interpolation to analyze.',

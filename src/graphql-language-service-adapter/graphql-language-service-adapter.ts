@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { GraphQLSchema, parse } from 'graphql';
+import { GraphQLSchema, parse, type DocumentNode } from 'graphql';
 import { isTagged, ScriptSourceHelper, TagCondition, isTemplateLiteralTypeNode } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
@@ -7,6 +7,7 @@ import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQu
 import { getCompletionAtPosition } from './get-completion-at-position';
 import { getSemanticDiagnostics } from './get-semantic-diagonistics';
 import { getQuickInfoAtPosition } from './get-quick-info-at-position';
+import { LRUCache } from '../cache';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
@@ -26,6 +27,7 @@ export class GraphQLLanguageServiceAdapter {
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _analysisContext: AnalysisContext;
   private readonly _fragmentRegisry: FragmentRegistry;
+  private readonly _parsedDocumentCache = new LRUCache<string, DocumentNode>(100);
 
   constructor(
     private readonly _helper: ScriptSourceHelper,
@@ -74,9 +76,11 @@ export class GraphQLLanguageServiceAdapter {
           return [this._schema, null];
         }
       },
+      getGraphQLDocumentNode: text => this._parse(text),
       getGlobalFragmentDefinitions: () => this._fragmentRegisry.getFragmentDefinitions(),
       getExternalFragmentDefinitions: (documentStr, fileName, sourcePosition) =>
         this._fragmentRegisry.getExternalFragments(documentStr, fileName, sourcePosition),
+      getDuplicaterdFragmentDefinitionMap: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitionMap(),
       findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),
@@ -118,24 +122,35 @@ export class GraphQLLanguageServiceAdapter {
     return nodes;
   }
 
+  private _parse(text: string) {
+    const cached = this._parsedDocumentCache.get(text);
+    if (cached) return cached;
+    try {
+      const parsed = parse(text);
+      this._parsedDocumentCache.set(text, parsed);
+      return parsed;
+    } catch {
+      return undefined;
+    }
+  }
+
   private _resolveTemplateInfo(fileName: string, node: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
     const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
     if (!resolvedInfo) return { resolveErrors };
-    try {
-      const documentNode = parse(resolvedInfo.combinedText);
-      const fragmentNames = getFragmentNamesInDocument(documentNode);
-      if (!this._removeDuplicatedFragments) return { resolveErrors, resolvedInfo, fragmentNames };
-      const duplicatedFragmentInfoList = detectDuplicatedFragments(documentNode);
-      const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
-        return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
-      }, resolvedInfo);
-      return { resolvedInfo: info, resolveErrors };
-    } catch (error) {
+    const documentNode = this._parse(resolvedInfo.combinedText);
+    if (!documentNode) {
       // Note:
       // `parse` throws GraphQL syntax error when combinedText is invalid for GraphQL syntax.
       // We don't need handle this error because getDiagnostics method in this class re-checks syntax with graphql-lang-service,
       return { resolvedInfo, resolveErrors };
     }
+    const fragmentNames = getFragmentNamesInDocument(documentNode);
+    if (!this._removeDuplicatedFragments) return { resolveErrors, resolvedInfo, fragmentNames };
+    const duplicatedFragmentInfoList = detectDuplicatedFragments(documentNode);
+    const info = duplicatedFragmentInfoList.reduce((acc, fragmentInfo) => {
+      return this._helper.updateTemplateLiteralInfo(acc, fragmentInfo);
+    }, resolvedInfo);
+    return { resolvedInfo: info, resolveErrors };
   }
 
   private _logger: (msg: string) => void = () => {};

@@ -1,8 +1,11 @@
 import ts from 'typescript';
+import type { FragmentDefinitionNode } from 'graphql';
 import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import { AnalysisContext, GetSemanticDiagnostics } from './types';
+import { getSanitizedTemplateText } from '../ts-ast-util';
+import { getFragmentsInDocument } from '../gql-ast-util';
 
 function createSchemaErrorDiagnostic(
   errorInfo: SchemaBuildErrorInfo,
@@ -20,6 +23,23 @@ function createSchemaErrorDiagnostic(
   const category = ts.DiagnosticCategory.Error;
   const code = ERROR_CODES.schemaBuildError.code;
   return { category, code, messageText, file, start, length };
+}
+
+function createDuplicatedFragmentDefinitonsDiagnostic(
+  file: ts.SourceFile,
+  sourcePosition: number,
+  defNode: FragmentDefinitionNode,
+): ts.Diagnostic {
+  const startInner = defNode.name.loc?.start ?? 0;
+  const length = defNode.name.loc?.end ? defNode.name.loc.end - startInner : 0;
+  return {
+    category: ts.DiagnosticCategory.Error,
+    file,
+    start: sourcePosition + startInner,
+    length,
+    messageText: ERROR_CODES.duplicatedFragmentDefinitions.message,
+    code: ERROR_CODES.duplicatedFragmentDefinitions.code,
+  };
 }
 
 function createIsInOtherExpressionDiagnostic(file: ts.SourceFile, start: number, length: number) {
@@ -53,6 +73,14 @@ export function getSemanticDiagnostics(ctx: AnalysisContext, delegate: GetSemant
     });
   } else if (schema) {
     const diagnosticsAndResolvedInfoList = nodes.map(n => {
+      const { text, sourcePosition } = getSanitizedTemplateText(n);
+      result.push(
+        ...getFragmentsInDocument(ctx.getGraphQLDocumentNode(text))
+          .filter(fragmentDef => ctx.getDuplicaterdFragmentDefinitionMap().has(fragmentDef.name.value))
+          .map(fragmentDef =>
+            createDuplicatedFragmentDefinitonsDiagnostic(n.getSourceFile(), sourcePosition, fragmentDef),
+          ),
+      );
       const { resolvedInfo, resolveErrors } = ctx.resolveTemplateInfo(fileName, n);
       const externalFragments = resolvedInfo
         ? ctx.getExternalFragmentDefinitions(resolvedInfo.combinedText, fileName, resolvedInfo.getSourcePosition(0).pos)

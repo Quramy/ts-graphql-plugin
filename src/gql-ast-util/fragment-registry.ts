@@ -313,6 +313,10 @@ export class FragmentRegistry {
     };
   }
 
+  getDuplicaterdFragmentDefinitionMap() {
+    return this._store.getDuplicatedDefinitonMap();
+  }
+
   getExternalFragments(documentStr: string, fileName: string, sourcePosition: number): FragmentDefinitionNode[] {
     let documentNode: DocumentNode | undefined = undefined;
     try {

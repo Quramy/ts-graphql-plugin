@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { GraphQLSchema, type FragmentDefinitionNode } from 'graphql';
+import { GraphQLSchema, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { ScriptSourceHelper, ResolveResult } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 
@@ -18,6 +18,8 @@ export interface AnalysisContext {
     fileName: string,
     sourcePosition: number,
   ): FragmentDefinitionNode[];
+  getDuplicaterdFragmentDefinitionMap(): Map<string, {}>;
+  getGraphQLDocumentNode(text: string): DocumentNode | undefined;
   findTemplateNode(
     fileName: string,
     position: number,

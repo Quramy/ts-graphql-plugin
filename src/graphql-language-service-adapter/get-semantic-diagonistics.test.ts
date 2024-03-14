@@ -314,4 +314,44 @@ describe('getSemanticDiagnostics', () => {
     expect(actual[1].code).toBe(ERROR_CODES.errorInOtherInterpolation.code);
     expect(actual[1].start).toBe(frets.a1.pos);
   });
+
+  it('should return "duplicatedFragmentDefinitions" error when interpolated fragment has error', () => {
+    const fixture = craeteFixture('input.ts', createSimpleSchema());
+    const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment(
+      `
+        fragment MyFragment on Query {
+          __typename
+        }
+      `,
+    );
+    fixture.addFragment(
+      `
+        fragment MyFragment on Query {
+          __typename
+        }
+      `,
+      'fragments.ts',
+    );
+
+    const frets: Frets = {};
+    fixture.source = mark(
+      `
+        const fragment = \`
+          fragment MyFragment on Query {
+   %%%             ^         ^            %%%
+   %%%             a1        a2           %%%
+            __typename
+          }
+        \`;
+      `,
+      frets,
+    );
+    const actual = validateFn();
+    expect(actual.length).toBe(1);
+    expect(actual[0].code).toBe(ERROR_CODES.duplicatedFragmentDefinitions.code);
+    expect(actual[0].start).toBe(frets.a1.pos);
+    expect(actual[0].length).toBe(frets.a2.pos - frets.a1.pos);
+  });
 });
