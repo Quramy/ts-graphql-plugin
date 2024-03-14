@@ -2,7 +2,14 @@ import ts from 'typescript';
 import path from 'path';
 import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
-import { createScriptSourceHelper } from '../ts-ast-util';
+import {
+  createScriptSourceHelper,
+  hasTagged,
+  findAllNodes,
+  registerDocumentChangeEvent,
+  getSanitizedTemplateText,
+} from '../ts-ast-util';
+import { FragmentRegistry } from '../gql-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { location2pos } from '../string-util';
@@ -10,6 +17,7 @@ import { validate } from './validator';
 import { ManifestOutput, TsGraphQLPluginConfig } from './types';
 import { MarkdownReporter } from './markdown-reporter';
 import { TypeGenerator } from './type-generator';
+import { createFileNameFilter } from '../ts-ast-util/file-name-filter';
 
 class TsGqlConfigError extends ErrorWithoutLocation {
   constructor() {
@@ -47,14 +55,25 @@ export class Analyzer {
     private readonly _schemaManager: SchemaManager,
     private readonly _debug: (msg: string) => void,
   ) {
-    const langService = ts.createLanguageService(this._languageServiceHost);
-    this._scriptSourceHelper = createScriptSourceHelper({
-      languageService: langService,
-      languageServiceHost: this._languageServiceHost,
-    });
+    const documentRegistry = ts.createDocumentRegistry();
+    const langService = ts.createLanguageService(this._languageServiceHost, documentRegistry);
+    const fragmentRegistry = new FragmentRegistry();
+    const projectName = path.join(this._prjRootPath, 'tsconfig.json');
+    const isExcluded = createFileNameFilter({ specs: this._pluginConfig.exclude, projectName });
+    this._scriptSourceHelper = createScriptSourceHelper(
+      {
+        languageService: langService,
+        languageServiceHost: this._languageServiceHost,
+        project: {
+          getProjectName: () => projectName,
+        },
+      },
+      { exclude: this._pluginConfig.exclude },
+    );
     this._extractor = new Extractor({
       removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
       scriptSourceHelper: this._scriptSourceHelper,
+      fragmentRegistry,
       debug: this._debug,
     });
     this._typeGenerator = new TypeGenerator({
@@ -64,6 +83,26 @@ export class Analyzer {
       addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
+    if (this._pluginConfig.enabledGlobalFragments === true) {
+      const tag = this._pluginConfig.tag;
+      registerDocumentChangeEvent(documentRegistry, {
+        onAcquire: (fileName, sourceFile, version) => {
+          if (!isExcluded(fileName) && this._languageServiceHost.getScriptFileNames().includes(fileName)) {
+            fragmentRegistry.registerDocuments(
+              fileName,
+              version,
+              findAllNodes(sourceFile, node => {
+                if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+                  return node.template;
+                } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
+                  return node;
+                }
+              }).map(node => getSanitizedTemplateText(node, sourceFile)),
+            );
+          }
+        },
+      });
+    }
   }
 
   getPluginConfig() {
@@ -88,13 +127,13 @@ export class Analyzer {
   async validate() {
     const [schemaErrors, schema] = await this._getSchema();
     if (!schema) return { errors: schemaErrors };
-    const [extractedErrors, results] = this.extract();
+    const [extractedErrors, result] = this.extract();
     if (extractedErrors.length) {
       this._debug(`Found ${extractedErrors.length} extraction errors.`);
     }
     return {
-      errors: [...schemaErrors, ...extractedErrors, ...validate(results, schema)],
-      extractedResults: results,
+      errors: [...schemaErrors, ...extractedErrors, ...validate(result, schema)],
+      extractedResults: result,
       schema,
     };
   }

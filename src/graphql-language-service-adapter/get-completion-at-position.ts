@@ -30,6 +30,7 @@ export function getCompletionAtPosition(
   options: ts.GetCompletionsAtPositionOptions | undefined,
   formattingSettings?: ts.FormatCodeSettings | undefined,
 ) {
+  if (ctx.getScriptSourceHelper().isExcluded(fileName)) return delegate(fileName, position, options);
   const schema = ctx.getSchema();
   if (!schema) return delegate(fileName, position, options);
   const node = ctx.findTemplateNode(fileName, position);
@@ -49,7 +50,13 @@ export function getCompletionAtPosition(
     line: innerLocation.line,
     character: innerLocation.character,
   });
-  const gqlCompletionItems = getAutocompleteSuggestions(schema, combinedText, positionForSeach);
+  const gqlCompletionItems = getAutocompleteSuggestions(
+    schema,
+    combinedText,
+    positionForSeach,
+    undefined,
+    ctx.getGlobalFragmentDefinitions(),
+  );
   ctx.debug(JSON.stringify(gqlCompletionItems));
   return translateCompletionItems(gqlCompletionItems);
 }

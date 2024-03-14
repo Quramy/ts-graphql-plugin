@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { ScriptSourceHelper, ResolveResult } from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 
@@ -12,6 +12,14 @@ export interface AnalysisContext {
   getScriptSourceHelper(): ScriptSourceHelper;
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
+  getGlobalFragmentDefinitions(): FragmentDefinitionNode[];
+  getExternalFragmentDefinitions(
+    documentStr: string,
+    fileName: string,
+    sourcePosition: number,
+  ): FragmentDefinitionNode[];
+  getDuplicaterdFragmentDefinitions(): Set<string>;
+  getGraphQLDocumentNode(text: string): DocumentNode | undefined;
   findTemplateNode(
     fileName: string,
     position: number,

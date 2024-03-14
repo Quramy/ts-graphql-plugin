@@ -4,10 +4,6 @@
 ### GitHubQuery
 
 ```graphql
-fragment RepositoryFragment on Repository {
-  description
-}
-
 query GitHubQuery($first: Int!) {
   viewer {
     repositories(first: $first) {
@@ -18,9 +14,13 @@ query GitHubQuery($first: Int!) {
     }
   }
 }
+
+fragment RepositoryFragment on Repository {
+  description
+}
 ```
 
-From [src/index.tsx:11:19](src/index.tsx#L11-L23)
+From [src/index.tsx:11:19](src/index.tsx#L11-L22)
     
 ## Mutations
 
@@ -34,7 +34,7 @@ mutation UpdateMyRepository($repositoryId: ID!) {
 }
 ```
 
-From [src/index.tsx:25:22](src/index.tsx#L25-L31)
+From [src/index.tsx:24:22](src/index.tsx#L24-L30)
     
 ## Fragments
 

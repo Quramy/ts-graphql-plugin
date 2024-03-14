@@ -66,16 +66,35 @@ export function findAllNodes<S extends ts.Node>(
   return result as S[];
 }
 
-export function hasTagged(node: ts.Node | undefined, condition: TagCondition) {
+export function hasTagged(node: ts.Node | undefined, condition: TagCondition, source?: ts.SourceFile) {
   if (!node) return;
   if (!ts.isTaggedTemplateExpression(node)) return false;
   const tagNode = node;
-  return tagNode.tag.getText() === condition;
+  return tagNode.tag.getText(source) === condition;
 }
 
-export function isTagged(node: ts.Node | undefined, condition: TagCondition) {
+export function isTagged(node: ts.Node | undefined, condition: TagCondition, source?: ts.SourceFile) {
   if (!node) return false;
-  return hasTagged(node.parent, condition);
+  return hasTagged(node.parent, condition, source);
+}
+
+export function getSanitizedTemplateText(
+  node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression,
+  source?: ts.SourceFile,
+) {
+  const sourcePosition = node.getStart(source) + 1;
+  if (ts.isNoSubstitutionTemplateLiteral(node)) {
+    return { text: node.text ?? '', sourcePosition };
+  } else {
+    let text = node.head.text ?? '';
+    for (const span of node.templateSpans) {
+      // Note:
+      // This magic number 3 is introduced from "${}".length
+      text += ''.padEnd(span.expression.end - span.expression.pos + 3, ' ');
+      text += span.literal.text;
+    }
+    return { text, sourcePosition };
+  }
 }
 
 export function isTemplateLiteralTypeNode(node: ts.Node): node is ts.TemplateLiteralTypeNode {

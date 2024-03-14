@@ -3,6 +3,7 @@ import { createTestingLanguageServiceAndHost } from '../ts-ast-util/testing/test
 import { createTestingSchemaManagerHost } from '../schema-manager/testing/testing-schema-manager-host';
 import { SchemaManagerFactory } from '../schema-manager/schema-manager-factory';
 import { TsGraphQLPluginConfig } from './types';
+import { ErrorWithLocation } from '../errors';
 
 type CreateTestingAnalyzerOptions = {
   sdl: string;
@@ -20,6 +21,7 @@ function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtens
   const pluginConfig: TsGraphQLPluginConfig = {
     name: 'ts-graphql-plugin',
     schema: '/schema.graphql',
+    enabledGlobalFragments: true,
     localSchemaExtensions: localSchemaExtension ? [localSchemaExtension.fileName] : [],
     removeDuplicatedFragments: true,
     tag: 'gql',
@@ -43,14 +45,55 @@ function createTestingAnalyzer({ files: sourceFiles = [], sdl, localSchemaExtens
 
 const simpleSources = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
       fileName: 'main.ts',
       content: 'const query = gql`query MyQuery { hello }`;',
+    },
+  ],
+};
+
+const fragmentPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'fragment.ts',
+      content: 'const fragment = gql`fragment MyFragment on Query { hello }`;',
+    },
+    {
+      fileName: 'main.ts',
+      content: 'const query = gql`query MyQuery { ...MyFragment }`;',
+    },
+  ],
+};
+
+const fragmentExpressionPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const fragment = gql\`
+          fragment MyFragment on Query { hello }
+        \`;
+
+        const query = gql\`
+          \${fragment}
+          query MyQuery { ...MyFragment }
+        \`;
+      `,
     },
   ],
 };
@@ -67,9 +110,9 @@ const noSchemaPrj = {
 
 const extensionErrorPrj = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
@@ -85,9 +128,9 @@ const extensionErrorPrj = {
 
 const semanticErrorPrj = {
   sdl: `
-  type Query {
-    hello: String!
-  }
+    type Query {
+      hello: String!
+    }
   `,
   files: [
     {
@@ -99,9 +142,9 @@ const semanticErrorPrj = {
 
 const semanticWarningPrj = {
   sdl: `
-  type Query {
-    hello: String! @deprecated(reason: "don't use")
-  }
+    type Query {
+      hello: String! @deprecated(reason: "don't use")
+    }
   `,
   files: [
     {
@@ -111,10 +154,77 @@ const semanticWarningPrj = {
   ],
 };
 
+const externalFragmentErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const f1 = gql\`fragment F1 on Query { __typename }\`;
+        const query = gql\`query MyQuery { ...F1, ...F2 }\`;
+      `,
+    },
+  ],
+};
+
+const dependendtFragmentErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'fragment1.ts',
+      content: `
+        const dependendtFragment = gql\`
+          fragment DependentFragment on Query {
+            __typename
+            notExistingFeild
+          }
+        \`;
+      `,
+    },
+    {
+      fileName: 'main.ts',
+      content: `
+        const fragment = gql\`
+          fragment MyFragment on Query {
+            hello
+            ...DependentFragment
+          }
+        \`;
+      `,
+    },
+  ],
+};
+
+const duplicatedFragmentsErrorPrj = {
+  sdl: `
+    type Query {
+      hello: String!
+    }
+  `,
+  files: [
+    {
+      fileName: 'main.ts',
+      content: `
+        const f1 = gql\`fragment F on Query { __typename }\`;
+        const f2 = gql\`fragment F on Query { __typename }\`;
+        const f3 = gql\` \${f1} fragment F3 on Query { ...F }\`;
+      `,
+    },
+  ],
+};
+
 describe(Analyzer, () => {
   describe(Analyzer.prototype.extractToManifest, () => {
     it('should extract manifest', () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       expect(analyzer.extractToManifest()).toMatchSnapshot();
     });
   });
@@ -122,6 +232,13 @@ describe(Analyzer, () => {
   describe(Analyzer.prototype.validate, () => {
     it('should validate project with normal project', async () => {
       const analyzer = createTestingAnalyzer(simpleSources);
+      const { errors, schema } = await analyzer.validate();
+      expect(errors.length).toBe(0);
+      expect(schema).toBeTruthy();
+    });
+
+    it('should validate project using global fragments', async () => {
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(0);
       expect(schema).toBeTruthy();
@@ -149,17 +266,49 @@ describe(Analyzer, () => {
       expect(schema).toBeTruthy();
     });
 
-    it('should validate project with semantic error project', async () => {
+    it('should validate project with semantic warning project', async () => {
       const analyzer = createTestingAnalyzer(semanticWarningPrj);
       const { errors, schema } = await analyzer.validate();
       expect(errors.length).toBe(1);
       expect(schema).toBeTruthy();
     });
+
+    it('should report missing external fragment refference', async () => {
+      const analyzer = createTestingAnalyzer(externalFragmentErrorPrj);
+      const { errors, schema } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      expect(errors[0].message).toMatchSnapshot();
+      expect(schema).toBeTruthy();
+    });
+
+    it('should report correct dependent fragment errors', async () => {
+      const analyzer = createTestingAnalyzer(dependendtFragmentErrorPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(1);
+      if (!(errors[0] instanceof ErrorWithLocation)) {
+        return fail();
+      }
+      expect(errors[0].errorContent.fileName).not.toBe('main.ts');
+      expect(errors[0].errorContent.fileName).toBe('fragment1.ts');
+    });
+
+    it('should work with fragments in template expression', async () => {
+      const analyzer = createTestingAnalyzer(fragmentExpressionPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(0);
+    });
+
+    it('should report duplicatedFragmentDefinitions error', async () => {
+      const analyzer = createTestingAnalyzer(duplicatedFragmentsErrorPrj);
+      const { errors } = await analyzer.validate();
+      expect(errors.length).toBe(2);
+      expect(errors).toMatchSnapshot();
+    });
   });
 
   describe(Analyzer.prototype.report, () => {
     it('should create markdown report', () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const [errors, output] = analyzer.report('out.md');
       expect(errors.length).toBe(0);
       expect(output).toMatchSnapshot();
@@ -183,12 +332,14 @@ describe(Analyzer, () => {
     });
 
     it('should create type files', async () => {
-      const analyzer = createTestingAnalyzer(simpleSources);
+      const analyzer = createTestingAnalyzer(fragmentPrj);
       const { outputSourceFiles } = await analyzer.typegen();
       if (!outputSourceFiles) return fail();
-      expect(outputSourceFiles.length).toBe(1);
-      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      expect(outputSourceFiles.length).toBe(2);
+      expect(outputSourceFiles[0].fileName.endsWith('__generated__/my-fragment.ts')).toBeTruthy();
       expect(outputSourceFiles[0].content).toMatchSnapshot();
+      expect(outputSourceFiles[1].fileName.endsWith('__generated__/my-query.ts')).toBeTruthy();
+      expect(outputSourceFiles[1].content).toMatchSnapshot();
     });
   });
 });

@@ -18,6 +18,41 @@ def`;
       expect(pos2location(text, 4)).toStrictEqual({ line: 1, character: 0 });
     });
   });
+
+  describe('throwErrorIfOutOfRange', () => {
+    describe(pos2location, () => {
+      const text = 'abcd\nefg';
+      it.each([-1, 8])('should throw an error if pos is out of range', pos => {
+        expect(() => pos2location(text, pos, true)).toThrowError();
+      });
+
+      it.each([0, 7])('should not throw an error if pos is invalid', pos => {
+        expect(() => pos2location(text, pos, true)).not.toThrowError();
+      });
+    });
+
+    describe(location2pos, () => {
+      const text = 'abcd\nefg';
+      it.each([
+        { line: -1, character: 0 },
+        { line: 0, character: -1 },
+        { line: 0, character: 4 },
+        { line: 1, character: -1 },
+        { line: 1, character: 3 },
+        { line: 2, character: 0 },
+      ])('should throw an error if location is out of range', location => {
+        expect(() => location2pos(text, location, true)).toThrowError();
+      });
+      it.each([
+        { line: 0, character: 0 },
+        { line: 0, character: 3 },
+        { line: 1, character: 0 },
+        { line: 1, character: 2 },
+      ])('should not throw an error if location is valid range', location => {
+        expect(() => location2pos(text, location, true)).not.toThrowError();
+      });
+    });
+  });
 });
 
 describe('CRLF', () => {
@@ -34,6 +69,41 @@ describe('CRLF', () => {
       const text = 'abc\r\ndef';
       expect(pos2location(text, 0)).toStrictEqual({ line: 0, character: 0 });
       expect(pos2location(text, 5)).toStrictEqual({ line: 1, character: 0 });
+    });
+  });
+
+  describe('throwErrorIfOutOfRange', () => {
+    describe(pos2location, () => {
+      const text = 'abcd\r\nefg';
+      it.each([-1, 9])('should throw an error if pos is out of range', pos => {
+        expect(() => pos2location(text, pos, true)).toThrowError();
+      });
+
+      it.each([0, 8])('should not throw an error if pos is invalid', pos => {
+        expect(() => pos2location(text, pos, true)).not.toThrowError();
+      });
+    });
+
+    describe(location2pos, () => {
+      const text = 'abcd\r\nefg';
+      it.each([
+        { line: -1, character: 0 },
+        { line: 0, character: -1 },
+        { line: 0, character: 4 },
+        { line: 1, character: -1 },
+        { line: 1, character: 3 },
+        { line: 2, character: 0 },
+      ])('should throw an error if location is out of range', location => {
+        expect(() => location2pos(text, location, true)).toThrowError();
+      });
+      it.each([
+        { line: 0, character: 0 },
+        { line: 0, character: 3 },
+        { line: 1, character: 0 },
+        { line: 1, character: 2 },
+      ])('should not throw an error if location is valid range', location => {
+        expect(() => location2pos(text, location, true)).not.toThrowError();
+      });
     });
   });
 });

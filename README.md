@@ -35,6 +35,8 @@ This plugin has the following features:
 - [Plugin options](#plugin-options)
   - [`schema`](#schema)
   - [`tag`](#tag)
+  - [`exclude`](#exclude)
+  - [`enabledGlobalFragments`](#enabledglobalfragments)
   - [`localSchemaExtensions`](#localschemaextensions)
   - [`typegen.addons`](#typegenaddons)
   - [`removeDuplicatedFragments`](#removeduplicatedfragments)
@@ -121,6 +123,7 @@ Pass plugin options to your tsconfig.json to configure this plugin.
         /* plugin options */
         "schema": "path-or-url-to-your-schema.graphql",
         "tag": "gql",
+        "exclude": ["__generated__"],
         ...
       }
     ]
@@ -269,6 +272,22 @@ const str3 = otherTagFn`foooo`; // don't work
 ```
 
 It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
+
+### `exclude`
+
+It's optional. Specify an array of file or directory names when you want to exclude specific TypeScript sources from the plugin's analysis.
+
+It's useful if other code generator copies your GraphQL Template Strings.
+
+> [!NOTE]
+> Currently, the `exclude` option only accepts file or directory names. Wildcard characters such as `*` and `**` are not allowed.
+
+### `enabledGlobalFragments`
+
+It's optional and the default value is `false`. If enabled, the plugin automatically searches for and merges the dependent fragments for the target GraphQL operation in the TypeScript project.
+
+> [!IMPORTANT]
+> Fragments must be given a unique name if this option is enabled.
 
 ### `localSchemaExtensions`
 

@@ -9,6 +9,7 @@ export function getQuickInfoAtPosition(
   fileName: string,
   position: number,
 ) {
+  if (ctx.getScriptSourceHelper().isExcluded(fileName)) return delegate(fileName, position);
   const schema = ctx.getSchema();
   if (!schema) return delegate(fileName, position);
   const node = ctx.findTemplateNode(fileName, position);

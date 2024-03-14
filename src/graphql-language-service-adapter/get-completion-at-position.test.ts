@@ -52,4 +52,15 @@ describe('getCompletionAtPosition', () => {
     expect(completionFn(17, undefined)!.entries).toBeTruthy();
     expect(completionFn(17, undefined)!.entries.filter(e => e.name === 'hello').length).toBeTruthy(); // contains schema keyword;
   });
+
+  it('should return completion entries with external fragment definitions', () => {
+    const fixture = createFixture('input.ts', createSimpleSchema());
+    const completionFn = fixture.adapter.getCompletionAtPosition.bind(fixture.adapter, delegateFn, 'input.ts');
+
+    fixture.addFragment('fragment FRAGMENT on Query { hello }');
+    fixture.source = 'const a = `query { ...FR';
+    expect(completionFn(23, undefined)!.entries).toBeTruthy();
+    expect(completionFn(23, undefined)!.entries.length).not.toBe(0);
+    expect(completionFn(23, undefined)!.entries.filter(e => e.name === 'FRAGMENT').length).toBeTruthy(); // contains schema keyword;
+  });
 });

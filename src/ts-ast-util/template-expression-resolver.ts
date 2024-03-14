@@ -135,6 +135,7 @@ export class TemplateExpressionResolver {
   constructor(
     private readonly _langService: ts.LanguageService,
     private readonly _getFileVersion: (fileName: string) => string,
+    private readonly _isExcluded: (fileName: string) => boolean,
   ) {}
 
   resolve(
@@ -338,6 +339,7 @@ export class TemplateExpressionResolver {
         const defs = this._langService.getDefinitionAtPosition(currentFileName, currentNode.getStart());
         if (!defs || !defs[0]) return { dependencies };
         const def = defs[0];
+        if (this._isExcluded(def.fileName)) return { dependencies };
         const src = this._langService.getProgram()!.getSourceFile(def.fileName);
         if (!src) return { dependencies };
         const found = findNode(src, def.textSpan.start);
