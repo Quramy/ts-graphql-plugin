@@ -289,7 +289,7 @@ export class FragmentRegistry {
     },
   });
 
-  private _externalFragmentsCache = new LRUCache<string, ExternalFragmentsCacheEntry>(200);
+  private _externalFragmentsCache = new LRUCache<string, ExternalFragmentsCacheEntry>(100);
   private _logger: (msg: string) => void;
 
   constructor(options: FragmentRegistryCreateOptions = { logger: () => null }) {

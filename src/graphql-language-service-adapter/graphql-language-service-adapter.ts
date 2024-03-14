@@ -27,7 +27,7 @@ export class GraphQLLanguageServiceAdapter {
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _analysisContext: AnalysisContext;
   private readonly _fragmentRegisry: FragmentRegistry;
-  private readonly _parsedDocumentCache = new LRUCache<string, DocumentNode>(100);
+  private readonly _parsedDocumentCache = new LRUCache<string, DocumentNode>(500);
 
   constructor(
     private readonly _helper: ScriptSourceHelper,
