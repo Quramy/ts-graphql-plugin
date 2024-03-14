@@ -18,7 +18,7 @@ export interface AnalysisContext {
     fileName: string,
     sourcePosition: number,
   ): FragmentDefinitionNode[];
-  getDuplicaterdFragmentDefinitionMap(): Map<string, {}>;
+  getDuplicaterdFragmentDefinitionMap(): Map<string, unknown>;
   getGraphQLDocumentNode(text: string): DocumentNode | undefined;
   findTemplateNode(
     fileName: string,
