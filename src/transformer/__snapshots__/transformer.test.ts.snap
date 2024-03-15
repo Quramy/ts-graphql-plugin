@@ -15,6 +15,16 @@ exports[`transformer GraphQL document transformation should ignore TemplateExpre
 "
 `;
 
+exports[`transformer GraphQL document transformation should ignore arguments which are not template literal in CallExpression node even if the node matches tag name 1`] = `
+"const query = hoge('abc', 100);
+"
+`;
+
+exports[`transformer GraphQL document transformation should ignore template argument in CallExpression when the node does not matche tag name 1`] = `
+"const query = hoge(\`abc\`);
+"
+`;
+
 exports[`transformer GraphQL document transformation should transform NoSubstitutionTemplateLiteral 1`] = `
 "const query = {
     kind: "Document",
@@ -91,6 +101,56 @@ exports[`transformer GraphQL document transformation should transform TaggedTemp
 `;
 
 exports[`transformer GraphQL document transformation should transform TemplateExpression 1`] = `
+"const query = {
+    kind: "Document",
+    definitions: [{
+            kind: "OperationDefinition",
+            operation: "query",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: "SelectionSet",
+                selections: [{
+                        kind: "Field",
+                        name: {
+                            kind: "Name",
+                            value: "hello"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer GraphQL document transformation should transform first template argument in CallExpression when the node matches tag name 1`] = `
+"const query = {
+    kind: "Document",
+    definitions: [{
+            kind: "OperationDefinition",
+            operation: "query",
+            variableDefinitions: [],
+            directives: [],
+            selectionSet: {
+                kind: "SelectionSet",
+                selections: [{
+                        kind: "Field",
+                        name: {
+                            kind: "Name",
+                            value: "hello"
+                        },
+                        arguments: [],
+                        directives: []
+                    }]
+            }
+        }]
+};
+"
+`;
+
+exports[`transformer GraphQL document transformation should transform first template expression argument in CallExpression when the node matches tag name 1`] = `
 "const query = {
     kind: "Document",
     definitions: [{
