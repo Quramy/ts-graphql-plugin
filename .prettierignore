@@ -7,5 +7,6 @@ e2e_coverage/
 .husky/
 project-fixtures/**/*.invalid.json
 project-fixtures/**/__generated__/
+project-fixtures/**/gql/
 project-fixtures/**/manifest.json
 project-fixtures/**/GRAPHQL_OPERATIONS.md
