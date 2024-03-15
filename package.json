@@ -31,7 +31,7 @@
     "e2e": "node e2e/run.js",
     "e2e:ci": "c8 -o e2e_coverage -x e2e -r json -i \"src/**/*\" node e2e/run.js",
     "test": "npm run format:check && npm run lint && npm run jest:ci && npm run e2e:ci",
-    "prettier": "prettier \"*.js\" \"*.md\" \"*.json\" \"*.yml\" \"src/**/*\" \"e2e/**/*\" \"docs/**/*\"",
+    "prettier": "prettier .",
     "format": "npm run prettier -- --write",
     "format:check": "npm run prettier -- --check",
     "doc:toc": "ts-node -P tools/tsconfig.json tools/add-toc.ts",
