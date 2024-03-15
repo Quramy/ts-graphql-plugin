@@ -1,7 +1,7 @@
 import ts from 'typescript';
-import { findAllNodes, findNode } from './utilily-functions';
+import { findAllNodes } from './utilily-functions';
 import type { TagConfig, StrictTagCondition } from './types';
-import { parseTagConfig, getTemplateNodeUnder, isTagged, getTagName } from './tag-utils';
+import { parseTagConfig, getTemplateNodeUnder, getTagName } from './tag-utils';
 
 describe(parseTagConfig, () => {
   test.each([
@@ -188,25 +188,5 @@ describe(getTagName, () => {
       parseTagConfig('gql'),
     );
     expect(actual).toBe(undefined);
-  });
-});
-
-describe(isTagged, () => {
-  it('should return true when the tag condition is matched', () => {
-    // prettier-ignore
-    const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-               + 'const x = myTag`query { }`';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const node = findNode(s, text.length - 3) as ts.Node;
-    expect(isTagged(node, 'myTag')).toBeTruthy();
-  });
-
-  it('should return true when the tag condition is not matched', () => {
-    // prettier-ignore
-    const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-               + 'const x = myTag`query { }`';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const node = findNode(s, text.length - 3) as ts.Node;
-    expect(isTagged(node, 'MyTag')).toBeFalsy();
   });
 });

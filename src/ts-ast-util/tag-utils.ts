@@ -92,15 +92,3 @@ export function getTagName(
   }
   return undefined;
 }
-
-export function hasTagged(node: ts.Node | undefined, condition: string | undefined, source?: ts.SourceFile) {
-  if (!node) return;
-  if (!ts.isTaggedTemplateExpression(node)) return false;
-  const tagNode = node;
-  return tagNode.tag.getText(source) === condition;
-}
-
-export function isTagged(node: ts.Node | undefined, condition: string | undefined, source?: ts.SourceFile) {
-  if (!node) return false;
-  return hasTagged(node.parent, condition, source);
-}
