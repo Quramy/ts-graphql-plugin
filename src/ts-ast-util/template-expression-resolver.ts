@@ -371,6 +371,13 @@ export class TemplateExpressionResolver {
       } else {
         return setValueToCache(getValueForTemplateExpression(node.template, dependencies));
       }
+    } else if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.arguments.length > 0) {
+      const firstArgNode = node.arguments[0];
+      if (ts.isNoSubstitutionTemplateLiteral(firstArgNode)) {
+        return setValueToCache({ text: firstArgNode.text, dependencies });
+      } else if (ts.isTemplateExpression(firstArgNode)) {
+        return setValueToCache(getValueForTemplateExpression(firstArgNode, dependencies));
+      }
     } else if (ts.isTemplateExpression(node)) {
       return setValueToCache(getValueForTemplateExpression(node, dependencies));
     }

@@ -68,3 +68,20 @@ exports[`resolve string combinination pattern should return combined string with
                   ...Foo
                 }"
 `;
+
+exports[`resolve string combinination pattern should return combined string with template in call expression 1`] = `
+"
+                
+                
+                fragment Foo on Hoge {
+                  name
+                }
+              
+                fragment Piyo on Hoge {
+                  ...Foo
+                }
+              
+                query {
+                  ...Piyo
+                }"
+`;

@@ -505,6 +505,44 @@ describe(TemplateExpressionResolver.prototype.resolve, () => {
       expect(actual?.combinedText).toMatchSnapshot();
     });
 
+    it('should return combined string with template in call expression', () => {
+      const langService = createTestingLanguageService({
+        files: [
+          {
+            fileName: 'main.ts',
+            content: `
+              const fragment1 = gql(\`
+                fragment Foo on Hoge {
+                  name
+                }
+              \`);
+              const fragment2 = gql(\`
+                \${fragment1}
+                fragment Piyo on Hoge {
+                  ...Foo
+                }
+              \`);
+              const query = \`
+                \${fragment2}
+                query {
+                  ...Piyo
+                }\`;
+            `,
+          },
+        ],
+      });
+      const source = langService.getProgram()!.getSourceFile('main.ts');
+      if (!source) return fail();
+      const [, node] = findAllNodes(source, node => ts.isTemplateExpression(node));
+      const resolver = new TemplateExpressionResolver(
+        langService,
+        () => '',
+        () => false,
+      );
+      const actual = resolver.resolve('main.ts', node as ts.TemplateExpression).resolvedInfo;
+      expect(actual?.combinedText).toMatchSnapshot();
+    });
+
     it('should return combined string with hopping reference', () => {
       const langService = createTestingLanguageService({
         files: [
