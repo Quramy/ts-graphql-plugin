@@ -535,7 +535,7 @@ This Addon requires `graphql` v15.4.0 or later. To enable this feature, configur
 }
 ```
 
-When enabled generated files export a type based on [`TypedQueryDocumentNode`](https://github.com/graphql/graphql-js/blob/master/src/utilities/typedQueryDocumentNode.d.ts) from GraphQL. The type extends the standard `DocumentNode` AST type but also includes types for result data and variables as type arguments.
+When enabled generated files export a type based on [`TypedQueryDocumentNode`](https://the-guild.dev/blog/typed-document-node) from GraphQL. The type extends the standard `DocumentNode` AST type but also includes types for result data and variables as type arguments.
 
 To use this feature you can apply a type assertion to `gql` template tag expressions that evaluate to a `DocumentNode` value.
 
