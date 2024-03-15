@@ -9,11 +9,11 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   entry: {
-    main: path.resolve(__dirname, "query.ts"),
+    main: path.resolve(__dirname, 'query.ts'),
   },
   output: {
-    path: path.resolve(__dirname, "dist"),
-    filename: "[name].js",
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js',
   },
   module: {
     rules: [
@@ -24,16 +24,12 @@ module.exports = {
         options: {
           transpileOnly: true,
           getCustomTransformers: () => ({
-            before: [
-              tsgqlPlugin.getTransformer(),
-            ],
+            before: [tsgqlPlugin.getTransformer()],
           }),
         },
-      }
+      },
     ],
   },
-  plugins: [
-    tsgqlPlugin,
-  ],
+  plugins: [tsgqlPlugin],
   devtool: false,
 };

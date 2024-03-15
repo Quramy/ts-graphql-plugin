@@ -24,7 +24,7 @@ const query = gql`
 
 const mutation = gql`
   mutation UpdateMyRepository($repositoryId: ID!) {
-    updateRepository(input: { repositoryId: $repositoryId } ) {
+    updateRepository(input: { repositoryId: $repositoryId }) {
       clientMutationId
     }
   }
