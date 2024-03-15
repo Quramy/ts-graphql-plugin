@@ -1,6 +1,6 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { GitHubQuery, GitHubQueryVariables } from './__generated__/git-hub-query';
+import type { GitHubQueryDocument } from './__generated__/git-hub-query';
 
 const repositoryFragment = gql`
   fragment RepositoryFragment on Repository {
@@ -31,7 +31,7 @@ const mutation = gql`
 `;
 
 export default () => {
-  const { data } = useQuery<GitHubQuery, GitHubQueryVariables>(query, { variables: { first: 100 } });
+  const { data } = useQuery(query as GitHubQueryDocument, { variables: { first: 100 } });
   if (!data) return null;
   return (
     <ul>
