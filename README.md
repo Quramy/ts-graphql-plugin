@@ -262,16 +262,84 @@ If not set, this plugin treats all template strings in your .ts as GraphQL query
 
 For example:
 
-```ts
-import gql from 'graphql-tag';
+```js
+/* tsconfig.json */
 
-// when tag paramter is 'gql'
-const str1 = gql`query { }`; // work
-const str2 = `<div></div>`; // don't work
-const str3 = otherTagFn`foooo`; // don't work
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "tag": "gql",
+      }
+    ]
+  }
+}
 ```
 
-It's useful to write multiple kinds template strings(e.g. one is Angular Component template, another is Apollo GraphQL query).
+```ts
+/* yourApp.ts */
+
+import { gql } from '@apollo/client';
+
+// Recognized as GraphQL document
+const str1 = gql`
+  query AppQuery {
+    __typename
+  }
+`;
+
+// Not recognized as GraphQL document
+const str2 = `<div></div>`;
+const str3 = otherTagFn`foooo`;
+```
+
+Sometimes you want to consider the arguments of a particular function calling as a GraphQL document, such as:
+
+```ts
+import { graphql } from '@octokit/graphql';
+
+const { viewer } = await graphql(`
+  query MyQuery {
+    viewer {
+      name
+    }
+  }
+`);
+```
+
+Configure as the following:
+
+```js
+/* tsconfig.json */
+
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "tag": {
+          "name": "graphql",
+          "ignoreFunctionCallExpression: false,
+        }
+      }
+    ]
+  }
+}
+```
+
+The `tag` option accepts the following type:
+
+```ts
+type TagConfig =
+  | undefined
+  | string
+  | string[]
+  | {
+      name?: string | string[];
+      ignoreFunctionCallExpression?: boolean;
+    };
+```
 
 ### `exclude`
 
