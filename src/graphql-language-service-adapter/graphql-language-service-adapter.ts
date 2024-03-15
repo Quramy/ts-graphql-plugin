@@ -87,49 +87,39 @@ export class GraphQLLanguageServiceAdapter {
       getExternalFragmentDefinitions: (documentStr, fileName, sourcePosition) =>
         this._fragmentRegisry.getExternalFragments(documentStr, fileName, sourcePosition),
       getDuplicaterdFragmentDefinitions: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitions(),
-      findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
+      findAscendantTemplateNode: (fileName, position) => this._findAscendantTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),
     };
     return ctx;
   }
 
-  private _findTemplateNode(fileName: string, position: number) {
-    const foundNode = this._helper.getNode(fileName, position);
-    if (!foundNode) return;
-    let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
-    if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
-      node = foundNode;
-    } else if (ts.isTemplateHead(foundNode) && !isTemplateLiteralTypeNode(foundNode.parent)) {
-      node = foundNode.parent;
+  private _findAscendantTemplateNode(fileName: string, position: number) {
+    const nodeUnderCursor = this._helper.getNode(fileName, position);
+    if (!nodeUnderCursor) return;
+
+    let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+
+    if (ts.isNoSubstitutionTemplateLiteral(nodeUnderCursor)) {
+      templateNode = nodeUnderCursor;
+    } else if (ts.isTemplateHead(nodeUnderCursor) && !isTemplateLiteralTypeNode(nodeUnderCursor.parent)) {
+      templateNode = nodeUnderCursor.parent;
     } else if (
-      (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) &&
-      !isTemplateLiteralTypeNode(foundNode.parent.parent)
+      (ts.isTemplateMiddle(nodeUnderCursor) || ts.isTemplateTail(nodeUnderCursor)) &&
+      !isTemplateLiteralTypeNode(nodeUnderCursor.parent.parent)
     ) {
-      node = foundNode.parent.parent;
+      templateNode = nodeUnderCursor.parent.parent;
     } else {
       return;
     }
-    // if (this._tagCondition && !isTagged(node, this._tagCondition)) {
-    //   return;
-    // }
-    if (!isTaggedTemplateNode(node, this._tagCondition)) {
+    if (!isTaggedTemplateNode(templateNode, this._tagCondition)) {
       return;
     }
-    return node;
+    return templateNode;
   }
 
   private _findTemplateNodes(fileName: string) {
     return this._helper.getAllNodes(fileName, node => getTemplateNodeUnder(node, this._tagCondition));
-    // const allTemplateStringNodes = this._helper.getAllNodes(
-    //   fileName,
-    //   (n: ts.Node) => ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateExpression(n),
-    // );
-    // const nodes = allTemplateStringNodes.filter(n => {
-    //   if (!this._tagCondition) return true;
-    //   return isTagged(n, this._tagCondition);
-    // }) as (ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-    // return nodes;
   }
 
   private _parse(text: string) {

@@ -97,12 +97,6 @@ export class Extractor {
     this._debug(targetFiles.map(f => ' ' + f).join(',\n'));
     targetFiles.forEach(fileName => {
       if (this._helper.isExcluded(fileName)) return;
-      // const nodes = this._helper
-      //   .getAllNodes(fileName, node => ts.isTemplateExpression(node) || ts.isNoSubstitutionTemplateLiteral(node))
-      //   .filter(node => (tag ? isTagged(node, tag) : true)) as (
-      //   | ts.TemplateExpression
-      //   | ts.NoSubstitutionTemplateLiteral
-      // )[];
       const nodes = this._helper.getAllNodes(fileName, node => getTemplateNodeUnder(node, tag));
       nodes.forEach(node => {
         const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);

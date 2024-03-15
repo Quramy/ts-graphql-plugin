@@ -31,14 +31,9 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
       fragmentRegistry.registerDocuments(
         fileName,
         version,
-        findAllNodes(sourceFile, node => {
-          // if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-          //   return node.template;
-          // } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
-          //   return node;
-          // }
-          return getTemplateNodeUnder(node, tag);
-        }).map(node => getSanitizedTemplateText(node, sourceFile)),
+        findAllNodes(sourceFile, node => getTemplateNodeUnder(node, tag)).map(node =>
+          getSanitizedTemplateText(node, sourceFile),
+        ),
       );
     };
 

@@ -20,7 +20,7 @@ export interface AnalysisContext {
   ): FragmentDefinitionNode[];
   getDuplicaterdFragmentDefinitions(): Set<string>;
   getGraphQLDocumentNode(text: string): DocumentNode | undefined;
-  findTemplateNode(
+  findAscendantTemplateNode(
     fileName: string,
     position: number,
   ): ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined;
