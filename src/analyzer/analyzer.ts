@@ -4,10 +4,11 @@ import { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
 import {
   createScriptSourceHelper,
-  hasTagged,
+  getTemplateNodeUnder,
   findAllNodes,
   registerDocumentChangeEvent,
   getSanitizedTemplateText,
+  parseTagConfig,
 } from '../ts-ast-util';
 import { FragmentRegistry } from '../gql-ast-util';
 import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
@@ -79,12 +80,12 @@ export class Analyzer {
     this._typeGenerator = new TypeGenerator({
       prjRootPath: this._prjRootPath,
       extractor: this._extractor,
-      tag: this._pluginConfig.tag,
+      tag: parseTagConfig(this._pluginConfig.tag),
       addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
     if (this._pluginConfig.enabledGlobalFragments === true) {
-      const tag = this._pluginConfig.tag;
+      const tag = parseTagConfig(this._pluginConfig.tag);
       registerDocumentChangeEvent(documentRegistry, {
         onAcquire: (fileName, sourceFile, version) => {
           if (!isExcluded(fileName) && this._languageServiceHost.getScriptFileNames().includes(fileName)) {
@@ -92,11 +93,12 @@ export class Analyzer {
               fileName,
               version,
               findAllNodes(sourceFile, node => {
-                if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-                  return node.template;
-                } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
-                  return node;
-                }
+                // if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
+                //   return node.template;
+                // } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
+                //   return node;
+                // }
+                return getTemplateNodeUnder(node, tag);
               }).map(node => getSanitizedTemplateText(node, sourceFile)),
             );
           }
@@ -112,7 +114,7 @@ export class Analyzer {
   extract(fileNameList?: string[]) {
     const results = this._extractor.extract(
       fileNameList || this._languageServiceHost.getScriptFileNames(),
-      this._pluginConfig.tag,
+      parseTagConfig(this._pluginConfig.tag),
     );
     const errors = this._extractor.pickupErrors(results);
     return [errors, results] as const;
@@ -120,7 +122,7 @@ export class Analyzer {
 
   extractToManifest() {
     const [errors, results] = this.extract();
-    const manifest = this._extractor.toManifest(results, this._pluginConfig.tag);
+    const manifest = this._extractor.toManifest(results, parseTagConfig(this._pluginConfig.tag));
     return [errors, manifest] as const;
   }
 

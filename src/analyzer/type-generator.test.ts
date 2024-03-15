@@ -3,7 +3,7 @@ import { TypeGenerator } from './type-generator';
 import { createTesintExtractor } from './testing/testing-extractor';
 import { ExtractSucceededResult } from './extractor';
 import { TypeGenAddonFactory } from '../typegen/addon/types';
-import { createOutputSource } from '../ts-ast-util';
+import { createOutputSource, DEFAULT_TAG_CONDITION } from '../ts-ast-util';
 
 function createTestingTypeGenerator({
   files = [],
@@ -15,7 +15,7 @@ function createTestingTypeGenerator({
   const extractor = createTesintExtractor(files, true);
   const generator = new TypeGenerator({
     prjRootPath: '',
-    tag: undefined,
+    tag: DEFAULT_TAG_CONDITION,
     addonFactories,
     extractor,
     debug: () => {},
@@ -37,7 +37,7 @@ describe(TypeGenerator, () => {
       });
       const {
         fileEntries: [fileEntry],
-      } = extractor.extract(['main.ts']) as { fileEntries: ExtractSucceededResult[] };
+      } = extractor.extract(['main.ts'], DEFAULT_TAG_CONDITION) as { fileEntries: ExtractSucceededResult[] };
       const { addon, context } = generator.createAddon({
         fileEntry,
         schema,

@@ -35,7 +35,7 @@ export function createScriptSourceHelper(
   const getNode = (fileName: string, position: number) => {
     return findNode(getSourceFile(fileName), position);
   };
-  const getAllNodes = (fileName: string, cond: (n: ts.Node) => boolean) => {
+  const getAllNodes = <S extends ts.Node>(fileName: string, cond: (n: ts.Node) => undefined | boolean | S) => {
     const s = getSourceFile(fileName);
     return findAllNodes(s, cond);
   };

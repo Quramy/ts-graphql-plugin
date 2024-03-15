@@ -32,6 +32,12 @@ export class AdapterFixture {
         schema: schema || null,
         removeDuplicatedFragments: true,
         fragmentRegistry: this._fragmentRegistry,
+        tag: {
+          names: [],
+          allowNotTaggedTemplate: true,
+          allowTaggedTemplateExpression: true,
+          allowFunctionCallExpression: true,
+        },
       },
     );
   }

@@ -10,7 +10,13 @@ import {
   type FragmentDefinitionNode,
 } from 'graphql';
 import { getFragmentDependenciesForAST } from 'graphql-language-service';
-import { isTagged, ScriptSourceHelper, ResolvedTemplateInfo } from '../ts-ast-util';
+import {
+  getTemplateNodeUnder,
+  getTagName,
+  ScriptSourceHelper,
+  ResolvedTemplateInfo,
+  StrictTagCondition,
+} from '../ts-ast-util';
 import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
 import { ErrorWithLocation, ERROR_CODES } from '../errors';
 import {
@@ -84,19 +90,20 @@ export class Extractor {
     this._debug = debug;
   }
 
-  extract(files: string[], tagName?: string): ExtractResult {
+  extract(files: string[], tag: StrictTagCondition): ExtractResult {
     const results: ExtractFileResult[] = [];
     const targetFiles = files.filter(fileName => !this._helper.isExcluded(fileName));
     this._debug('Extract template literals from: ');
     this._debug(targetFiles.map(f => ' ' + f).join(',\n'));
     targetFiles.forEach(fileName => {
       if (this._helper.isExcluded(fileName)) return;
-      const nodes = this._helper
-        .getAllNodes(fileName, node => ts.isTemplateExpression(node) || ts.isNoSubstitutionTemplateLiteral(node))
-        .filter(node => (tagName ? isTagged(node, tagName) : true)) as (
-        | ts.TemplateExpression
-        | ts.NoSubstitutionTemplateLiteral
-      )[];
+      // const nodes = this._helper
+      //   .getAllNodes(fileName, node => ts.isTemplateExpression(node) || ts.isNoSubstitutionTemplateLiteral(node))
+      //   .filter(node => (tag ? isTagged(node, tag) : true)) as (
+      //   | ts.TemplateExpression
+      //   | ts.NoSubstitutionTemplateLiteral
+      // )[];
+      const nodes = this._helper.getAllNodes(fileName, node => getTemplateNodeUnder(node, tag));
       nodes.forEach(node => {
         const { resolvedInfo, resolveErrors } = this._helper.resolveTemplateLiteral(fileName, node);
         if (!resolvedInfo) {
@@ -287,7 +294,7 @@ export class Extractor {
     };
   }
 
-  toManifest({ fileEntries: extractResults, globalFragments }: ExtractResult, tagName: string = ''): ManifestOutput {
+  toManifest({ fileEntries: extractResults, globalFragments }: ExtractResult, tag: StrictTagCondition): ManifestOutput {
     const documents = extractResults
       .filter(r => !!r.documentNode)
       .map(result => {
@@ -299,7 +306,7 @@ export class Extractor {
           operationName,
           fragmentName,
           body: print(this.inflateDocument(r, { globalFragments }).inflatedDocumentNode),
-          tag: tagName,
+          tag: getTagName(r.templateNode, tag),
           templateLiteralNodeStart: this._helper.getLineAndChar(r.fileName, r.templateNode.getStart()),
           templateLiteralNodeEnd: this._helper.getLineAndChar(r.fileName, r.templateNode.getEnd()),
           documentStart: this._helper.getLineAndChar(r.fileName, r.templateNode.getStart() + 1),

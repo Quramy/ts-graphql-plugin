@@ -37,8 +37,6 @@ function removeFromImportClause(base: ts.ImportClause | undefined, name: string)
   return astf.updateImportClause(base, base.isTypeOnly, nameId, namedBindings);
 }
 
-export type TagCondition = string;
-
 export function findNode(sourceFile: ts.SourceFile, position: number): ts.Node | undefined {
   function find(node: ts.Node): ts.Node | undefined {
     if (position >= node.getStart() && position < node.getEnd()) {
@@ -64,18 +62,6 @@ export function findAllNodes<S extends ts.Node>(
   }
   find(sourceFile);
   return result as S[];
-}
-
-export function hasTagged(node: ts.Node | undefined, condition: TagCondition, source?: ts.SourceFile) {
-  if (!node) return;
-  if (!ts.isTaggedTemplateExpression(node)) return false;
-  const tagNode = node;
-  return tagNode.tag.getText(source) === condition;
-}
-
-export function isTagged(node: ts.Node | undefined, condition: TagCondition, source?: ts.SourceFile) {
-  if (!node) return false;
-  return hasTagged(node.parent, condition, source);
 }
 
 export function getSanitizedTemplateText(

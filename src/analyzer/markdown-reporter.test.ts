@@ -1,5 +1,6 @@
 import { MarkdownReporter } from './markdown-reporter';
 import { createTesintExtractor } from './testing/testing-extractor';
+import { parseTagConfig } from '../ts-ast-util';
 
 describe(MarkdownReporter, () => {
   it('should convert from manifest to markdown content', () => {
@@ -29,7 +30,10 @@ describe(MarkdownReporter, () => {
       `,
       },
     ]);
-    const manifest = extractor.toManifest(extractor.extract(['/prj-root/src/main.ts'], 'gql'));
+    const manifest = extractor.toManifest(
+      extractor.extract(['/prj-root/src/main.ts'], parseTagConfig('gql')),
+      parseTagConfig('gql'),
+    );
     const content = new MarkdownReporter().toMarkdownConntent(manifest, {
       baseDir: '/prj-root',
       outputDir: '/prj-root/dist',
@@ -64,7 +68,10 @@ describe(MarkdownReporter, () => {
       `,
       },
     ]);
-    const manifest = extractor.toManifest(extractor.extract(['/prj-root/src/main.ts'], 'gql'));
+    const manifest = extractor.toManifest(
+      extractor.extract(['/prj-root/src/main.ts'], parseTagConfig('gql')),
+      parseTagConfig('gql'),
+    );
     const content = new MarkdownReporter().toMarkdownConntent(manifest, {
       ignoreFragments: false,
       baseDir: '/prj-root',
