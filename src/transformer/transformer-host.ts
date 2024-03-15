@@ -1,11 +1,14 @@
 import ts from 'typescript';
-import { DocumentNode } from 'graphql';
+import { Kind, type DocumentNode, FragmentDefinitionNode } from 'graphql';
+import { getFragmentDependenciesForAST } from 'graphql-language-service';
 import { Analyzer, AnalyzerFactory, ExtractFileResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';
 import { parseTagConfig } from '../ts-ast-util';
+import { cloneFragmentMap, getFragmentNamesInDocument } from '../gql-ast-util';
 
 class DocumentNodeRegistory {
   protected readonly _map = new Map<string, Map<number, DocumentNode>>();
+  private _externalFragmentMap = new Map<string, FragmentDefinitionNode>();
 
   constructor() {}
 
@@ -16,10 +19,20 @@ class DocumentNodeRegistory {
   getDocumentNode(templateNode: ts.TemplateExpression | ts.NoSubstitutionTemplateLiteral) {
     const positionMap = this._map.get(templateNode.getSourceFile().fileName);
     if (!positionMap) return;
-    return positionMap.get(templateNode.getStart());
+    const docNode = positionMap.get(templateNode.getStart());
+    if (!docNode) return;
+    const externalFragments = getFragmentDependenciesForAST(
+      docNode,
+      cloneFragmentMap(this._externalFragmentMap, getFragmentNamesInDocument(docNode)),
+    );
+    return {
+      kind: Kind.DOCUMENT,
+      definitions: [...docNode.definitions, ...externalFragments],
+    } satisfies DocumentNode;
   }
 
-  update(extractedResults: ExtractFileResult[]) {
+  update(extractedResults: ExtractFileResult[], externalFragmentMap: Map<string, FragmentDefinitionNode>) {
+    this._externalFragmentMap = externalFragmentMap;
     extractedResults.forEach(result => {
       if (!result.documentNode) return;
       let positionMap = this._map.get(result.fileName);
@@ -55,8 +68,8 @@ export class TransformerHost {
   }
 
   loadProject() {
-    const [, { fileEntries }] = this._analyzer.extract();
-    this._documentNodeRegistory.update(fileEntries);
+    const [, { fileEntries, globalFragments }] = this._analyzer.extract();
+    this._documentNodeRegistory.update(fileEntries, globalFragments.definitionMap);
   }
 
   updateFiles(fileNameList: string[]) {
@@ -71,10 +84,10 @@ export class TransformerHost {
     //    other-opened-file.ts: declare `query { ...X }` importing fragment from changed-file.ts
     //
     // In the above case, the transformed output of other-opened-file.ts should have GraphQL docuemnt corresponding to `fragment X on Query { fieldA } query { ...X }`
-    const [, { fileEntries }] = this._analyzer.extract([
+    const [, { fileEntries, globalFragments }] = this._analyzer.extract([
       ...new Set([...fileNameList, ...this._documentNodeRegistory.getFiles()]),
     ]);
-    this._documentNodeRegistory.update(fileEntries);
+    this._documentNodeRegistory.update(fileEntries, globalFragments.definitionMap);
   }
 
   getTransformer({
