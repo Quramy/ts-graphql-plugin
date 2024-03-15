@@ -15,6 +15,7 @@
   "types": "lib/index.d.ts",
   "files": [
     "webpack.js",
+    "addons/**/*.js",
     "lib/**/*.js",
     "lib/**/*.d.ts",
     "!lib/**/*.test.*"
