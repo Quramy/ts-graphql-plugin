@@ -36,5 +36,17 @@ mutation UpdateMyRepository($repositoryId: ID!) {
 
 From [src/index.tsx:25:22](src/index.tsx#L25-L31)
     
+## Fragments
+
+### RepositoryFragment
+
+```graphql
+fragment RepositoryFragment on Repository {
+  description
+}
+```
+
+From [src/index.tsx:5:32](src/index.tsx#L5-L9)
+    
 ---
 Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)
