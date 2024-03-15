@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { DocumentNode, parse, visit } from 'graphql';
 
-import { parseTagConfig } from '../ts-ast-util';
+import { parseTagConfig, type TagConfig } from '../ts-ast-util';
 import { getTransformer } from './transformer';
 
 function transformAndPrint({
@@ -13,7 +13,7 @@ function transformAndPrint({
   documentTransformers = [],
   enabled = true,
 }: {
-  tag?: string;
+  tag?: TagConfig;
   target: 'text' | 'object';
   docContent: string;
   tsContent: string;
@@ -143,6 +143,74 @@ describe('transformer', () => {
           const query = \`abc\${def}\`;
         `,
           tag: 'foo',
+          docContent: `
+          query {
+            hello
+          }
+        `,
+          target: 'object',
+        }),
+      ).toMatchSnapshot();
+    });
+
+    it('should transform first template argument in CallExpression when the node matches tag name', () => {
+      expect(
+        transformAndPrint({
+          tsContent: `
+          const query = hoge(\`abc\`);
+        `,
+          tag: { name: 'hoge', ignoreFunctionCallExpression: false },
+          docContent: `
+          query {
+            hello
+          }
+        `,
+          target: 'object',
+        }),
+      ).toMatchSnapshot();
+    });
+
+    it('should transform first template expression argument in CallExpression when the node matches tag name', () => {
+      expect(
+        transformAndPrint({
+          tsContent: `
+          const query = hoge(\`abc\${def}\`);
+        `,
+          tag: { name: 'hoge', ignoreFunctionCallExpression: false },
+          docContent: `
+          query {
+            hello
+          }
+        `,
+          target: 'object',
+        }),
+      ).toMatchSnapshot();
+    });
+
+    it('should ignore template argument in CallExpression when the node does not matche tag name', () => {
+      expect(
+        transformAndPrint({
+          tsContent: `
+          const query = hoge(\`abc\`);
+        `,
+          tag: { name: 'foo', ignoreFunctionCallExpression: false },
+          docContent: `
+          query {
+            hello
+          }
+        `,
+          target: 'object',
+        }),
+      ).toMatchSnapshot();
+    });
+
+    it('should ignore arguments which are not template literal in CallExpression node even if the node matches tag name', () => {
+      expect(
+        transformAndPrint({
+          tsContent: `
+          const query = hoge('abc', 100);
+        `,
+          tag: { name: 'hoge', ignoreFunctionCallExpression: false },
           docContent: `
           query {
             hello

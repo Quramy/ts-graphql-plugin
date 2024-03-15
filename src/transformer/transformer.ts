@@ -44,18 +44,16 @@ export function getTransformer({
   return (ctx: ts.TransformationContext) => {
     const visit = (node: ts.Node): ts.Node | undefined => {
       if (!getEnabled()) return node;
-      if (tag.names.length > 1) return node;
       let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined = undefined;
 
-      if (ts.isImportDeclaration(node) && tag.names[0]) {
-        return removeAliasFromImportDeclaration(node, tag.names[0]);
+      if (ts.isImportDeclaration(node) && tag.names.length > 0) {
+        return removeAliasFromImportDeclaration(node, tag.names);
       }
 
-      if (
-        ts.isTaggedTemplateExpression(node) &&
-        (!tag.names.length || !!getTemplateNodeUnder(node, { ...tag, allowFunctionCallExpression: false }))
-      ) {
+      if (ts.isTaggedTemplateExpression(node) && (!tag.names.length || !!getTemplateNodeUnder(node, tag))) {
         templateNode = node.template;
+      } else if (ts.isCallExpression(node) && !!getTemplateNodeUnder(node, tag)) {
+        templateNode = node.arguments[0] as ts.TemplateLiteral;
       } else if (tag.allowNotTaggedTemplate && ts.isNoSubstitutionTemplateLiteral(node)) {
         templateNode = node;
       } else if (tag.allowNotTaggedTemplate && ts.isTemplateExpression(node)) {

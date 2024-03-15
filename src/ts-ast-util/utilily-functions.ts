@@ -10,11 +10,11 @@ function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.Na
   return astf.updateNamedImports(base, [...base.elements, ...head.elements]);
 }
 
-function removeFromNamedBinding(base: ts.NamedImportBindings | undefined, name: string) {
+function removeFromNamedBinding(base: ts.NamedImportBindings | undefined, names: string[]) {
   if (!base) return undefined;
   // treat namedImports only
   if (ts.isNamespaceImport(base)) return base;
-  const elements = base.elements.filter(elm => elm.name.text !== name);
+  const elements = base.elements.filter(elm => !names.includes(elm.name.text));
   if (elements.length === 0) return undefined;
   return astf.updateNamedImports(base, elements);
 }
@@ -29,12 +29,12 @@ function mergeImportClause(base: ts.ImportClause | undefined, head: ts.ImportCla
   return astf.updateImportClause(base, isTypeOnly, name, namedBindings);
 }
 
-function removeFromImportClause(base: ts.ImportClause | undefined, name: string) {
+function removeFromImportClause(base: ts.ImportClause | undefined, names: string[]) {
   if (!base) return undefined;
-  const namedBindings = removeFromNamedBinding(base.namedBindings, name);
-  const nameId = base.name?.text !== name ? base.name : undefined;
-  if (!nameId && !namedBindings) return undefined;
-  return astf.updateImportClause(base, base.isTypeOnly, nameId, namedBindings);
+  const namedBindings = removeFromNamedBinding(base.namedBindings, names);
+  const nameIdentifier = base.name && names.includes(base.name.text) ? undefined : base.name;
+  if (!nameIdentifier && !namedBindings) return undefined;
+  return astf.updateImportClause(base, base.isTypeOnly, nameIdentifier, namedBindings);
 }
 
 export function findNode(sourceFile: ts.SourceFile, position: number): ts.Node | undefined {
@@ -121,9 +121,9 @@ export function mergeImportDeclarationsWithSameModules(base: ts.ImportDeclaratio
   return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }
 
-export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, name: string) {
+export function removeAliasFromImportDeclaration(base: ts.ImportDeclaration, names: string[]) {
   const modifiers = base.modifiers;
-  const importClause = removeFromImportClause(base.importClause, name);
+  const importClause = removeFromImportClause(base.importClause, names);
   if (!importClause) return undefined;
   return astf.updateImportDeclaration(base, modifiers, importClause, base.moduleSpecifier, undefined);
 }

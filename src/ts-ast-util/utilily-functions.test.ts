@@ -309,9 +309,9 @@ describe(removeAliasFromImportDeclaration, () => {
   function remove(text: string, name: string) {
     const inputSource = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest);
     const statements = inputSource.statements as ts.NodeArray<ts.ImportDeclaration>;
-    const out = removeAliasFromImportDeclaration(statements[0], name);
+    const out = removeAliasFromImportDeclaration(statements[0], [name]);
     if (!out) return undefined;
-    return printNode(removeAliasFromImportDeclaration(statements[0], name)).trim();
+    return printNode(removeAliasFromImportDeclaration(statements[0], [name])).trim();
   }
 
   it('should return base statement when name does not match', () => {
