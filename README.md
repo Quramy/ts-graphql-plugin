@@ -3,7 +3,6 @@
 [![github actions](https://github.com/Quramy/ts-graphql-plugin/workflows/build/badge.svg)](https://github.com/Quramy/ts-graphql-plugin/actions)
 [![codecov](https://codecov.io/gh/Quramy/ts-graphql-plugin/branch/main/graph/badge.svg)](https://codecov.io/gh/Quramy/ts-graphql-plugin)
 [![npm version](https://badge.fury.io/js/ts-graphql-plugin.svg)](https://badge.fury.io/js/ts-graphql-plugin)
-![deps](https://david-dm.org/quramy/ts-graphql-plugin.svg)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/main/LICENSE.txt)
 
 Provides functions to help TypeScript GraphQL client development including auto completion, query validation, type generation and so on.
@@ -50,6 +49,7 @@ This plugin has the following features:
     - [`documentTransformers` optional](#documenttransformers-optional)
 - [Template strings](#template-strings)
 - [Available editors](#available-editors)
+  - [VSCode](#vscode)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -270,7 +270,7 @@ For example:
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "tag": "gql",
+        "tag": "gql"
       }
     ]
   }
@@ -294,12 +294,13 @@ const str2 = `<div></div>`;
 const str3 = otherTagFn`foooo`;
 ```
 
-Sometimes you want to consider the arguments of a particular function calling as a GraphQL document, such as:
+Sometimes you want to consider the arguments of a particular function calling as a GraphQL document.
+For example, [graphql-codegen](https://the-guild.dev/graphql/codegen) and [octkit](https://github.com/octokit/graphql.js) use the `graphql` function as follows:
 
 ```ts
-import { graphql } from '@octokit/graphql';
+import { graphql } from './gql';
 
-const { viewer } = await graphql(`
+const myQuery = graphql(`
   query MyQuery {
     viewer {
       name
@@ -320,7 +321,7 @@ Configure as the following:
         "name": "ts-graphql-plugin",
         "tag": {
           "name": "graphql",
-          "ignoreFunctionCallExpression: false,
+          "ignoreFunctionCallExpression": false
         }
       }
     ]
@@ -350,16 +351,44 @@ It's useful if other code generator copies your GraphQL Template Strings.
 > [!NOTE]
 > Currently, the `exclude` option only accepts file or directory names. Wildcard characters such as `*` and `**` are not allowed.
 
-<!--
-
 ### `enabledGlobalFragments`
 
 It's optional and the default value is `false`. If enabled, the plugin automatically searches for and merges the dependent fragments for the target GraphQL operation in the TypeScript project.
 
+```tsx
+/* Post.tsx */
+
+import { graphql } from './gql';
+
+const postFragment = graphql(`
+  fragment PostFragment on Post {
+    id
+    name
+    title
+  }
+`);
+
+/* App.tsx */
+
+const appQuery = graphql(`
+  query AppQuery {
+    posts {
+      id
+      ...PostFragment
+    }
+  }
+`);
+```
+
+In the above example, note that `${postFragment}` is not in the `appQuery` template string literal.
+
+> [!IMPORTANT]
+> This option does not depend on whether the query and fragment are combined at runtime.
+> Whether or not query and fragment are eventually combined depends on the build toolchain you are using.
+> For example, [graphql-codegen](https://the-guild.dev/graphql/codegen/docs/guides/react-vue#writing-graphql-fragments) and [Gatsby](https://www.gatsbyjs.com/docs/reference/graphql-data-layer/using-graphql-fragments/) have a mechanism for referencing global fragments.
+
 > [!IMPORTANT]
 > Fragments must be given a unique name if this option is enabled.
-
--->
 
 ### `localSchemaExtensions`
 
@@ -671,7 +700,7 @@ Keep your queries static (see also https://blog.apollographql.com/5-benefits-of-
 
 I've checked the operation with the following editors:
 
-- Visual Studio Code
+- VSCode
 - Vim (with tsuquyomi)
 
 And the following editor have TypeScript plugin with LanguageService so they're compatible with this plugin:
@@ -679,6 +708,19 @@ And the following editor have TypeScript plugin with LanguageService so they're 
 - Emacs
 - Sublime text
 - Eclipse
+
+### VSCode
+
+To use TypeScript Language Service Plugin within VSCode, confirm your VSCode uses [workspace version TypeScript](https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-the-workspace-version-of-typescript).
+
+```js
+/* .vscode/setting.json */
+
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}
+```
 
 ## Contributing
 
