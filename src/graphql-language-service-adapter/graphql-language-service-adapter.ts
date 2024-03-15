@@ -11,7 +11,7 @@ import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
 import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
 import { getCompletionAtPosition } from './get-completion-at-position';
-import { getSemanticDiagnostics } from './get-semantic-diagonistics';
+import { getSemanticDiagnostics } from './get-semantic-diagnostics';
 import { getQuickInfoAtPosition } from './get-quick-info-at-position';
 import { LRUCache } from '../cache';
 
