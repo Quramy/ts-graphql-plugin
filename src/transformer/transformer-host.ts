@@ -2,6 +2,7 @@ import ts from 'typescript';
 import { DocumentNode } from 'graphql';
 import { Analyzer, AnalyzerFactory, ExtractFileResult } from '../analyzer';
 import { getTransformer, DocumentTransformer } from './transformer';
+import { parseTagConfig } from '../ts-ast-util';
 
 class DocumentNodeRegistory {
   protected readonly _map = new Map<string, Map<number, DocumentNode>>();
@@ -92,7 +93,7 @@ export class TransformerHost {
     });
     return getTransformer({
       getEnabled,
-      tag,
+      tag: parseTagConfig(tag),
       target,
       removeFragmentDefinitions,
       getDocumentNode: node => this._documentNodeRegistory.getDocumentNode(node),

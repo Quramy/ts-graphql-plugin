@@ -5,21 +5,21 @@ import { GraphQLSchema } from 'graphql';
 import { TsGqlError, ErrorWithLocation } from '../errors';
 import { mergeAddons, TypeGenVisitor, TypeGenError, TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen';
 import { dasherize } from '../string-util';
-import { OutputSource, createOutputSource } from '../ts-ast-util';
+import { OutputSource, createOutputSource, type StrictTagCondition } from '../ts-ast-util';
 import { Extractor, ExtractSucceededResult } from './extractor';
 
 export type TypeGeneratorOptions = {
   prjRootPath: string;
   extractor: Extractor;
   debug: (msg: string) => void;
-  tag: string | undefined;
+  tag: StrictTagCondition;
   addonFactories: TypeGenAddonFactory[];
 };
 
 export class TypeGenerator {
   private readonly _prjRootPath: string;
   private readonly _extractor: Extractor;
-  private readonly _tag: string | undefined;
+  private readonly _tag: StrictTagCondition;
   private readonly _addonFactories: TypeGenAddonFactory[];
   private readonly _debug: (msg: string) => void;
   private readonly _printer: ts.Printer;

@@ -1,6 +1,7 @@
 import ts from 'typescript';
 import { DocumentNode, parse, visit } from 'graphql';
 
+import { parseTagConfig } from '../ts-ast-util';
 import { getTransformer } from './transformer';
 
 function transformAndPrint({
@@ -23,7 +24,7 @@ function transformAndPrint({
   const getDocumentNode = () => parse(docContent);
   const source = ts.createSourceFile('main.ts', tsContent, ts.ScriptTarget.Latest, true);
   const transformer = getTransformer({
-    tag,
+    tag: parseTagConfig(tag),
     target,
     getDocumentNode,
     removeFragmentDefinitions,

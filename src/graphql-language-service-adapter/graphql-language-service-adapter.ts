@@ -1,6 +1,12 @@
 import ts from 'typescript';
 import { GraphQLSchema, parse, type DocumentNode } from 'graphql';
-import { isTagged, ScriptSourceHelper, TagCondition, isTemplateLiteralTypeNode } from '../ts-ast-util';
+import {
+  getTemplateNodeUnder,
+  isTaggedTemplateNode,
+  ScriptSourceHelper,
+  StrictTagCondition,
+  isTemplateLiteralTypeNode,
+} from '../ts-ast-util';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
 import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
@@ -13,7 +19,7 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   schema?: GraphQLSchema | null;
   schemaErrors?: SchemaBuildErrorInfo[] | null;
   logger?: (msg: string) => void;
-  tag?: string;
+  tag: StrictTagCondition;
   removeDuplicatedFragments: boolean;
   fragmentRegistry: FragmentRegistry;
 }
@@ -23,7 +29,7 @@ type Args<T> = T extends (...args: infer A) => any ? A : never;
 export class GraphQLLanguageServiceAdapter {
   private _schemaErrors?: SchemaBuildErrorInfo[] | null;
   private _schema?: GraphQLSchema | null;
-  private readonly _tagCondition?: TagCondition;
+  private readonly _tagCondition: StrictTagCondition;
   private readonly _removeDuplicatedFragments: boolean;
   private readonly _analysisContext: AnalysisContext;
   private readonly _fragmentRegisry: FragmentRegistry;
@@ -36,7 +42,7 @@ export class GraphQLLanguageServiceAdapter {
     if (opt.logger) this._logger = opt.logger;
     if (opt.schemaErrors) this.updateSchema(opt.schemaErrors, null);
     if (opt.schema) this.updateSchema(null, opt.schema);
-    if (opt.tag) this._tagCondition = opt.tag;
+    this._tagCondition = opt.tag;
     this._removeDuplicatedFragments = opt.removeDuplicatedFragments;
     this._analysisContext = this._createAnalysisContext();
     this._fragmentRegisry = opt.fragmentRegistry;
@@ -81,45 +87,39 @@ export class GraphQLLanguageServiceAdapter {
       getExternalFragmentDefinitions: (documentStr, fileName, sourcePosition) =>
         this._fragmentRegisry.getExternalFragments(documentStr, fileName, sourcePosition),
       getDuplicaterdFragmentDefinitions: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitions(),
-      findTemplateNode: (fileName, position) => this._findTemplateNode(fileName, position),
+      findAscendantTemplateNode: (fileName, position) => this._findAscendantTemplateNode(fileName, position),
       findTemplateNodes: fileName => this._findTemplateNodes(fileName),
       resolveTemplateInfo: (fileName, node) => this._resolveTemplateInfo(fileName, node),
     };
     return ctx;
   }
 
-  private _findTemplateNode(fileName: string, position: number) {
-    const foundNode = this._helper.getNode(fileName, position);
-    if (!foundNode) return;
-    let node: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
-    if (ts.isNoSubstitutionTemplateLiteral(foundNode)) {
-      node = foundNode;
-    } else if (ts.isTemplateHead(foundNode) && !isTemplateLiteralTypeNode(foundNode.parent)) {
-      node = foundNode.parent;
+  private _findAscendantTemplateNode(fileName: string, position: number) {
+    const nodeUnderCursor = this._helper.getNode(fileName, position);
+    if (!nodeUnderCursor) return;
+
+    let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression;
+
+    if (ts.isNoSubstitutionTemplateLiteral(nodeUnderCursor)) {
+      templateNode = nodeUnderCursor;
+    } else if (ts.isTemplateHead(nodeUnderCursor) && !isTemplateLiteralTypeNode(nodeUnderCursor.parent)) {
+      templateNode = nodeUnderCursor.parent;
     } else if (
-      (ts.isTemplateMiddle(foundNode) || ts.isTemplateTail(foundNode)) &&
-      !isTemplateLiteralTypeNode(foundNode.parent.parent)
+      (ts.isTemplateMiddle(nodeUnderCursor) || ts.isTemplateTail(nodeUnderCursor)) &&
+      !isTemplateLiteralTypeNode(nodeUnderCursor.parent.parent)
     ) {
-      node = foundNode.parent.parent;
+      templateNode = nodeUnderCursor.parent.parent;
     } else {
       return;
     }
-    if (this._tagCondition && !isTagged(node, this._tagCondition)) {
+    if (!isTaggedTemplateNode(templateNode, this._tagCondition)) {
       return;
     }
-    return node;
+    return templateNode;
   }
 
   private _findTemplateNodes(fileName: string) {
-    const allTemplateStringNodes = this._helper.getAllNodes(
-      fileName,
-      (n: ts.Node) => ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateExpression(n),
-    );
-    const nodes = allTemplateStringNodes.filter(n => {
-      if (!this._tagCondition) return true;
-      return isTagged(n, this._tagCondition);
-    }) as (ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression)[];
-    return nodes;
+    return this._helper.getAllNodes(fileName, node => getTemplateNodeUnder(node, this._tagCondition));
   }
 
   private _parse(text: string) {

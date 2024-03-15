@@ -1,34 +1,12 @@
 import ts from 'typescript';
 import {
   findAllNodes,
-  findNode,
   getSanitizedTemplateText,
-  isTagged,
   isImportDeclarationWithCondition,
   mergeImportDeclarationsWithSameModules,
   removeAliasFromImportDeclaration,
 } from './utilily-functions';
 import { printNode } from './testing/print-node';
-
-describe(isTagged, () => {
-  it('should return true when the tag condition is matched', () => {
-    // prettier-ignore
-    const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-               + 'const x = myTag`query { }`';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const node = findNode(s, text.length - 3) as ts.Node;
-    expect(isTagged(node, 'myTag')).toBeTruthy();
-  });
-
-  it('should return true when the tag condition is not matched', () => {
-    // prettier-ignore
-    const text = 'function myTag(...args: any[]) { return "" }' + '\n'
-               + 'const x = myTag`query { }`';
-    const s = ts.createSourceFile('input.ts', text, ts.ScriptTarget.Latest, true);
-    const node = findNode(s, text.length - 3) as ts.Node;
-    expect(isTagged(node, 'MyTag')).toBeFalsy();
-  });
-});
 
 describe(findAllNodes, () => {
   it('should return nodes which match given condition', () => {

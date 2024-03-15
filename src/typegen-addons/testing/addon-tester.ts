@@ -3,6 +3,7 @@ import { buildSchema } from 'graphql';
 import { TypeGenAddonFactory } from '../../typegen';
 import { createTesintExtractor } from '../../analyzer/testing/testing-extractor';
 import { TypeGenerator } from '../../analyzer/type-generator';
+import { parseTagConfig, type TagConfig } from '../../ts-ast-util';
 
 function createTestingTypeGenerator({
   files = [],
@@ -10,13 +11,13 @@ function createTestingTypeGenerator({
   addonFactories = [],
 }: {
   files?: { fileName: string; content: string }[];
-  tag?: string;
+  tag?: TagConfig;
   addonFactories?: TypeGenAddonFactory[];
 }) {
   const extractor = createTesintExtractor(files, true);
   const generator = new TypeGenerator({
     prjRootPath: '',
-    tag,
+    tag: parseTagConfig(tag),
     addonFactories,
     extractor,
     debug: () => {},

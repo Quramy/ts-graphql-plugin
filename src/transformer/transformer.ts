@@ -1,11 +1,11 @@
 import ts from 'typescript';
 import { DocumentNode, print } from 'graphql';
-import { astf, hasTagged, removeAliasFromImportDeclaration } from '../ts-ast-util';
+import { astf, getTemplateNodeUnder, removeAliasFromImportDeclaration, type StrictTagCondition } from '../ts-ast-util';
 
 export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;
 
 export type TransformOptions = {
-  tag?: string;
+  tag: StrictTagCondition;
   documentTransformers: DocumentTransformer[];
   removeFragmentDefinitions: boolean;
   target: 'text' | 'object';
@@ -44,17 +44,21 @@ export function getTransformer({
   return (ctx: ts.TransformationContext) => {
     const visit = (node: ts.Node): ts.Node | undefined => {
       if (!getEnabled()) return node;
+      if (tag.names.length > 1) return node;
       let templateNode: ts.NoSubstitutionTemplateLiteral | ts.TemplateExpression | undefined = undefined;
 
-      if (tag && ts.isImportDeclaration(node)) {
-        return removeAliasFromImportDeclaration(node, tag);
+      if (ts.isImportDeclaration(node) && tag.names[0]) {
+        return removeAliasFromImportDeclaration(node, tag.names[0]);
       }
 
-      if (ts.isTaggedTemplateExpression(node) && (!tag || hasTagged(node, tag))) {
+      if (
+        ts.isTaggedTemplateExpression(node) &&
+        (!tag.names.length || !!getTemplateNodeUnder(node, { ...tag, allowFunctionCallExpression: false }))
+      ) {
         templateNode = node.template;
-      } else if (!tag && ts.isNoSubstitutionTemplateLiteral(node)) {
+      } else if (tag.allowNotTaggedTemplate && ts.isNoSubstitutionTemplateLiteral(node)) {
         templateNode = node;
-      } else if (!tag && ts.isTemplateExpression(node)) {
+      } else if (tag.allowNotTaggedTemplate && ts.isTemplateExpression(node)) {
         templateNode = node;
       }
 

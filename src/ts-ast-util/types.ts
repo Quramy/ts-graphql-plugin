@@ -120,6 +120,22 @@ export type ComputePosition = (innerPosition: number) => {
   isInOtherExpression?: boolean;
 };
 
+export type TagConfig =
+  | undefined
+  | string
+  | string[]
+  | {
+      name?: string | string[];
+      ignoreFunctionCallExpression?: boolean;
+    };
+
+export type StrictTagCondition = {
+  names: string[];
+  allowNotTaggedTemplate: boolean;
+  allowTaggedTemplateExpression: boolean;
+  allowFunctionCallExpression: boolean;
+};
+
 /**
  *
  * Serves the following information.
@@ -154,7 +170,7 @@ export interface ResolveResult {
 }
 
 export interface ScriptSourceHelper {
-  getAllNodes: (fileName: string, condition: (n: ts.Node) => boolean) => ts.Node[];
+  getAllNodes: <S extends ts.Node>(fileName: string, condition: (n: ts.Node) => undefined | boolean | S) => S[];
   getNode: (fileName: string, position: number) => ts.Node | undefined;
   getLineAndChar: (fileName: string, position: number) => ts.LineAndCharacter;
   isExcluded: (fileName: string) => boolean;

@@ -33,7 +33,7 @@ export function getCompletionAtPosition(
   if (ctx.getScriptSourceHelper().isExcluded(fileName)) return delegate(fileName, position, options);
   const schema = ctx.getSchema();
   if (!schema) return delegate(fileName, position, options);
-  const node = ctx.findTemplateNode(fileName, position);
+  const node = ctx.findAscendantTemplateNode(fileName, position);
   if (!node) return delegate(fileName, position, options);
   const { resolvedInfo } = ctx.resolveTemplateInfo(fileName, node);
   if (!resolvedInfo) {

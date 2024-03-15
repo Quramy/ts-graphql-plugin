@@ -6,10 +6,11 @@ import { FragmentRegistry } from '../gql-ast-util';
 import {
   createScriptSourceHelper,
   registerDocumentChangeEvent,
-  hasTagged,
+  getTemplateNodeUnder,
   findAllNodes,
   getSanitizedTemplateText,
   createFileNameFilter,
+  parseTagConfig,
 } from '../ts-ast-util';
 import { LanguageServiceProxyBuilder } from './language-service-proxy-builder';
 
@@ -19,7 +20,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const schemaManager = new SchemaManagerFactory(createSchemaManagerHostFromLSPluginInfo(info)).create();
   const { schema, errors: schemaErrors } = schemaManager.getSchema();
   const config = info.config as TsGraphQLPluginConfigOptions;
-  const tag = config.tag;
+  const tag = parseTagConfig(config.tag);
   const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
   const enabledGlobalFragments = config.enabledGlobalFragments === true;
   const isExcluded = createFileNameFilter({ specs: config.exclude, projectName: info.project.getProjectName() });
@@ -30,13 +31,9 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
       fragmentRegistry.registerDocuments(
         fileName,
         version,
-        findAllNodes(sourceFile, node => {
-          if (tag && ts.isTaggedTemplateExpression(node) && hasTagged(node, tag, sourceFile)) {
-            return node.template;
-          } else if (ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
-            return node;
-          }
-        }).map(node => getSanitizedTemplateText(node, sourceFile)),
+        findAllNodes(sourceFile, node => getTemplateNodeUnder(node, tag)).map(node =>
+          getSanitizedTemplateText(node, sourceFile),
+        ),
       );
     };
 
