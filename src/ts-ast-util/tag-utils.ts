@@ -57,7 +57,12 @@ export function getTemplateNodeUnder(
       return node.template;
     }
   }
-  if (allowFunctionCallExpression && ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+  if (
+    allowFunctionCallExpression &&
+    ts.isCallExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.arguments.length > 0
+  ) {
     const firstArg = node.arguments[0];
     if (!ts.isTemplateLiteral(firstArg)) return;
     if (names.includes(node.expression.escapedText as string)) {
