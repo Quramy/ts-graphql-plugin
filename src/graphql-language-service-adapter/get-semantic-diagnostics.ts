@@ -3,7 +3,7 @@ import type { FragmentDefinitionNode } from 'graphql';
 import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
-import { AnalysisContext, GetSemanticDiagnostics } from './types';
+import type { AnalysisContext, GetSemanticDiagnostics } from './types';
 import { getSanitizedTemplateText } from '../ts-ast-util';
 import { getFragmentsInDocument } from '../gql-ast-util';
 import { OutOfRangeError } from '../string-util';

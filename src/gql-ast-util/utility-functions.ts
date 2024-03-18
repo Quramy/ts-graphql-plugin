@@ -1,4 +1,4 @@
-import { DocumentNode, FragmentDefinitionNode } from 'graphql';
+import type { DocumentNode, FragmentDefinitionNode } from 'graphql';
 
 export function getFragmentsInDocument(...documentNodes: (DocumentNode | undefined)[]) {
   const fragmentDefs = new Map<string, FragmentDefinitionNode>();

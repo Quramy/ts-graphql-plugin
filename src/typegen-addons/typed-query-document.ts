@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { TypeGenAddonFactory } from '../typegen';
+import type { TypeGenAddonFactory } from '../typegen';
 import { astf } from '../ts-ast-util';
 
 export const TypedQueryDocumentAddonFactory: TypeGenAddonFactory = ({ source }) => ({

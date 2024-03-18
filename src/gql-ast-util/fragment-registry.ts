@@ -1,4 +1,4 @@
-import { parse, type DocumentNode, FragmentDefinitionNode, visit } from 'graphql';
+import { parse, visit, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { getFragmentDependenciesForAST } from 'graphql-language-service';
 import { LRUCache } from '../cache';
 import { getFragmentsInDocument, getFragmentNamesInDocument } from './utility-functions';

@@ -1,5 +1,5 @@
-import path from 'path';
-import { CommandOptions } from '../parser';
+import path from 'node:path';
+import type { CommandOptions, CommandCliSetting } from '../parser';
 import { ConsoleLogger } from '../logger';
 
 export const cliDefinition = {
@@ -32,7 +32,7 @@ export const cliDefinition = {
       type: 'boolean',
     },
   },
-} as const;
+} as const satisfies CommandCliSetting;
 
 export async function reportCommand({ options }: CommandOptions<typeof cliDefinition>) {
   const ts = require('typescript') as typeof import('typescript');

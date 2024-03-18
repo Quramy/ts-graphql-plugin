@@ -1,9 +1,9 @@
-import path from 'path';
-import ts from 'typescript/lib/tsserverlibrary';
+import path from 'node:path';
+import type ts from 'typescript';
 import { buildSchema, buildClientSchema } from 'graphql';
 
 import { SchemaManager } from './schema-manager';
-import { SchemaManagerHost } from './types';
+import type { SchemaManagerHost } from './types';
 
 function extractIntrospectionContentFromJson(jsonObject: any) {
   if (jsonObject.data) {

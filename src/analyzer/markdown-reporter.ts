@@ -1,5 +1,5 @@
-import path from 'path';
-import { ManifestOutput, ManifestDocumentEntry } from './types';
+import path from 'node:path';
+import type { ManifestOutput, ManifestDocumentEntry } from './types';
 
 export type ToMarkdownContentOptions = {
   baseDir: string;

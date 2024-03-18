@@ -1,9 +1,9 @@
-import { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
 import { getDiagnostics, getFragmentDependenciesForAST } from 'graphql-language-service';
 import { ErrorWithLocation, ERROR_CODES } from '../errors';
-import { ComputePosition } from '../ts-ast-util';
+import type { ComputePosition } from '../ts-ast-util';
 import { getFragmentsInDocument, getFragmentNamesInDocument, cloneFragmentMap } from '../gql-ast-util';
-import { ExtractResult } from './extractor';
+import type { ExtractResult } from './extractor';
 import { OutOfRangeError } from '../string-util';
 
 function calcEndPositionSafely(

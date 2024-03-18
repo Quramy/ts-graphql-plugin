@@ -1,6 +1,6 @@
 import path from 'path';
-import { Compiler } from 'webpack';
-import { TransformerHost, GetTransformerOptions } from '../transformer';
+import type { Compiler } from 'webpack';
+import { TransformerHost, type GetTransformerOptions } from '../transformer';
 
 type WatchFileSystemCompiler = Compiler & {
   watchFileSystem: {

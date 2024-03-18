@@ -1,7 +1,7 @@
-import path from 'path';
-import { GraphQLSchema, parse, extendSchema, DocumentNode, GraphQLError } from 'graphql';
-import { SchemaBuildErrorInfo } from './schema-manager';
-import { SchemaManagerHost } from './types';
+import path from 'node:path';
+import { parse, extendSchema, GraphQLError, type GraphQLSchema, type DocumentNode } from 'graphql';
+import type { SchemaBuildErrorInfo } from './schema-manager';
+import type { SchemaManagerHost } from './types';
 
 export class ExtensionManager {
   private _targetSdlFileNames: string[];

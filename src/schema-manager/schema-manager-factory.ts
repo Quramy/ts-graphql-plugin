@@ -1,4 +1,4 @@
-import { SchemaManagerHost } from './types';
+import type { SchemaManagerHost } from './types';
 import { SchemaManager, NoopSchemaManager } from './schema-manager';
 import { FileSchemaManagerOptions, FileSchemaManager } from './file-schema-manager';
 import { HttpSchemaManager } from './http-schema-manager';

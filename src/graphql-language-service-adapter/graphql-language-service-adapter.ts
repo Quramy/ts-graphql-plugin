@@ -1,15 +1,15 @@
 import ts from 'typescript';
-import { GraphQLSchema, parse, type DocumentNode } from 'graphql';
+import { parse, type GraphQLSchema, type DocumentNode } from 'graphql';
 import {
   getTemplateNodeUnder,
   isTaggedTemplateNode,
-  ScriptSourceHelper,
-  StrictTagCondition,
   isTemplateLiteralTypeNode,
+  type ScriptSourceHelper,
+  type StrictTagCondition,
 } from '../ts-ast-util';
-import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
+import type { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
-import { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
+import type { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
 import { getCompletionAtPosition } from './get-completion-at-position';
 import { getSemanticDiagnostics } from './get-semantic-diagnostics';
 import { getQuickInfoAtPosition } from './get-quick-info-at-position';
@@ -23,8 +23,6 @@ export interface GraphQLLanguageServiceAdapterCreateOptions {
   removeDuplicatedFragments: boolean;
   fragmentRegistry: FragmentRegistry;
 }
-
-type Args<T> = T extends (...args: infer A) => any ? A : never;
 
 export class GraphQLLanguageServiceAdapter {
   private _schemaErrors?: SchemaBuildErrorInfo[] | null;
@@ -48,15 +46,15 @@ export class GraphQLLanguageServiceAdapter {
     this._fragmentRegisry = opt.fragmentRegistry;
   }
 
-  getCompletionAtPosition(delegate: GetCompletionAtPosition, ...args: Args<GetCompletionAtPosition>) {
+  getCompletionAtPosition(delegate: GetCompletionAtPosition, ...args: Parameters<GetCompletionAtPosition>) {
     return getCompletionAtPosition(this._analysisContext, delegate, ...args);
   }
 
-  getSemanticDiagnostics(delegate: GetSemanticDiagnostics, ...args: Args<GetSemanticDiagnostics>) {
+  getSemanticDiagnostics(delegate: GetSemanticDiagnostics, ...args: Parameters<GetSemanticDiagnostics>) {
     return getSemanticDiagnostics(this._analysisContext, delegate, ...args);
   }
 
-  getQuickInfoAtPosition(delegate: GetQuickInfoAtPosition, ...args: Args<GetQuickInfoAtPosition>) {
+  getQuickInfoAtPosition(delegate: GetQuickInfoAtPosition, ...args: Parameters<GetQuickInfoAtPosition>) {
     return getQuickInfoAtPosition(this._analysisContext, delegate, ...args);
   }
 
