@@ -22,7 +22,7 @@ async function specWithoutGlobalFragments() {
 }
 
 async function specWithGlobalFragments() {
-  const config = require('../../project-fixtures/transformation-global-fag-prj/webpack.config.js');
+  const config = require('../../project-fixtures/transformation-global-frag-prj/webpack.config.js');
   const compiler = webpack({ ...config, mode: 'production' });
   const stats = await new Promise((res, rej) => {
     compiler.run((err, stats) => {
