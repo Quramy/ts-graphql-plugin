@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { getHoverInformation } from 'graphql-language-service';
-import { AnalysisContext, GetQuickInfoAtPosition } from './types';
+import type { AnalysisContext, GetQuickInfoAtPosition } from './types';
 import { SimplePosition } from './simple-position';
 
 export function getQuickInfoAtPosition(

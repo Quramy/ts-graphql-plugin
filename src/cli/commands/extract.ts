@@ -1,4 +1,4 @@
-import { CommandOptions } from '../parser';
+import type { CommandOptions, CommandCliSetting } from '../parser';
 import { ConsoleLogger } from '../logger';
 
 export const cliDefinition = {
@@ -22,7 +22,7 @@ export const cliDefinition = {
       type: 'boolean',
     },
   },
-} as const;
+} as const satisfies CommandCliSetting;
 
 export async function extractCommand({ options }: CommandOptions<typeof cliDefinition>) {
   const ts = require('typescript') as typeof import('typescript');

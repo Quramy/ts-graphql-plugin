@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import { location2pos, pos2location } from '../string-util';
 import { findNode } from './utilily-functions';
-import { ComputePosition, ResolvedTemplateInfo, ResolveResult, ResolveErrorInfo } from './types';
+import type { ComputePosition, ResolvedTemplateInfo, ResolveResult, ResolveErrorInfo } from './types';
 
 const last: ComputePosition = (pos: number) => {
   throw new Error('invalid range: ' + pos);

@@ -1,7 +1,7 @@
-import { GraphQLSchema, buildClientSchema, getIntrospectionQuery } from 'graphql';
-import { parse } from 'url';
-import Http from 'http';
-import Https from 'https';
+import { parse } from 'node:url';
+import Http from 'node:http';
+import Https from 'node:https';
+import { buildClientSchema, getIntrospectionQuery, type GraphQLSchema } from 'graphql';
 
 const INTROSPECTION_QUERY_BODY = JSON.stringify({
   query: getIntrospectionQuery(),

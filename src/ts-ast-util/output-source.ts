@@ -1,10 +1,9 @@
-import path from 'path';
+import path from 'node:path';
 import ts from 'typescript';
 
-import { OutputSource } from './types';
-import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
-
+import type { OutputSource } from './types';
 import { astf } from './ast-factory-alias';
+import { isImportDeclarationWithCondition, mergeImportDeclarationsWithSameModules } from './utilily-functions';
 
 const printer = ts.createPrinter();
 

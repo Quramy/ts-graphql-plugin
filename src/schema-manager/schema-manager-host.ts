@@ -1,7 +1,7 @@
-import ts from 'typescript/lib/tsserverlibrary';
-import path from 'path';
-import { SchemaManagerHost, SchemaConfig } from './types';
-import { TsGraphQLPluginConfigOptions } from '../types';
+import path from 'node:path';
+import ts from 'typescript';
+import type { SchemaManagerHost, SchemaConfig } from './types';
+import type { TsGraphQLPluginConfigOptions } from '../types';
 
 class SystemSchemaManagerHost implements SchemaManagerHost {
   constructor(

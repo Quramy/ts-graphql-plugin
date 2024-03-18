@@ -1,10 +1,10 @@
-import ts from 'typescript';
-import { Kind, type DocumentNode, FragmentDefinitionNode } from 'graphql';
+import type ts from 'typescript';
+import { Kind, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { getFragmentDependenciesForAST } from 'graphql-language-service';
-import { Analyzer, AnalyzerFactory, ExtractFileResult } from '../analyzer';
-import { getTransformer, DocumentTransformer } from './transformer';
+import { AnalyzerFactory, type Analyzer, type ExtractFileResult } from '../analyzer';
 import { parseTagConfig } from '../ts-ast-util';
 import { cloneFragmentMap, getFragmentNamesInDocument } from '../gql-ast-util';
+import { getTransformer, type DocumentTransformer } from './transformer';
 
 class DocumentNodeRegistory {
   protected readonly _map = new Map<string, Map<number, DocumentNode>>();

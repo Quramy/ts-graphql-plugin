@@ -1,7 +1,7 @@
-import ts from 'typescript';
-import { GraphQLSchema, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
-import { ScriptSourceHelper, ResolveResult } from '../ts-ast-util';
-import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
+import type ts from 'typescript';
+import type { GraphQLSchema, DocumentNode, FragmentDefinitionNode } from 'graphql';
+import type { ScriptSourceHelper, ResolveResult } from '../ts-ast-util';
+import type { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 
 export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
 export type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'];

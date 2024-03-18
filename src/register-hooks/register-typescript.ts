@@ -1,5 +1,5 @@
+import fs from 'node:fs';
 import type { CompilerOptions } from 'typescript';
-import fs from 'fs';
 
 export function registerTypeScript() {
   let defaultCompileOptions: CompilerOptions;

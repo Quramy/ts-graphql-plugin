@@ -1,8 +1,8 @@
 import ts from 'typescript';
-import { ScriptSourceHelper } from './types';
 import { findAllNodes, findNode } from './utilily-functions';
 import { TemplateExpressionResolver } from './template-expression-resolver';
 import { createFileNameFilter } from './file-name-filter';
+import type { ScriptSourceHelper } from './types';
 
 export function createScriptSourceHelper(
   {

@@ -1,5 +1,5 @@
 import ts from 'typescript/lib/tsserverlibrary';
-import { TsGraphQLPluginConfigOptions } from '../types';
+import type { TsGraphQLPluginConfigOptions } from '../types';
 import { GraphQLLanguageServiceAdapter } from '../graphql-language-service-adapter';
 import { SchemaManagerFactory, createSchemaManagerHostFromLSPluginInfo } from '../schema-manager';
 import { FragmentRegistry } from '../gql-ast-util';

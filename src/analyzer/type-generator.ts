@@ -1,12 +1,18 @@
-import path from 'path';
+import path from 'node:path';
 import ts from 'typescript';
-import { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
-import { mergeAddons, TypeGenVisitor, TypeGenError, TypeGenAddonFactory, TypeGenVisitorAddonContext } from '../typegen';
+import {
+  mergeAddons,
+  TypeGenVisitor,
+  TypeGenError,
+  type TypeGenAddonFactory,
+  type TypeGenVisitorAddonContext,
+} from '../typegen';
 import { dasherize } from '../string-util';
-import { OutputSource, createOutputSource, type StrictTagCondition } from '../ts-ast-util';
-import { Extractor, ExtractSucceededResult } from './extractor';
+import { createOutputSource, type OutputSource, type StrictTagCondition } from '../ts-ast-util';
+import type { Extractor, ExtractSucceededResult } from './extractor';
 
 export type TypeGeneratorOptions = {
   prjRootPath: string;

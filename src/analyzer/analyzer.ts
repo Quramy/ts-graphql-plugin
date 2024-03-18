@@ -1,6 +1,6 @@
+import path from 'node:path';
 import ts from 'typescript';
-import path from 'path';
-import { ScriptSourceHelper } from '../ts-ast-util/types';
+import type { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
 import {
   createScriptSourceHelper,
@@ -15,7 +15,7 @@ import { SchemaManager, SchemaBuildErrorInfo } from '../schema-manager/schema-ma
 import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '../errors';
 import { location2pos } from '../string-util';
 import { validate } from './validator';
-import { ManifestOutput, TsGraphQLPluginConfig } from './types';
+import type { ManifestOutput, TsGraphQLPluginConfig } from './types';
 import { MarkdownReporter } from './markdown-reporter';
 import { TypeGenerator } from './type-generator';
 import { createFileNameFilter } from '../ts-ast-util/file-name-filter';

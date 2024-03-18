@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { AnalyzerFactory } from './analyzer-factory';
 import { Analyzer } from './analyzer';
 

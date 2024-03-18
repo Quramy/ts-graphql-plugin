@@ -17,7 +17,7 @@ import {
   ResolvedTemplateInfo,
   StrictTagCondition,
 } from '../ts-ast-util';
-import { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
+import type { ManifestOutput, ManifestDocumentEntry, OperationType } from './types';
 import { ErrorWithLocation, ERROR_CODES } from '../errors';
 import {
   detectDuplicatedFragments,

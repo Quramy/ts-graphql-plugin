@@ -1,6 +1,6 @@
-import { SchemaManagerHost } from './types';
+import { join, isAbsolute } from 'node:path';
+import type { SchemaManagerHost } from './types';
 import { RequestSetup, isRequestSetup } from './request-introspection-query';
-import { join, isAbsolute } from 'path';
 import { HttpSchemaManager } from './http-schema-manager';
 
 interface ScriptedHttpSchemaManagerOptions {

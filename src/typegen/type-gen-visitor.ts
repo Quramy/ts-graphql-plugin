@@ -1,12 +1,7 @@
 import ts from 'typescript';
 import {
+  visit,
   GraphQLSchema,
-  DocumentNode,
-  FieldNode,
-  FragmentDefinitionNode,
-  ASTNode,
-  NamedTypeNode,
-  TypeNode,
   GraphQLScalarType,
   GraphQLEnumType,
   GraphQLObjectType,
@@ -19,10 +14,15 @@ import {
   GraphQLInputField,
   GraphQLInputType,
   GraphQLOutputType,
+  type ASTNode,
+  type DocumentNode,
+  type FragmentDefinitionNode,
+  type FieldNode,
+  type NamedTypeNode,
+  type TypeNode,
 } from 'graphql';
-import { visit } from 'graphql/language';
-import { astf, OutputSource } from '../ts-ast-util';
-import { StrictAddon } from './addon/types';
+import { astf, type OutputSource } from '../ts-ast-util';
+import type { StrictAddon } from './addon/types';
 
 class Stack<T> {
   private _array: T[] = [];

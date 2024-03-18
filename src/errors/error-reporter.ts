@@ -1,6 +1,6 @@
-import path from 'path';
-import { TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '.';
+import path from 'node:path';
 import { pos2location, pad, color } from '../string-util';
+import { type TsGqlError, ErrorWithLocation, ErrorWithoutLocation } from '.';
 
 const lineMark = (line: number, width: number) => {
   const strLine = line + 1 + '';

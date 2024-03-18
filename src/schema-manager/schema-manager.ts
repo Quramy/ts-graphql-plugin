@@ -1,6 +1,6 @@
-import { GraphQLSchema } from 'graphql';
+import type { GraphQLSchema } from 'graphql';
 import { ExtensionManager } from './extension-manager';
-import { SchemaManagerHost } from './types';
+import type { SchemaManagerHost } from './types';
 
 export type SchemaBuildErrorInfo = {
   message: string;
