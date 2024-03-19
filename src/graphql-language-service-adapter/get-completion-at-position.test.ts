@@ -1,7 +1,7 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
+import ts from 'typescript';
+import { GraphQLSchema } from 'graphql';
 import { AdapterFixture } from './testing/adapter-fixture';
 import { createSimpleSchema } from './testing/simple-schema';
-import { GraphQLSchema } from 'graphql';
 
 const notFoundCompletionInfo: ts.CompletionInfo = {
   entries: [],
@@ -57,7 +57,7 @@ describe('getCompletionAtPosition', () => {
     const fixture = createFixture('input.ts', createSimpleSchema());
     const completionFn = fixture.adapter.getCompletionAtPosition.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment('fragment FRAGMENT on Query { hello }');
+    fixture.registerFragment('fragments.ts', 'fragment FRAGMENT on Query { hello }');
     fixture.source = 'const a = `query { ...FR';
     expect(completionFn(23, undefined)!.entries).toBeTruthy();
     expect(completionFn(23, undefined)!.entries.length).not.toBe(0);

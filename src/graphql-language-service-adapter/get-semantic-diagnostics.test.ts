@@ -1,8 +1,8 @@
-import * as ts from 'typescript/lib/tsserverlibrary';
-import { AdapterFixture } from './testing/adapter-fixture';
-import { createSimpleSchema } from './testing/simple-schema';
+import ts from 'typescript';
 import { GraphQLSchema } from 'graphql';
 import { mark, Frets } from 'fretted-strings';
+import { AdapterFixture } from './testing/adapter-fixture';
+import { createSimpleSchema } from './testing/simple-schema';
 import { ERROR_CODES } from '../errors';
 
 function craeteFixture(name: string, schema?: GraphQLSchema) {
@@ -151,12 +151,6 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment(`
-      fragment MyFragment on Query {
-        hello
-      }
-    `);
-
     fixture.source = `
       const fragment = \`
         fragment MyFragment on Query {
@@ -172,32 +166,30 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment(
-      `
-      fragment ExternalFragment1 on Query {
-        __typename
-      }
-    `,
-      'fragment1.ts',
-    );
-
-    fixture.addFragment(
-      `
-      fragment ExternalFragment2 on Query {
-        __typename
-      }
-    `,
-      'fragment2.ts',
-    );
-
-    fixture.source = `
-      const fragment = \`
-        fragment MyFragment on Query {
-          hello
-          ...ExternalFragment1
-        }
-      \`;
-    `;
+    fixture
+      .registerFragment(
+        'fragment1.ts',
+        `
+          fragment ExternalFragment1 on Query {
+            __typename
+          }
+        `,
+      )
+      .registerFragment(
+        'fragment2.ts',
+        `
+          fragment ExternalFragment2 on Query {
+            __typename
+          }
+        `,
+      ).source = `
+        const fragment = \`
+          fragment MyFragment on Query {
+            hello
+            ...ExternalFragment1
+          }
+        \`;
+      `;
     const actual = validateFn();
     expect(actual.length).toBe(0);
   });
@@ -206,33 +198,31 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment(
-      `
-        fragment DependentFragment on Query {
-          __typename
-        }
-      `,
-      'fragment1.ts',
-    );
-
-    fixture.addFragment(
-      `
-        fragment NonDependentFragment on Query {
-          __typename
-          notExistingFeild
-        }
-      `,
-      'fragment2.ts',
-    );
-
-    fixture.source = `
-      const fragment = \`
-        fragment MyFragment on Query {
-          hello
-          ...DependentFragment
-        }
-      \`;
-    `;
+    fixture
+      .registerFragment(
+        'fragment1.ts',
+        `
+          fragment DependentFragment on Query {
+            __typename
+          }
+        `,
+      )
+      .registerFragment(
+        'fragment2.ts',
+        `
+          fragment NonDependentFragment on Query {
+            __typename
+            notExistingFeild
+          }
+        `,
+      ).source = `
+        const fragment = \`
+          fragment MyFragment on Query {
+            hello
+            ...DependentFragment
+          }
+        \`;
+      `;
     const actual = validateFn();
     expect(actual.length).toBe(0);
   });
@@ -241,24 +231,22 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment(
+    fixture.registerFragment(
+      'fragment1.ts',
       `
         fragment DependentFragment on Query {
           __typename
           notExistingFeild
         }
       `,
-      'fragment1.ts',
-    );
-
-    fixture.source = `
-      const fragment = \`
-        fragment MyFragment on Query {
-          hello
-          ...DependentFragment
-        }
-      \`;
-    `;
+    ).source = `
+        const fragment = \`
+          fragment MyFragment on Query {
+            hello
+            ...DependentFragment
+          }
+        \`;
+      `;
     const actual = validateFn();
     expect(actual.length).toBe(0);
   });
@@ -319,20 +307,13 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    fixture.addFragment(
-      `
-        fragment MyFragment on Query {
-          __typename
-        }
-      `,
-    );
-    fixture.addFragment(
-      `
-        fragment MyFragment on Query {
-          __typename
-        }
-      `,
+    fixture.registerFragment(
       'fragments.ts',
+      `
+        fragment MyFragment on Query {
+          __typename
+        }
+      `,
     );
 
     const frets: Frets = {};
