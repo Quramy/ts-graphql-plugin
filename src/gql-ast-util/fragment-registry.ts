@@ -313,6 +313,10 @@ export class FragmentRegistry {
     };
   }
 
+  getFragmentDefinitionEntryDetail(name: string) {
+    return this._store.getUniqueDefinitonMap().get(name);
+  }
+
   getDuplicaterdFragmentDefinitions() {
     return new Set(this._store.getDuplicatedDefinitonMap().keys());
   }

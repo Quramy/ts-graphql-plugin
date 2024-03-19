@@ -6,6 +6,8 @@ import type { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 export type GetCompletionAtPosition = ts.LanguageService['getCompletionsAtPosition'];
 export type GetSemanticDiagnostics = ts.LanguageService['getSemanticDiagnostics'];
 export type GetQuickInfoAtPosition = ts.LanguageService['getQuickInfoAtPosition'];
+export type GetDefinitionAndBoundSpan = ts.LanguageService['getDefinitionAndBoundSpan'];
+export type GetDefinitionAtPosition = ts.LanguageService['getDefinitionAtPosition'];
 
 export interface AnalysisContext {
   debug(msg: string): void;
@@ -13,6 +15,9 @@ export interface AnalysisContext {
   getSchema(): GraphQLSchema | null | undefined;
   getSchemaOrSchemaErrors(): [GraphQLSchema, null] | [null, SchemaBuildErrorInfo[]];
   getGlobalFragmentDefinitions(): FragmentDefinitionNode[];
+  getGlobalFragmentDefinitionEntry(
+    name: string,
+  ): { node: FragmentDefinitionNode; fileName: string; position: number } | undefined;
   getExternalFragmentDefinitions(
     documentStr: string,
     fileName: string,
