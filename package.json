@@ -75,7 +75,7 @@
     "ts-jest": "29.1.2",
     "ts-loader": "9.5.1",
     "ts-node": "10.9.2",
-    "typescript": "5.4.2",
+    "typescript": "5.4.3",
     "typescript-eslint-language-service": "5.0.5",
     "vscode-languageserver-types": "3.17.5",
     "webpack": "5.91.0",
