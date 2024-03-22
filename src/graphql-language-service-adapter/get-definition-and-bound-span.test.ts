@@ -65,7 +65,7 @@ describe('getDefinitionAndBoundSpan', () => {
         \`;
       `,
     },
-  ])('should not return nothing for $name .', ({ source }) => {
+  ])('should return no definition info for $name .', ({ source }) => {
     const fixture = createFixture('input.ts');
     const frets: Frets = {};
     fixture.source = mark(source, frets);
