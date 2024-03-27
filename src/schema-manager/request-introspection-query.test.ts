@@ -1,6 +1,6 @@
 import { http, HttpResponse, graphql } from 'msw';
 import { setupServer } from 'msw/node';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, ExecutionResult } from 'graphql';
 import { requestIntrospectionQuery } from './request-introspection-query';
 import { executeTestingSchema } from './testing/testing-schema-object';
 
@@ -42,7 +42,9 @@ describe(requestIntrospectionQuery, () => {
   describe('when server returns valid introspection result', () => {
     beforeEach(() => {
       server.use(
-        graphql.operation(({ query, variables }) => HttpResponse.json(executeTestingSchema({ query, variables }))),
+        graphql.operation(({ query, variables }) =>
+          HttpResponse.json<ExecutionResult>(executeTestingSchema({ query, variables })),
+        ),
       );
     });
 
