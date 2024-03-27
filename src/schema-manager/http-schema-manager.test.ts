@@ -1,13 +1,13 @@
 import { setTimeout } from 'node:timers/promises';
 import { graphql, http, HttpResponse } from 'msw';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLSchema, ExecutionResult } from 'graphql';
 import { setupServer } from 'msw/node';
 import { HttpSchemaManager } from './http-schema-manager';
 import { createTestingSchemaManagerHost } from './testing/testing-schema-manager-host';
 import { executeTestingSchema } from './testing/testing-schema-object';
 
 const schemaHandler = graphql.operation(({ query, variables }) => {
-  return HttpResponse.json(executeTestingSchema({ query, variables }));
+  return HttpResponse.json<ExecutionResult>(executeTestingSchema({ query, variables }));
 });
 
 describe(HttpSchemaManager, () => {
