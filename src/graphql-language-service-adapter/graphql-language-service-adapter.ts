@@ -9,10 +9,19 @@ import {
 } from '../ts-ast-util';
 import type { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { getFragmentNamesInDocument, detectDuplicatedFragments, type FragmentRegistry } from '../gql-ast-util';
-import type { AnalysisContext, GetCompletionAtPosition, GetSemanticDiagnostics, GetQuickInfoAtPosition } from './types';
+import type {
+  AnalysisContext,
+  GetCompletionAtPosition,
+  GetSemanticDiagnostics,
+  GetQuickInfoAtPosition,
+  GetDefinitionAndBoundSpan,
+  GetDefinitionAtPosition,
+} from './types';
 import { getCompletionAtPosition } from './get-completion-at-position';
 import { getSemanticDiagnostics } from './get-semantic-diagnostics';
 import { getQuickInfoAtPosition } from './get-quick-info-at-position';
+import { getDefinitionAtPosition } from './get-definition-at-position';
+import { getDefinitionAndBoundSpan } from './get-definition-and-bound-span';
 import { LRUCache } from '../cache';
 
 export interface GraphQLLanguageServiceAdapterCreateOptions {
@@ -58,6 +67,14 @@ export class GraphQLLanguageServiceAdapter {
     return getQuickInfoAtPosition(this._analysisContext, delegate, ...args);
   }
 
+  getDefinitionAndBoundSpan(delegate: GetDefinitionAndBoundSpan, ...args: Parameters<GetDefinitionAndBoundSpan>) {
+    return getDefinitionAndBoundSpan(this._analysisContext, delegate, ...args);
+  }
+
+  getDefinitionAtPosition(delegate: GetDefinitionAtPosition, ...args: Parameters<GetDefinitionAtPosition>) {
+    return getDefinitionAtPosition(this._analysisContext, delegate, ...args);
+  }
+
   updateSchema(errors: SchemaBuildErrorInfo[] | null, schema: GraphQLSchema | null) {
     if (errors) {
       this._schemaErrors = errors;
@@ -82,6 +99,20 @@ export class GraphQLLanguageServiceAdapter {
       },
       getGraphQLDocumentNode: text => this._parse(text),
       getGlobalFragmentDefinitions: () => this._fragmentRegisry.getFragmentDefinitions(),
+      getGlobalFragmentDefinitionEntry: (name: string) => {
+        const detail = this._fragmentRegisry.getFragmentDefinitionEntryDetail(name);
+        if (!detail) return undefined;
+        const {
+          node,
+          fileName,
+          extra: { sourcePosition },
+        } = detail;
+        return {
+          fileName,
+          node,
+          position: sourcePosition,
+        };
+      },
       getExternalFragmentDefinitions: (documentStr, fileName, sourcePosition) =>
         this._fragmentRegisry.getExternalFragments(documentStr, fileName, sourcePosition),
       getDuplicaterdFragmentDefinitions: () => this._fragmentRegisry.getDuplicaterdFragmentDefinitions(),

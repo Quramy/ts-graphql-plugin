@@ -14,6 +14,7 @@ This plugin has the following features:
 - As TypeScript Language Service extension:
   - Completion suggestion
   - Get GraphQL diagnostics
+  - Go to fragment definition
   - Display GraphQL quick info within tooltip
 - As CLI
   - Generate ts type files from your GraphQL operations in your TypeScript sources
@@ -381,6 +382,8 @@ const appQuery = graphql(`
 ```
 
 In the above example, note that `${postFragment}` is not in the `appQuery` template string literal.
+
+If this option is set `true`, you can go to definition of the fragment from the location where the fragment is used as spread reference.
 
 > [!IMPORTANT]
 > This option does not depend on whether the query and fragment are combined at runtime.
