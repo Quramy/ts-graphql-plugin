@@ -41,7 +41,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-          const query = hoge\`abc\`;
+          const query = gql\`abc\`;
         `,
           docContent: `
           query {
@@ -57,7 +57,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-          const query = \`abc\`;
+          const query = gql\`abc\`;
         `,
           docContent: `
           query {
@@ -73,7 +73,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-          const query = \`abc\${def}\`;
+          const query = gql\`abc\${def}\`;
         `,
           docContent: `
           query {
@@ -225,7 +225,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-            const fragment = hoge\`abc\`;
+            const fragment = gql\`abc\`;
           `,
           docContent: `
             fragment X on Query {
@@ -242,7 +242,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-          const query = hoge\`abc\`;
+          const query = gql\`abc\`;
         `,
           docContent: `
           query MyQuery {
@@ -258,7 +258,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-            const fragment = hoge\`abc\`;
+            const fragment = gql\`abc\`;
           `,
           docContent: `
             fragment X on Query {
@@ -275,7 +275,7 @@ describe('transformer', () => {
       expect(
         transformAndPrint({
           tsContent: `
-          const query = hoge\`abc\`;
+          const query = gql\`abc\`;
         `,
           docContent: `
           query MyQuery {

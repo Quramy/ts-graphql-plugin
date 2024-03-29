@@ -1,16 +1,13 @@
 {
   "private": true,
   "name": "react-apollo-project",
-  "version": "2.0.0",
   "devDependencies": {
     "@apollo/client": "3.9.9",
     "@types/react": "18.2.73",
     "@types/react-dom": "18.2.23",
-    "apollo": "2.34.0",
     "graphql": "16.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "subscriptions-transport-ws": "0.11.0",
     "typescript": "5.4.3"
   }
 }

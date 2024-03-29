@@ -1,26 +1,27 @@
 # Extracted GraphQL Operations
 ## Queries
 
-### GitHubQuery
+### AppQuery
 
 ```graphql
-fragment RepositoryFragment on Repository {
-  description
-}
-
-query GitHubQuery($first: Int!) {
+query AppQuery($first: Int!) {
   viewer {
     repositories(first: $first) {
       nodes {
         id
-        ...RepositoryFragment
+        ...RepositoryItem_Repository
       }
     }
   }
 }
+
+fragment RepositoryItem_Repository on Repository {
+  name
+  description
+}
 ```
 
-From [src/index.tsx:11:19](src/index.tsx#L11-L23)
+From [src/App.tsx:6:19](src/App.tsx#L6-L17)
     
 ## Mutations
 
@@ -34,19 +35,20 @@ mutation UpdateMyRepository($repositoryId: ID!) {
 }
 ```
 
-From [src/index.tsx:25:22](src/index.tsx#L25-L31)
+From [src/App.tsx:19:22](src/App.tsx#L19-L25)
     
 ## Fragments
 
-### RepositoryFragment
+### RepositoryItem_Repository
 
 ```graphql
-fragment RepositoryFragment on Repository {
+fragment RepositoryItem_Repository on Repository {
+  name
   description
 }
 ```
 
-From [src/index.tsx:5:32](src/index.tsx#L5-L9)
+From [src/RepositoryItem.tsx:4:53](src/RepositoryItem.tsx#L4-L9)
     
 ---
 Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)

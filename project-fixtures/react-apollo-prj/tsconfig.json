@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "strict": true,
     "rootDir": "./src",
     "esModuleInterop": true,
@@ -11,8 +11,8 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
-        "tag": "gql",
         "exclude": ["src/__generated__"],
+        "localSchemaExtensions": ["local-extension.graphql"],
         "typegen": {
           "addons": ["ts-graphql-plugin/addons/typed-query-document"]
         }

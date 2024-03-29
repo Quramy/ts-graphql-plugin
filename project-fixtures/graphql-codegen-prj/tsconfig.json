@@ -10,11 +10,6 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
-        "enabledGlobalFragments": true,
-        "tag": {
-          "name": "graphql",
-          "ignoreFunctionCallExpression": false
-        },
         "exclude": ["codegen.ts", "src/gql"]
       }
     ]

@@ -12,7 +12,7 @@ describe(TypedQueryDocumentAddonFactory, () => {
 
   it('should add export statement using TypedQueryDocumentNode', () => {
     const { outputSourceFiles } = addonTester.generateTypes({
-      files: [{ fileName: 'main.ts', content: 'const query = `query MyQuery { hello }`' }],
+      files: [{ fileName: 'main.ts', content: 'const query = gql`query MyQuery { hello }`' }],
       schemaSDL: sdl,
     });
     expect(outputSourceFiles.map(f => f.content)).toMatchSnapshot();

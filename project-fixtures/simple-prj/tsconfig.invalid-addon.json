@@ -5,7 +5,6 @@
     "plugins": [
       {
         "name": "../../lib",
-        "tag": "gql",
         "schema": "schema.graphql",
         "typegen": {
           "addons": ["invalid-module"]

@@ -84,7 +84,7 @@ export class Analyzer {
       addonFactories: this._pluginConfig.typegen.addonFactories,
       debug: this._debug,
     });
-    if (this._pluginConfig.enabledGlobalFragments === true) {
+    if (this._pluginConfig.enabledGlobalFragments !== false) {
       const tag = parseTagConfig(this._pluginConfig.tag);
       registerDocumentChangeEvent(documentRegistry, {
         onAcquire: (fileName, sourceFile, version) => {
