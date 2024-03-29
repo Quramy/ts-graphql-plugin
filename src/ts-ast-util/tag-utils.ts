@@ -1,12 +1,11 @@
 import ts from 'typescript';
 import type { TagConfig, StrictTagCondition } from './types';
 
-// TODO Change default at v4
 export const DEFAULT_TAG_CONDITION = {
-  names: [],
-  allowNotTaggedTemplate: true,
+  names: ['gql', 'graphql'],
+  allowNotTaggedTemplate: false,
   allowTaggedTemplateExpression: true,
-  allowFunctionCallExpression: false,
+  allowFunctionCallExpression: true,
 } satisfies StrictTagCondition;
 
 export function parseTagConfig(tagConfig: TagConfig | undefined): StrictTagCondition {
@@ -20,8 +19,17 @@ export function parseTagConfig(tagConfig: TagConfig | undefined): StrictTagCondi
     }
   };
 
-  if (!tagConfig) {
+  if (tagConfig == null) {
     return DEFAULT_TAG_CONDITION;
+  }
+
+  if (tagConfig === '') {
+    return {
+      names: [],
+      allowNotTaggedTemplate: true,
+      allowTaggedTemplateExpression: true,
+      allowFunctionCallExpression: false,
+    };
   }
 
   if (typeof tagConfig === 'string' || Array.isArray(tagConfig)) {

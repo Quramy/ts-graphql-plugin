@@ -22,7 +22,7 @@ function create(info: ts.server.PluginCreateInfo): ts.LanguageService {
   const config = info.config as TsGraphQLPluginConfigOptions;
   const tag = parseTagConfig(config.tag);
   const removeDuplicatedFragments = config.removeDuplicatedFragments === false ? false : true;
-  const enabledGlobalFragments = config.enabledGlobalFragments === true;
+  const enabledGlobalFragments = config.enabledGlobalFragments !== false;
   const isExcluded = createFileNameFilter({ specs: config.exclude, projectName: info.project.getProjectName() });
 
   const fragmentRegistry = new FragmentRegistry({ logger });

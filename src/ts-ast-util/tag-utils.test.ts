@@ -8,10 +8,10 @@ describe(parseTagConfig, () => {
     {
       config: undefined,
       expected: {
-        names: [],
-        allowNotTaggedTemplate: true,
+        names: ['gql', 'graphql'],
+        allowNotTaggedTemplate: false,
         allowTaggedTemplateExpression: true,
-        allowFunctionCallExpression: false,
+        allowFunctionCallExpression: true,
       } as StrictTagCondition,
     },
     {
@@ -110,8 +110,8 @@ describe(getTemplateNodeUnder, () => {
   };
 
   it.each([
-    { source: '`query { }`', config: undefined },
-    { source: 'gql`query { }`', config: 'gql' },
+    { source: 'gql`query { }`', config: undefined },
+    { source: '`query { }`', config: '' },
     { source: 'gql`query { }`', config: ['gql', 'graphql'] },
     {
       source: 'graphql(`query { }`)',
@@ -151,8 +151,8 @@ describe(getTagName, () => {
   };
 
   it.each([
-    { source: '`query { }`', expected: '', config: undefined },
-    { source: 'gql`query { }`', expected: 'gql', config: 'gql' },
+    { source: 'gql`query { }`', expected: 'gql', config: undefined },
+    { source: '`query { }`', expected: '', config: '' },
     { source: 'gql`query { }`', expected: 'gql', config: ['gql', 'graphql'] },
     {
       source: 'graphql(`query { }`)',

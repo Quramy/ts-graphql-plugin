@@ -7,9 +7,7 @@
       {
         "name": "../../lib",
         "_name": "ts-graphql-plugin",
-        "tag": "gql",
         "schema": "schema.graphql",
-        "enabledGlobalFragments": true,
         "typegen": {
           "addons": ["./addon"]
         }
