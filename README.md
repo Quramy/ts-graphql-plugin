@@ -39,7 +39,6 @@ This plugin has the following features:
   - [`enabledGlobalFragments`](#enabledglobalfragments)
   - [`localSchemaExtensions`](#localschemaextensions)
   - [`typegen.addons`](#typegenaddons)
-  - [`removeDuplicatedFragments`](#removeduplicatedfragments)
 - [Built-in Type Generator Addons](#built-in-type-generator-addons)
   - [`typed-query-document`](#typed-query-document)
 - [webpack custom transformer](#webpack-custom-transformer)
@@ -453,31 +452,6 @@ The `addons` property accepts an array of strings. And each string should point 
 If you learn how to create your Addon, see [type generator customization guide](docs/CUSTOMIZE_TYPE_GEN.md) for more details.
 
 ts-graphql-plugin also provides built-in Addons. See also the [Built-in Type Generator Addons](#built-in-type-generator-addons) section.
-
-### `removeDuplicatedFragments`
-
-It's optional and default: `true`. By default, this plugin ignores duplicated fragment definitions such as:
-
-```ts
-const fragment = gql`
-  fragment A on Query {
-    id
-  }
-`;
-
-const query = gql`
-  ${fragment}
-  query MyQuery {
-    ...A
-  }
-  ${fragment}
-  # Duplicated fragment interpolation
-`;
-```
-
-This option affects all editor supporting functions, results of CLI commands and results of transformation.
-
-If you set this option `false`, this plugin passes through query document without removing duplication.
 
 ## Built-in Type Generator Addons
 
