@@ -7,6 +7,9 @@
     "graphql",
     "language service"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "main": "lib/index.js",
   "bin": {
     "tsgql": "lib/cli/cli.js",
