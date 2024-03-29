@@ -354,7 +354,7 @@ It's useful if other code generator copies your GraphQL Template Strings.
 
 ### `enabledGlobalFragments`
 
-It's optional and the default value is `false`. If enabled, the plugin automatically searches for and merges the dependent fragments for the target GraphQL operation in the TypeScript project.
+It's optional and the default value is `true`. If enabled, the plugin automatically searches for and merges the dependent fragments for the target GraphQL operation in the TypeScript project.
 
 ```tsx
 /* Post.tsx */
