@@ -3,7 +3,7 @@ name: publish
 on:
   push:
     tags:
-      - '*'
+      - v*
 
 jobs:
   publish:
@@ -15,19 +15,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+
+      - id: dist-tag
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            return /^refs\/tags\/v\d+\.\d+\.\d+$/.test(context.ref) ? "latest" : "next"
+
       - name: npm publish
         run: |
           echo "//registry.npmjs.org/:_authToken=${NPM_AUTH_TOKEN}" > ~/.npmrc
           npm whoami
           npm ci
           npm run build
-          npm publish
-        if: contains(github.ref, 'tags/v')
+          npm publish --tag ${{ steps.dist-tag.outputs.result }}
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
           CI: true
