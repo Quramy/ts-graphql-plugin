@@ -9,7 +9,7 @@ const query = gql`
       repositories(first: $first) {
         nodes {
           id
-          ...RepositoryItem_Repository
+          ...RepositoryItem_Repository @nonreactive
         }
       }
     }

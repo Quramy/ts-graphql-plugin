@@ -12,6 +12,7 @@
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
         "exclude": ["src/__generated__"],
+        "localSchemaExtensions": ["local-extension.graphql"],
         "typegen": {
           "addons": ["ts-graphql-plugin/addons/typed-query-document"]
         }
