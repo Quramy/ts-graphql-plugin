@@ -10,10 +10,6 @@
       {
         "name": "ts-graphql-plugin",
         "schema": "schema.graphql",
-        "tag": {
-          "name": "graphql",
-          "ignoreFunctionCallExpression": false
-        },
         "exclude": ["codegen.ts", "src/gql"]
       }
     ]

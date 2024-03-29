@@ -54,10 +54,6 @@ export function getTransformer({
         templateNode = node.template;
       } else if (ts.isCallExpression(node) && !!getTemplateNodeUnder(node, tag)) {
         templateNode = node.arguments[0] as ts.TemplateLiteral;
-      } else if (tag.allowNotTaggedTemplate && ts.isNoSubstitutionTemplateLiteral(node)) {
-        templateNode = node;
-      } else if (tag.allowNotTaggedTemplate && ts.isTemplateExpression(node)) {
-        templateNode = node;
       }
 
       if (!templateNode) return ts.visitEachChild(node, visit, ctx);

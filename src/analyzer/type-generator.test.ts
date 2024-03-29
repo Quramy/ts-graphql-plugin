@@ -31,7 +31,7 @@ describe(TypeGenerator, () => {
         files: [
           {
             fileName: 'main.ts',
-            content: 'export query = `query MyQuery { hello }`;',
+            content: 'export query = gql`query MyQuery { hello }`;',
           },
         ],
       });

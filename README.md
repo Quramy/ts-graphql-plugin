@@ -48,7 +48,6 @@ This plugin has the following features:
   - [Transformer options](#transformer-options)
     - [`removeFragmentDefinitions` optional](#removefragmentdefinitions-optional)
     - [`documentTransformers` optional](#documenttransformers-optional)
-- [Template strings](#template-strings)
 - [Available editors](#available-editors)
   - [VSCode](#vscode)
 - [Contributing](#contributing)
@@ -74,8 +73,7 @@ And configure `plugins` section in your tsconfig.json, for example:
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "schema": "path-or-url-to-your-schema.graphql",
-        "tag": "gql"
+        "schema": "path-or-url-to-your-schema.graphql"
       }
     ]
   }
@@ -123,7 +121,6 @@ Pass plugin options to your tsconfig.json to configure this plugin.
         "name": "ts-graphql-plugin",
         /* plugin options */
         "schema": "path-or-url-to-your-schema.graphql",
-        "tag": "gql",
         "exclude": ["__generated__"],
         ...
       }
@@ -257,9 +254,7 @@ type SchemaConfig =
 
 ### `tag`
 
-It's optional. When it's set, this plugin works only if the target template string is tagged by a function whose name is equal to this parameter.
-
-If not set, this plugin treats all template strings in your .ts as GraphQL query.
+It's optional and the default value is `["gql", "graphql"]`. This value is used to find template literal strings of GraphQL document in your sources.
 
 For example:
 
@@ -271,7 +266,7 @@ For example:
     "plugins": [
       {
         "name": "ts-graphql-plugin",
-        "tag": "gql"
+        "tag": "myGraphqlTag"
       }
     ]
   }
@@ -281,53 +276,21 @@ For example:
 ```ts
 /* yourApp.ts */
 
-import { gql } from '@apollo/client';
-
 // Recognized as GraphQL document
-const str1 = gql`
+const query1 = myGraphqlTag`
   query AppQuery {
     __typename
   }
 `;
-
-// Not recognized as GraphQL document
-const str2 = `<div></div>`;
-const str3 = otherTagFn`foooo`;
-```
-
-Sometimes you want to consider the arguments of a particular function calling as a GraphQL document.
-For example, [graphql-codegen](https://the-guild.dev/graphql/codegen) and [octkit](https://github.com/octokit/graphql.js) use the `graphql` function as follows:
-
-```ts
-import { graphql } from './gql';
-
-const myQuery = graphql(`
-  query MyQuery {
-    viewer {
-      name
-    }
+const query2 = myGraphqlTag(`
+  query AppQuery {
+    __typename
   }
 `);
-```
 
-Configure as the following:
-
-```js
-/* tsconfig.json */
-
-{
-  "compilerOptions": {
-    "plugins": [
-      {
-        "name": "ts-graphql-plugin",
-        "tag": {
-          "name": "graphql",
-          "ignoreFunctionCallExpression": false
-        }
-      }
-    ]
-  }
-}
+// Not recognized as GraphQL document
+const str3 = `<div></div>`;
+const str4 = otherTagFn`foooo`;
 ```
 
 The `tag` option accepts the following type:
@@ -648,56 +611,6 @@ const query = gql`
 #### `documentTransformers` optional
 
 Default: `[]`. You can set an array of GraphQL AST document visitor functions. The visitor functions should be compatible to https://graphql.org/graphql-js/language/#visit .
-
-## Template strings
-
-This tool analyzes template string literals in .ts files such as:
-
-```ts
-const query = gql`
-  query MyQuery = {
-    viewer {
-      id
-      name
-    }
-  }
-`;
-```
-
-> [!IMPORTANT]
-> This tool cannot interpret queries containing too complex TypeScript expressions because it statically explores GraphQL queries.
-
-```ts
-/* It's ok */
-
-const fragment = gql`
-  fragment MyFragment on User {
-    id
-    name
-  }
-`;
-
-const query = gql`
-  ${fragment}
-  query MyQuery {
-    viewer {
-      ...MyFragment
-    }
-  }
-`;
-```
-
-```ts
-/* Bad */
-
-const query = gql`
-  query MyQuery {
-    ${someComplexFunction()}
-  }
-`;
-```
-
-Keep your queries static (see also https://blog.apollographql.com/5-benefits-of-static-graphql-queries-b7fa90b0b69a ).
 
 ## Available editors
 
