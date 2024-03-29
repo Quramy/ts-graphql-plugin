@@ -274,23 +274,23 @@ For example:
 ```
 
 ```ts
-/* yourApp.ts */
-
 // Recognized as GraphQL document
 const query1 = myGraphqlTag`
   query AppQuery {
     __typename
   }
 `;
+// Function call expression is also available.
 const query2 = myGraphqlTag(`
   query AppQuery {
     __typename
   }
 `);
 
-// Not recognized as GraphQL document
+// The followings are not recognized as GraphQL document:
 const str3 = `<div></div>`;
 const str4 = otherTagFn`foooo`;
+const otherValue = otherFn(`foooo`);
 ```
 
 The `tag` option accepts the following type:
@@ -305,6 +305,9 @@ type TagConfig =
       ignoreFunctionCallExpression?: boolean;
     };
 ```
+
+> [!NOTE]
+> The `ignoreFunctionCallExpression` key exists only for backward compatibility with old versions. You don't need to explicitly use this.
 
 ### `exclude`
 
