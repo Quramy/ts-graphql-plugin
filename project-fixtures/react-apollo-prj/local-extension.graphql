@@ -1,0 +1,1 @@
+directive @nonreactive on FRAGMENT_SPREAD

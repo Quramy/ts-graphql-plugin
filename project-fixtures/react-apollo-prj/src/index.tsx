@@ -1,45 +1,22 @@
-import React from 'react';
-import { gql, useQuery } from '@apollo/client';
-import type { GitHubQueryDocument } from './__generated__/git-hub-query';
+import { createRoot } from 'react-dom/client';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { createFragmentRegistry } from '@apollo/client/cache';
 
-const repositoryFragment = gql`
-  fragment RepositoryFragment on Repository {
-    description
-  }
-`;
+import { App } from './App';
 
-const query = gql`
-  ${repositoryFragment}
-  query GitHubQuery($first: Int!) {
-    viewer {
-      repositories(first: $first) {
-        nodes {
-          id
-          ...RepositoryFragment
-        }
-      }
-    }
-  }
-`;
+import { repositoryItemRepositoryDocument } from './RepositoryItem';
 
-const mutation = gql`
-  mutation UpdateMyRepository($repositoryId: ID!) {
-    updateRepository(input: { repositoryId: $repositoryId }) {
-      clientMutationId
-    }
-  }
-`;
-
-export default () => {
-  const { data } = useQuery(query as GitHubQueryDocument, { variables: { first: 100 } });
-  if (!data) return null;
+function Page() {
+  const client = new ApolloClient({
+    cache: new InMemoryCache({
+      fragments: createFragmentRegistry(repositoryItemRepositoryDocument),
+    }),
+  });
   return (
-    <ul>
-      {data.viewer?.repositories?.nodes?.map(repo => (
-        <li key={repo?.id}>
-          <span>{repo?.description}</span>
-        </li>
-      ))}
-    </ul>
+    <ApolloProvider client={client}>
+      <App />
+    </ApolloProvider>
   );
-};
+}
+
+createRoot(document.getElementById('root')!).render(<Page />);
