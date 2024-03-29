@@ -7,7 +7,7 @@
 
 Provides functions to help TypeScript GraphQL client development including auto completion, query validation, type generation and so on.
 
-![capture](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/main/capture.gif)
+![VSCode screenshot](https://raw.githubusercontent.com/Quramy/ts-graphql-plugin/main/capture_v4.gif)
 
 This plugin has the following features:
 
