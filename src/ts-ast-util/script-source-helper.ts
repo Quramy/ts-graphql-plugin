@@ -16,21 +16,29 @@ export function createScriptSourceHelper(
   },
   {
     exclude,
+    reuseProgram,
   }: {
     exclude: string[] | undefined;
+    reuseProgram?: boolean;
   },
 ): ScriptSourceHelper {
+  let cachedProgram: ts.Program | undefined;
+
   const getSourceFile = (fileName: string) => {
-    const program = languageService.getProgram();
+    // Note:
+    // Reuse program in batching procedure(e.g. CLI) because getProgram() is "heavy" function.
+    const program = cachedProgram ?? languageService.getProgram();
     if (!program) {
       throw new Error('language service host does not have program!');
     }
+    if (reuseProgram) cachedProgram = program;
     const s = program.getSourceFile(fileName);
     if (!s) {
       throw new Error('No source file: ' + fileName);
     }
     return s;
   };
+
   const isExcluded = createFileNameFilter({ specs: exclude, projectName: project.getProjectName() });
   const getNode = (fileName: string, position: number) => {
     return findNode(getSourceFile(fileName), position);
