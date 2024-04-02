@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type ts from '../tsmodule';
 import { getAutocompleteSuggestions, type CompletionItem } from 'graphql-language-service';
 import type { AnalysisContext, GetCompletionAtPosition } from './types';
 import { SimplePosition } from './simple-position';

@@ -1,5 +1,6 @@
 import path from 'node:path';
-import ts from 'typescript';
+
+import ts from '../tsmodule';
 
 import type { OutputSource } from './types';
 import { astf } from './ast-factory-alias';

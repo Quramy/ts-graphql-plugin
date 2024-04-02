@@ -17,6 +17,7 @@ rules:
   no-duplicate-imports: error
   no-var: error
   no-unsafe-finally: error
+  no-restricted-imports: off
   prefer-const: error
   prefer-rest-params: error
   no-trailing-spaces:
@@ -24,3 +25,13 @@ rules:
     - ignoreComments: true
   '@typescript-eslint/no-use-before-define': error
   '@typescript-eslint/no-namespace': error
+overrides:
+  - files: '**/*.ts'
+    excludedFiles: ['*.test.ts', '**/testing/**']
+    rules:
+      '@typescript-eslint/no-restricted-imports':
+        - error
+        - paths:
+            - name: typescript
+              message: "Use 'tsmodule' instead"
+              allowTypeImports: true

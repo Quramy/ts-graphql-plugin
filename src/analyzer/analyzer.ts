@@ -1,5 +1,7 @@
 import path from 'node:path';
-import ts from 'typescript';
+
+import ts from '../tsmodule';
+
 import type { ScriptSourceHelper } from '../ts-ast-util/types';
 import { Extractor } from './extractor';
 import {

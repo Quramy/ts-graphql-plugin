@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ts from 'typescript';
+import ts from '../tsmodule';
 import type { SchemaManagerHost, SchemaConfig } from './types';
 import type { TsGraphQLPluginConfigOptions } from '../types';
 

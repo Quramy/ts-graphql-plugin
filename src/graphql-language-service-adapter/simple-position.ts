@@ -1,4 +1,4 @@
-import type { LineAndCharacter } from 'typescript';
+import type { LineAndCharacter } from '../tsmodule';
 import type { IPosition } from 'graphql-language-service';
 
 export class SimplePosition implements IPosition {

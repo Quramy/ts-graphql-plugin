@@ -1,6 +1,7 @@
 import path from 'node:path';
-import type ts from 'typescript';
 import { buildSchema, buildClientSchema } from 'graphql';
+
+import type ts from '../tsmodule';
 
 import { SchemaManager } from './schema-manager';
 import type { SchemaManagerHost } from './types';

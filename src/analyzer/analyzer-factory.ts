@@ -1,5 +1,5 @@
 import path from 'node:path';
-import ts from 'typescript';
+import ts from '../tsmodule';
 import { Analyzer } from './analyzer';
 import type { TsGraphQLPluginConfigOptions } from '../types';
 import { ScriptHost } from '../ts-ast-util';

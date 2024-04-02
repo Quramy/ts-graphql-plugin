@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 
 export class ScriptHost implements ts.LanguageServiceHost {
   private readonly _fileMap = new Map<string, string | undefined>();

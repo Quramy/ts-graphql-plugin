@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 import { findAllNodes, findNode } from './utilily-functions';
 import { TemplateExpressionResolver } from './template-expression-resolver';
 import { createFileNameFilter } from './file-name-filter';

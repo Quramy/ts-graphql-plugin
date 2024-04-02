@@ -1,5 +1,5 @@
-import ts from 'typescript';
 import { print, type DocumentNode } from 'graphql';
+import ts from '../tsmodule';
 import { astf, getTemplateNodeUnder, removeAliasFromImportDeclaration, type StrictTagCondition } from '../ts-ast-util';
 
 export type DocumentTransformer = (documentNode: DocumentNode) => DocumentNode;

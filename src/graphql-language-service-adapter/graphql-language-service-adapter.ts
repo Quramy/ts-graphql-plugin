@@ -1,5 +1,6 @@
-import ts from 'typescript';
 import { parse, type GraphQLSchema, type DocumentNode } from 'graphql';
+
+import ts from '../tsmodule';
 import {
   getTemplateNodeUnder,
   isTaggedTemplateNode,
