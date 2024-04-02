@@ -1,4 +1,4 @@
-import { mark, type Frets } from 'fretted-strings';
+import extract from 'fretted-strings';
 import { AdapterFixture } from './testing/adapter-fixture';
 
 function createFixture(name: string) {
@@ -10,8 +10,7 @@ describe('getDefinitionAtPosition', () => {
 
   it('should not return definition info when the cursor does not point fragment spread', () => {
     const fixture = createFixture('input.ts');
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
         const query = \`
           query MyQuery {
@@ -25,16 +24,15 @@ describe('getDefinitionAtPosition', () => {
           }
         \`;
       `,
-      frets,
     );
+    fixture.source = content;
     const actual = fixture.adapter.getDefinitionAtPosition(delegateFn, 'input.ts', frets.cur.pos);
     expect(actual?.length).toBe(0);
   });
 
   it('should return definition of fragment spread under cursor', () => {
     const fixture = createFixture('input.ts');
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
         const query = \`
           query MyQuery {
@@ -48,8 +46,8 @@ describe('getDefinitionAtPosition', () => {
           }
         \`;
       `,
-      frets,
     );
+    fixture.source = content;
     const actual = fixture.adapter.getDefinitionAtPosition(delegateFn, 'input.ts', frets.cur.pos);
     expect(actual?.length).toBe(1);
   });

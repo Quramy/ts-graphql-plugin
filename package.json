@@ -61,7 +61,7 @@
     "c8": "9.1.0",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "fretted-strings": "1.0.1",
+    "fretted-strings": "2.0.0",
     "glob": "10.3.12",
     "graphql": "16.8.1",
     "graphql-config": "5.0.3",
