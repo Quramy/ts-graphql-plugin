@@ -27,7 +27,7 @@
     "prepare": "husky install",
     "clean": "rimraf -g lib \"e2e/*.log\" \"*.tsbuildinfo\"",
     "build": "run-s build:ts build:doc",
-    "build:ts": "tsc -p .",
+    "build:ts": "tsc -p . && cp src/tsmodule.js lib && cp src/tsmodule.d.ts lib",
     "build:doc": "npm run doc:toc",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "jest": "jest",
