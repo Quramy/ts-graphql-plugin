@@ -1,5 +1,5 @@
-import ts from 'typescript';
 import { visit, type FragmentSpreadNode } from 'graphql';
+import ts from '../tsmodule';
 import { getSanitizedTemplateText } from '../ts-ast-util';
 import type { AnalysisContext, GetDefinitionAndBoundSpan } from './types';
 

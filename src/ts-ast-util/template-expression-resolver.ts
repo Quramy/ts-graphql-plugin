@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 import { location2pos, pos2location } from '../string-util';
 import { findNode } from './utilily-functions';
 import type { ComputePosition, ResolvedTemplateInfo, ResolveResult, ResolveErrorInfo } from './types';

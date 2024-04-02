@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 import type { TagConfig, StrictTagCondition } from './types';
 
 export const DEFAULT_TAG_CONDITION = {

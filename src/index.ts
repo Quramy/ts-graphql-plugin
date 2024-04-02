@@ -1,6 +1,6 @@
 import { pluginModuleFactory } from './language-service-plugin';
 
-export {
+export type {
   TypeGenAddonFactory,
   TypeGenVisitorAddon,
   TypeGenVisitorAddonContext,

@@ -1,6 +1,7 @@
 import path from 'node:path';
-import ts from 'typescript';
 import type { GraphQLSchema } from 'graphql';
+
+import ts from '../tsmodule';
 
 import { TsGqlError, ErrorWithLocation } from '../errors';
 import {

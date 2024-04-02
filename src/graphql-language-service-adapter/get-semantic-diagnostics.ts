@@ -1,6 +1,8 @@
-import ts from 'typescript';
 import type { FragmentDefinitionNode } from 'graphql';
 import { getDiagnostics, type Diagnostic } from 'graphql-language-service';
+
+import ts from '../tsmodule';
+
 import { SchemaBuildErrorInfo } from '../schema-manager/schema-manager';
 import { ERROR_CODES } from '../errors';
 import type { AnalysisContext, GetSemanticDiagnostics } from './types';

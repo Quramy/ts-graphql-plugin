@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type ts from '../tsmodule';
 import { Kind, type DocumentNode, type FragmentDefinitionNode } from 'graphql';
 import { getFragmentDependenciesForAST } from 'graphql-language-service';
 import { AnalyzerFactory, type Analyzer, type ExtractFileResult } from '../analyzer';

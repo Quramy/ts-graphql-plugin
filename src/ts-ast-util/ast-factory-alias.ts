@@ -1,3 +1,3 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 
 export const astf = ts.factory;

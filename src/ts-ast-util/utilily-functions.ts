@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 import { astf } from './ast-factory-alias';
 
 function mergeNamedBinding(base: ts.NamedImportBindings | undefined, head: ts.NamedImportBindings | undefined) {

@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import type ts from 'typescript';
 import {
   visit,
   GraphQLSchema,
@@ -21,6 +21,7 @@ import {
   type NamedTypeNode,
   type TypeNode,
 } from 'graphql';
+import tsmod from '../tsmodule';
 import { astf, type OutputSource } from '../ts-ast-util';
 import type { StrictAddon } from './addon/types';
 
@@ -208,7 +209,7 @@ export class TypeGenVisitor {
               astf.createPropertySignature(
                 undefined,
                 name,
-                optional || lastStructureKind === 'null' ? astf.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+                optional || lastStructureKind === 'null' ? astf.createToken(tsmod.SyntaxKind.QuestionToken) : undefined,
                 typeNode,
               ),
             );
@@ -387,7 +388,7 @@ export class TypeGenVisitor {
         kind === 'null'
           ? astf.createUnionTypeNode([
               node,
-              astf.createKeywordTypeNode(ts.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
+              astf.createKeywordTypeNode(tsmod.SyntaxKind.NullKeyword as ts.KeywordTypeSyntaxKind),
             ])
           : kind === 'list'
             ? astf.createArrayTypeNode(node)
@@ -424,7 +425,7 @@ export class TypeGenVisitor {
         undefined,
         '__typename',
         undefined,
-        astf.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+        astf.createKeywordTypeNode(tsmod.SyntaxKind.StringKeyword),
       );
     }
   }
@@ -434,20 +435,20 @@ export class TypeGenVisitor {
     if (typeNode) return typeNode;
     switch (fieldType.name) {
       case 'Boolean':
-        return astf.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword);
+        return astf.createKeywordTypeNode(tsmod.SyntaxKind.BooleanKeyword);
       case 'String':
       case 'ID':
-        return astf.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
+        return astf.createKeywordTypeNode(tsmod.SyntaxKind.StringKeyword);
       case 'Int':
       case 'Float':
-        return astf.createKeywordTypeNode(ts.SyntaxKind.NumberKeyword);
+        return astf.createKeywordTypeNode(tsmod.SyntaxKind.NumberKeyword);
       default:
-        return astf.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword);
+        return astf.createKeywordTypeNode(tsmod.SyntaxKind.AnyKeyword);
     }
   }
 
   private _createTsTypeDeclaration(name: string, fieldTypeElement: FieldTypeElement, shouldExport = true) {
-    const modifiers = shouldExport ? astf.createModifiersFromModifierFlags(ts.ModifierFlags.Export) : undefined;
+    const modifiers = shouldExport ? astf.createModifiersFromModifierFlags(tsmod.ModifierFlags.Export) : undefined;
     return astf.createTypeAliasDeclaration(modifiers, name, undefined, this._createTsFieldTypeNode(fieldTypeElement));
   }
 

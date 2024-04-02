@@ -1,4 +1,4 @@
-import type ts from 'typescript';
+import type ts from '../tsmodule';
 
 type DocumentChangeEventListener = {
   onAcquire: (fileName: string, sourceFile: ts.SourceFile, version: string) => void;

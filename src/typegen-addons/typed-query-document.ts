@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import ts from '../tsmodule';
 import type { TypeGenAddonFactory } from '../typegen';
 import { astf } from '../ts-ast-util';
 

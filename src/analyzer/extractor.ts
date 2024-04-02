@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import type ts from '../tsmodule';
 import {
   parse,
   visit,
