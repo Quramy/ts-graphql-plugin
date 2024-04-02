@@ -1,6 +1,6 @@
 import ts from 'typescript';
 import { GraphQLSchema } from 'graphql';
-import { mark, Frets } from 'fretted-strings';
+import extract from 'fretted-strings';
 import { AdapterFixture } from './testing/adapter-fixture';
 import { createSimpleSchema } from './testing/simple-schema';
 import { ERROR_CODES } from '../errors';
@@ -81,15 +81,14 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const frets: Frets = {};
-
-    fixture.source = mark(
+    const [content, frets] = extract(
       // prettier-ignore
       '    const query = `query {`;    ' + '\n' +
       '%%%                      ^   %%%' + '\n' +
       '%%%                      a1  %%%' + '\n',
-      frets,
     );
+
+    fixture.source = content;
     const actual = validateFn();
     expect(actual[0].start).toBe(frets.a1.pos);
   });
@@ -255,8 +254,7 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
       const query = \`
         \${someFn()}
@@ -267,8 +265,8 @@ describe('getSemanticDiagnostics', () => {
         }
       \`;
     `,
-      frets,
     );
+    fixture.source = content;
     const actual = validateFn();
     expect(actual[0].code).toBe(ERROR_CODES.templateIsTooComplex.code);
     expect(actual[0].start).toBe(frets.a1.pos);
@@ -278,8 +276,7 @@ describe('getSemanticDiagnostics', () => {
     const fixture = craeteFixture('input.ts', createSimpleSchema());
     const validateFn = fixture.adapter.getSemanticDiagnostics.bind(fixture.adapter, delegateFn, 'input.ts');
 
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
       const fragment = \`
         fragment MyFragment on Query {
@@ -295,8 +292,8 @@ describe('getSemanticDiagnostics', () => {
         }
       \`;
     `,
-      frets,
     );
+    fixture.source = content;
     const actual = validateFn();
     expect(actual.length).toBe(2);
     expect(actual[1].code).toBe(ERROR_CODES.errorInOtherInterpolation.code);
@@ -316,8 +313,7 @@ describe('getSemanticDiagnostics', () => {
       `,
     );
 
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
         const fragment = \`
           fragment MyFragment on Query {
@@ -327,8 +323,8 @@ describe('getSemanticDiagnostics', () => {
           }
         \`;
       `,
-      frets,
     );
+    fixture.source = content;
     const actual = validateFn();
     expect(actual.length).toBe(1);
     expect(actual[0].code).toBe(ERROR_CODES.duplicatedFragmentDefinitions.code);

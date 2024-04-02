@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import { mark, type Frets } from 'fretted-strings';
+import extract from 'fretted-strings';
 import { AdapterFixture } from './testing/adapter-fixture';
 
 function createFixture(name: string) {
@@ -67,16 +67,15 @@ describe('getDefinitionAndBoundSpan', () => {
     },
   ])('should return no definition info for $name .', ({ source }) => {
     const fixture = createFixture('input.ts');
-    const frets: Frets = {};
-    fixture.source = mark(source, frets);
+    const [content, frets] = extract(source);
+    fixture.source = content;
     fixture.adapter.getDefinitionAndBoundSpan(delegateFn, 'input.ts', frets.s1.pos);
     expect(delegateFn).toHaveBeenCalledTimes(1);
   });
 
   it('should return definition info when cursor is on fragment spread', () => {
     const fixture = createFixture('input.ts');
-    const frets: Frets = {};
-    fixture.source = mark(
+    const [content, frets] = extract(
       `
         const query = \`
           query MyQuery {
@@ -92,8 +91,8 @@ describe('getDefinitionAndBoundSpan', () => {
           }
         \`;
       `,
-      frets,
     );
+    fixture.source = content;
     const actual = fixture.adapter.getDefinitionAndBoundSpan(delegateFn, 'input.ts', frets.s1.pos);
     expect(actual).toMatchObject({
       textSpan: {
@@ -114,15 +113,7 @@ describe('getDefinitionAndBoundSpan', () => {
 
   it('should return definition to other file', () => {
     const fixture = createFixture('input.ts');
-    const frets: Frets = {};
-    fixture.registerFragment(
-      'fragments.ts',
-      `
-        fragment MyFragment on Query {
-          __typename
-        }
-      `,
-    ).source = mark(
+    const [content, frets] = extract(
       `
         const query = \`
           query MyQuery {
@@ -132,8 +123,15 @@ describe('getDefinitionAndBoundSpan', () => {
           }
         \`;
       `,
-      frets,
     );
+    fixture.registerFragment(
+      'fragments.ts',
+      `
+        fragment MyFragment on Query {
+          __typename
+        }
+      `,
+    ).source = content;
     const actual = fixture.adapter.getDefinitionAndBoundSpan(delegateFn, 'input.ts', frets.s1.pos);
     expect(actual?.definitions?.[0].fileName).toBe('fragments.ts');
   });

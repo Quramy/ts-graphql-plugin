@@ -1,6 +1,6 @@
 const assert = require('assert');
 const path = require('path');
-const { mark } = require('fretted-strings');
+const { extract } = require('fretted-strings');
 
 function findResponse(responses, commandName) {
   return responses.find(response => response.command === commandName);
@@ -8,14 +8,12 @@ function findResponse(responses, commandName) {
 
 async function run(server) {
   const file = path.resolve(__dirname, '../../project-fixtures/simple-prj/main.ts');
-  const frets = {};
-  const fileContent = mark(
+  const [fileContent, frets] = extract(
     `
 const q = gql\`query { 
 %%%          \\       ^ %%%
 %%%          \\       p %%%
   `,
-    frets,
   );
   server.send({ command: 'open', arguments: { file, fileContent, scriptKindName: 'TS' } });
   await server.waitEvent('projectLoadingFinish');

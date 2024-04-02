@@ -1,6 +1,6 @@
 const assert = require('assert');
 const path = require('path');
-const { mark } = require('fretted-strings');
+const { extract } = require('fretted-strings');
 
 function findResponse(responses, eventName) {
   return responses.find(response => response.event === eventName);
@@ -14,15 +14,13 @@ const f = gql\`fragment MyFragment on Query { hello }\`;
   `;
 
   const fileMain = path.resolve(__dirname, '../../project-fixtures/simple-prj/main.ts');
-  const frets = {};
-  const fileMainContent = mark(
+  const [fileMainContent, frets] = extract(
     `
 import gql from 'graphql-tag';
 const q = gql\`query MyQuery { }\`;
 %%%          \\               ^ %%%
 %%%          \\               p %%%
   `,
-    frets,
   );
 
   server.send({

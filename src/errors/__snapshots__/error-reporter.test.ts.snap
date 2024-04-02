@@ -1,37 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ErrorReporter outputError ErrorWithLocation should output location of errors in human readable format 1`] = `
-"main.ts:2:25 - some error
+"main.ts:2:27 - some error
 
 1 
-2           const query = invalidQuery;
-                          ~~~~~~~~~~~~
+2             const query = invalidQuery;
+                            ~~~~~~~~~~~~
 "
 `;
 
 exports[`ErrorReporter outputError ErrorWithLocation should output location of errors in human readable format with 2 lines 1`] = `
-"main.ts:3:19 - some error
+"main.ts:3:21 - some error
 
-2           const query = gql\`;
-3             query MyQuery {
-                    ~~~~~~~~~
-4               name
-  ~~~~~~~~~~~~~~~~~~
-5             }
+2             const query = gql\`;
+3               query MyQuery {
+                      ~~~~~~~~~
+4                 name
+  ~~~~~~~~~~~~~~~~~~~~
+5               }
 "
 `;
 
 exports[`ErrorReporter outputError ErrorWithLocation should output location of errors in human readable format with 3 or more lines 1`] = `
-"main.ts:3:19 - some error
+"main.ts:3:21 - some error
 
-2           const query = gql\`;
-3             query MyQuery {
-                    ~~~~~~~~~
-4               id
-  ~~~~~~~~~~~~~~~~
-5               name
+2             const query = gql\`;
+3               query MyQuery {
+                      ~~~~~~~~~
+4                 id
   ~~~~~~~~~~~~~~~~~~
-6             }
+5                 name
+  ~~~~~~~~~~~~~~~~~~~~
+6               }
 "
 `;
 
