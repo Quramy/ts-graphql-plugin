@@ -71,7 +71,7 @@ export class Analyzer {
           getProjectName: () => projectName,
         },
       },
-      { exclude: this._pluginConfig.exclude },
+      { exclude: this._pluginConfig.exclude, reuseProgram: true },
     );
     this._extractor = new Extractor({
       removeDuplicatedFragments: this._pluginConfig.removeDuplicatedFragments === false ? false : true,
