@@ -312,10 +312,31 @@ type TagConfig =
 
 It's optional. Specify an array of file or directory names when you want to exclude specific TypeScript sources from the plugin's analysis.
 
-It's useful if other code generator copies your GraphQL Template Strings.
+It's useful when other code generator copies your GraphQL document template strings.
+
+```js
+/* tsconfig.json */
+
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "ts-graphql-plugin",
+        "exclude": [
+          "src/gql", // Ignore source files under `gql` directory
+          "**/*.test.tsx" // Ignore test files
+        ]
+      }
+    ]
+  }
+}
+```
+
+> [!TIP]
+> Wildcard characters, `*`, `**`, and `?` are available.
 
 > [!NOTE]
-> Currently, the `exclude` option only accepts file or directory names. Wildcard characters such as `*` and `**` are not allowed.
+> The plugin processes only TypeScript sources in your project by default. You don't need list default excluded files(e.g. `node_modules`).
 
 ### `enabledGlobalFragments`
 
