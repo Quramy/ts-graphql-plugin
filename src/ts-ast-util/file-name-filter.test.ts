@@ -28,6 +28,16 @@ describe(createFileNameFilter, () => {
     expect(match('/a/b/x.ts')).toBeFalsy();
   });
 
+  it('should return macher function for wildcard', () => {
+    const match = createFileNameFilter({
+      specs: ['**/__generated__/**/*'],
+      projectName: '/a/b/tsconfig.json',
+    });
+    expect(match('/a/b/__generated__/x.ts')).toBeTruthy();
+    expect(match('/a/b/c/__generated__/x.ts')).toBeTruthy();
+    expect(match('/a/b/x.ts')).toBeFalsy();
+  });
+
   it('should work for win32', () => {
     const match = createFileNameFilter({
       specs: ['__generated__'],
