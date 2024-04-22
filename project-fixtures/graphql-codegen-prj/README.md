@@ -1,4 +1,4 @@
-# graphql-codege example
+# graphql-codegen example
 
 ## How to run this example
 
