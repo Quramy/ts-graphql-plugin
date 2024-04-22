@@ -19,8 +19,11 @@ export type Scalars = {
 export type Post = {
   __typename?: 'Post';
   author: User;
+  body: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   title: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -30,19 +33,28 @@ export type Query = {
 
 export type User = {
   __typename?: 'User';
+  avatarURL: Scalars['String']['output'];
+  createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
 };
 
-export type Post_PostFragment = { __typename?: 'Post', title: string, author: { __typename?: 'User', name: string } } & { ' $fragmentName'?: 'Post_PostFragment' };
-
-export type AppQueryQueryVariables = Exact<{ [key: string]: never; }>;
+export type PopularPosts_QueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AppQueryQuery = { __typename?: 'Query', popularPosts: Array<(
+export type PopularPosts_QueryQuery = { __typename?: 'Query', popularPosts: Array<(
     { __typename?: 'Post', id: string }
-    & { ' $fragmentRefs'?: { 'Post_PostFragment': Post_PostFragment } }
+    & { ' $fragmentRefs'?: { 'PostSummary_PostFragment': PostSummary_PostFragment } }
   )> };
 
-export const Post_PostFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Post_Post"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<Post_PostFragment, unknown>;
-export const AppQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"AppQuery"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"popularPosts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"Post_Post"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"Post_Post"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]} as unknown as DocumentNode<AppQueryQuery, AppQueryQueryVariables>;
+export type PostSummary_PostFragment = { __typename?: 'Post', id: string, title: string, author: (
+    { __typename?: 'User', name: string }
+    & { ' $fragmentRefs'?: { 'UserAvatar_UserFragment': UserAvatar_UserFragment } }
+  ) } & { ' $fragmentName'?: 'PostSummary_PostFragment' };
+
+export type UserAvatar_UserFragment = { __typename?: 'User', name: string, avatarURL: string } & { ' $fragmentName'?: 'UserAvatar_UserFragment' };
+
+export const UserAvatar_UserFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserAvatar_User"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"avatarURL"}}]}}]} as unknown as DocumentNode<UserAvatar_UserFragment, unknown>;
+export const PostSummary_PostFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostSummary_Post"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserAvatar_User"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserAvatar_User"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"avatarURL"}}]}}]} as unknown as DocumentNode<PostSummary_PostFragment, unknown>;
+export const PopularPosts_QueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"PopularPosts_Query"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"popularPosts"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"PostSummary_Post"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserAvatar_User"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"avatarURL"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PostSummary_Post"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Post"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"author"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserAvatar_User"}}]}}]}}]} as unknown as DocumentNode<PopularPosts_QueryQuery, PopularPosts_QueryQueryVariables>;

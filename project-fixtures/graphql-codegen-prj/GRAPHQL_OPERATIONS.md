@@ -1,40 +1,32 @@
 # Extracted GraphQL Operations
 ## Queries
 
-### AppQuery
+### PopularPosts_Query
 
 ```graphql
-query AppQuery {
+query PopularPosts_Query {
   popularPosts {
     id
-    ...Post_Post
+    ...PostSummary_Post
   }
 }
 
-fragment Post_Post on Post {
+fragment PostSummary_Post on Post {
+  id
   title
   author {
     name
+    ...UserAvatar_User
   }
+}
+
+fragment UserAvatar_User on User {
+  name
+  avatarURL
 }
 ```
 
-From [src/App.tsx:24:24](src/App.tsx#L24-L31)
-    
-## Fragments
-
-### Post_Post
-
-```graphql
-fragment Post_Post on Post {
-  title
-  author {
-    name
-  }
-}
-```
-
-From [src/App.tsx:5:31](src/App.tsx#L5-L12)
+From [src/PopularPosts.tsx:6:24](src/PopularPosts.tsx#L6-L13)
     
 ---
 Extracted by [ts-graphql-plugin](https://github.com/Quramy/ts-graphql-plugin)
