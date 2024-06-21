@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "graphql": "16.8.1",
+    "graphql": "16.9.0",
     "ts-graphql-plugin": "file:../../",
     "typescript": "5.4.5"
   }
