@@ -79,7 +79,7 @@
     "ts-node": "10.9.2",
     "typescript": "5.4.5",
     "typescript-eslint-language-service": "5.0.5",
-    "webpack": "5.91.0",
+    "webpack": "5.92.1",
     "webpack-cli": "5.1.4"
   },
   "peerDependencies": {
