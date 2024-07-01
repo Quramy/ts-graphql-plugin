@@ -12,6 +12,6 @@
   "devDependencies": {
     "graphql": "16.9.0",
     "ts-graphql-plugin": "file:../../",
-    "typescript": "5.5.2"
+    "typescript": "5.5.3"
   }
 }
