@@ -50,7 +50,7 @@
     "url": "https://github.com/Quramy/ts-graphql-plugin.git"
   },
   "dependencies": {
-    "graphql-language-service": "^5.2.0"
+    "graphql-language-service": "^5.2.1"
   },
   "devDependencies": {
     "@types/jest": "29.5.12",
