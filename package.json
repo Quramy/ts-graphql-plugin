@@ -80,7 +80,7 @@
     "typescript": "5.5.4",
     "typescript-eslint-language-service": "5.0.5",
     "webpack": "5.97.1",
-    "webpack-cli": "5.1.4"
+    "webpack-cli": "6.0.1"
   },
   "peerDependencies": {
     "graphql": "^15.0.0 || ^16.0.0",
