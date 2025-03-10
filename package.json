@@ -71,7 +71,7 @@
     "msw": "2.7.3",
     "npm-run-all2": "7.0.2",
     "prettier": "^3.2.5",
-    "pretty-quick": "4.0.0",
+    "pretty-quick": "4.1.1",
     "rimraf": "6.0.1",
     "talt": "2.4.4",
     "ts-jest": "29.2.5",
