@@ -3,7 +3,7 @@
   "name": "react-apollo-project",
   "devDependencies": {
     "@apollo/client": "3.13.4",
-    "@types/react": "19.0.10",
+    "@types/react": "19.0.12",
     "@types/react-dom": "19.0.4",
     "graphql": "16.10.0",
     "react": "19.0.0",
