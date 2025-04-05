@@ -74,7 +74,7 @@
     "pretty-quick": "4.1.1",
     "rimraf": "6.0.1",
     "talt": "2.4.4",
-    "ts-jest": "29.3.0",
+    "ts-jest": "29.3.1",
     "ts-loader": "9.5.1",
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
