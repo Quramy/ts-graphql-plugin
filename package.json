@@ -62,7 +62,7 @@
     "eslint": "8.57.1",
     "eslint-config-prettier": "9.1.0",
     "fretted-strings": "2.0.0",
-    "glob": "11.0.2",
+    "glob": "11.0.3",
     "graphql": "16.11.0",
     "graphql-config": "5.1.5",
     "husky": "9.1.7",
