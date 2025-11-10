@@ -16,6 +16,6 @@
     "prettier": "3.6.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "typescript": "5.5.4"
+    "typescript": "5.9.3"
   }
 }
