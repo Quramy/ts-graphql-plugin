@@ -14,8 +14,8 @@
     "@types/react-dom": "19.2.3",
     "graphql": "16.12.0",
     "prettier": "3.7.3",
-    "react": "19.2.1",
-    "react-dom": "19.2.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "typescript": "5.5.4"
   }
 }
