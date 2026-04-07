@@ -67,7 +67,7 @@
     "graphql-config": "5.1.6",
     "husky": "9.1.7",
     "markdown-toc": "1.2.0",
-    "msw": "2.12.14",
+    "msw": "2.13.0",
     "npm-run-all2": "8.0.4",
     "prettier": "^3.2.5",
     "pretty-quick": "4.2.2",
