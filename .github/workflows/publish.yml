@@ -40,5 +40,4 @@ jobs:
           npm run build
           npm publish --tag ${{ steps.dist-tag.outputs.result }}
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
           CI: true
