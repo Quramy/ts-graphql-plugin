@@ -55,8 +55,8 @@
   "devDependencies": {
     "@types/node": "24.13.3",
     "@types/node-fetch": "3.0.2",
-    "@typescript-eslint/eslint-plugin": "8.59.2",
-    "@typescript-eslint/parser": "8.59.2",
+    "@typescript-eslint/eslint-plugin": "8.65.0",
+    "@typescript-eslint/parser": "8.65.0",
     "@vitest/coverage-v8": "4.1.10",
     "c8": "11.0.0",
     "eslint": "8.57.1",
