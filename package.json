@@ -78,7 +78,7 @@
     "typescript-eslint-language-service": "5.0.5",
     "vitest": "4.1.10",
     "webpack": "5.108.4",
-    "webpack-cli": "7.0.2"
+    "webpack-cli": "7.2.1"
   },
   "peerDependencies": {
     "graphql": "^15.0.0 || ^16.0.0",
