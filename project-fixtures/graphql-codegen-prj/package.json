@@ -10,12 +10,12 @@
     "@graphql-codegen/client-preset": "6.1.0",
     "@graphql-codegen/typescript": "6.1.0",
     "@graphql-codegen/typescript-document-nodes": "6.1.0",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "graphql": "16.14.0",
     "prettier": "3.9.6",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "typescript": "6.0.3"
   }
 }
