@@ -68,7 +68,7 @@
     "husky": "9.1.7",
     "markdown-toc": "1.2.0",
     "msw": "2.15.0",
-    "npm-run-all2": "8.0.4",
+    "npm-run-all2": "9.0.3",
     "prettier": "^3.2.5",
     "pretty-quick": "4.2.2",
     "rimraf": "6.1.3",
