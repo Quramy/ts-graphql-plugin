@@ -6,9 +6,9 @@
   },
   "devDependencies": {
     "@apollo/client": "4.3.3",
-    "@graphql-codegen/cli": "7.4.3",
-    "@graphql-codegen/client-preset": "6.2.0",
-    "@graphql-codegen/typescript": "6.1.0",
+    "@graphql-codegen/cli": "7.4.6",
+    "@graphql-codegen/client-preset": "6.2.3",
+    "@graphql-codegen/typescript": "6.1.2",
     "@graphql-codegen/typescript-document-nodes": "6.1.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
